@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "checkedOn": "2026-11-14",
+  "downloadedAssets": [],
+  "proceduralInventory": "inventory.json",
+  "candidates": [
+    {
+      "id": "kenney-space-kit",
+      "sourceUrl": "https://kenney.nl/assets/space-kit",
+      "downloadUrl": "https://kenney.nl/media/pages/assets/space-kit/20874c75ac-1677698978/kenney_space-kit.zip",
+      "license": "CC0-1.0",
+      "licenseEvidence": "Official Space Kit item page lists Creative Commons CC0; checked with web browsing on 2026-11-14.",
+      "acquisitionStatus": "blocked-redirect-to-html-page",
+      "httpStatus": 302,
+      "contentType": "text/html; charset=iso-8859-1",
+      "redirectLocation": "https://kenney.nl/assets/space-kit",
+      "sha256": null,
+      "imported": false,
+      "reason": "The bounded direct HTTPS request was stopped at the redirect. No archive bytes were saved, extracted, or imported. Browser fetch also did not supply a usable local archive."
+    },
+    {
+      "id": "poly-haven",
+      "sourceUrl": "https://polyhaven.com/",
+      "licenseUrl": "https://polyhaven.com/license",
+      "apiTermsUrl": "https://polyhaven.com/our-api",
+      "license": "CC0-1.0 for assets; separate website/API conditions",
+      "acquisitionStatus": "discovery-only-deferred",
+      "imported": false,
+      "reason": "Official asset license and API page inspected. No particular texture is approved or downloaded. Material polish is deferred until the URP baseline exists."
+    },
+    {
+      "id": "nasa-reference-catalog",
+      "sourceUrl": "https://science.nasa.gov/3d-resources/",
+      "license": "No blanket approval; review the chosen item and NASA usage conditions before reuse",
+      "acquisitionStatus": "reference-catalog-only",
+      "imported": false,
+      "reason": "No NASA model, imagery, measured spectrum, logo, or scientific measurement is included in this original fictional blockout."
+    }
+  ]
+}
