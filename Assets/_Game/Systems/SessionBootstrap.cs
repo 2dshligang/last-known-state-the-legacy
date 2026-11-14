@@ -29,7 +29,8 @@ namespace LKS
         public IReadOnlyList<string> RestartWithPower(IScienceCatalog catalog,
             IEnumerable<StableId> requiredRecords, Func<IEnumerable<IInteractable>> createTargets,
             Func<StableId, ResultCode> readiness, PowerCheckpoint powerCheckpoint = null,
-            IEnumerable<StableId> questCheckpoint = null, ISessionClock clock = null)
+            IEnumerable<StableId> questCheckpoint = null, ISessionClock clock = null,
+            LifeSupportCheckpoint lifeSupportCheckpoint = null)
         {
             if (readiness == null)
                 return Array.AsReadOnly(new[] { "Provide quest readiness services." });
@@ -37,13 +38,14 @@ namespace LKS
             return RestartCore(catalog, requiredRecords, createTargets, clock, session =>
             {
                 session.AttachPower(powerCheckpoint);
+                session.AttachLifeSupport(lifeSupportCheckpoint);
                 var power = session.Power;
                 session.AttachQuests(stage =>
                 {
                     if (stage == StationQuests.RecoveryTarget)
                         return ResultCode.Applied;
                     if (stage == StationQuests.RequiredStages[1])
-                        return power.EssentialSupportSupplied ? ResultCode.Applied : ResultCode.InsufficientResources;
+                        return session.LifeSupport.Snapshot.Air == AirStatus.Safe ? ResultCode.Applied : ResultCode.InsufficientResources;
                     return readiness(stage);
                 }, power.Recover, questCheckpoint);
             });
