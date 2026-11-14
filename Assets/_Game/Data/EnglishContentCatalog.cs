@@ -173,6 +173,19 @@ echo.controller-decision.caption|The controller treated the old reading as curre
 echo.backup-estimate.caption|The model suggests backup power took over.
 echo.missing-interval.caption|Part of the station log is missing here.
 echo.backup-exhausted.caption|The final station log shows backup power ran out.
+echo.result.unavailable|The ECHO controls are unavailable.
+echo.result.unknown-clue|Choose a clue from the station logs.
+echo.result.read-archive|Read and mark the required archive entry first.
+echo.result.collected|Clue collected.
+echo.result.already-collected|Clue already collected.
+echo.result.invalid-selection|Choose each of the three clues once.
+echo.result.missing-clues|Collect all three clues to confirm your explanation.
+echo.result.timing-before-decision|Put the old reading before the decision that used it.
+echo.result.decision-before-outage|Put the controller decision before the backup power ran out.
+echo.result.uncertain-reading|The time records are too uncertain to confirm this explanation.
+echo.result.confirmed|The old reading guided the controller decision. Backup power later ran out.
+echo.result.already-confirmed|This explanation is already confirmed.
+echo.freshness.rule|In this game model, the controller needs a reading no more than one minute old. The time records may be off by fifteen seconds. The old reading may still describe an earlier time.
 ending.final|Dad... I did it.
 ";
     }

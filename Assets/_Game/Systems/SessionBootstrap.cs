@@ -31,7 +31,8 @@ namespace LKS
             Func<StableId, ResultCode> readiness, PowerCheckpoint powerCheckpoint = null,
             IEnumerable<StableId> questCheckpoint = null, ISessionClock clock = null,
             LifeSupportCheckpoint lifeSupportCheckpoint = null,
-            LogisticsCheckpoint logisticsCheckpoint = null, IEnumerable<StableId> archiveCheckpoint = null)
+            LogisticsCheckpoint logisticsCheckpoint = null, IEnumerable<StableId> archiveCheckpoint = null,
+            EchoInvestigationCheckpoint investigationCheckpoint = null)
         {
             if (readiness == null)
                 return Array.AsReadOnly(new[] { "Provide quest readiness services." });
@@ -40,7 +41,12 @@ namespace LKS
             {
                 session.AttachPower(powerCheckpoint);
                 session.AttachLifeSupport(lifeSupportCheckpoint, logisticsCheckpoint);
-                session.AttachArchive(archiveCheckpoint);
+                session.AttachArchive(archiveCheckpoint, investigationCheckpoint);
+                var restoredQuests = questCheckpoint == null
+                    ? null : new List<StableId>(questCheckpoint);
+                if (restoredQuests != null && restoredQuests.Contains(StationQuests.RequiredStages[2]) &&
+                    session.Investigation.Conclusion != EchoConclusion.Confirmed)
+                    throw new ArgumentException("Restore confirmed ECHO evidence with completed ECHO progress.");
                 var power = session.Power;
                 session.AttachQuests(stage =>
                 {
@@ -48,10 +54,12 @@ namespace LKS
                         return ResultCode.Applied;
                     if (stage == StationQuests.RequiredStages[1])
                         return session.LifeSupport.Snapshot.Air == AirStatus.Safe ? ResultCode.Applied : ResultCode.InsufficientResources;
-                    if (stage == StationQuests.RequiredStages[2] && !session.Archive.RequiredEntryAcknowledged)
+                    if (stage == StationQuests.RequiredStages[2] && session.Investigation.Conclusion != EchoConclusion.Confirmed)
                         return ResultCode.EvidenceInsufficient;
+                    if (stage == StationQuests.RequiredStages[2])
+                        return ResultCode.Applied;
                     return readiness(stage);
-                }, power.Recover, questCheckpoint);
+                }, power.Recover, restoredQuests);
             });
         }
 
