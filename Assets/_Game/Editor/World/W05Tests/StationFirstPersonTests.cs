@@ -22,6 +22,9 @@ namespace LKS.Editor.World
             yield return LoadStation();
             var player = FindPlayer();
             player.SendMessage("OnApplicationFocus", false);
+            Assert.That(player.GetComponent<SessionBootstrap>().Current.Power.Recover().Succeeded);
+            yield return null;
+            Physics.SyncTransforms();
             var motor = player.GetComponent<FirstPersonMotor>();
             var layout = Object.FindFirstObjectByType<StationGenerationManifest>().Layout;
             float end = layout.InteriorEnd;

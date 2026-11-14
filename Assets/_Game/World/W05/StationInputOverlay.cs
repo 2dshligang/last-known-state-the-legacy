@@ -12,21 +12,8 @@ namespace LKS.World
         private IDisposable reading;
         private string view;
         private GUIStyle body, title, button, hint;
-        private int requests;
-
-        private void OnEnable()
-        {
-            player = GetComponent<StationFirstPerson>();
-            player.InteractPressed += CountRequest;
-        }
-
-        private void OnDisable()
-        {
-            player.InteractPressed -= CountRequest;
-            CloseReading();
-        }
-
-        private void CountRequest() => requests++;
+        private void OnEnable() => player = GetComponent<StationFirstPerson>();
+        private void OnDisable() => CloseReading();
 
         private void OnGUI()
         {
@@ -48,9 +35,9 @@ namespace LKS.World
                 else
                 {
                     GUI.Label(new Rect(width/2-12, height/2-16, 24, 32), "+", title);
-                    GUI.Box(new Rect(14, height-51, 670, 38), GUIContent.none);
-                    GUI.Label(new Rect(27,height-48,650,33),
-                        $"WASD / ARROWS  Move   E  Interact   ESC  Pause   |   Input requests: {requests}", hint);
+                    GUI.Box(new Rect(14, height-51, 400, 38), GUIContent.none);
+                    GUI.Label(new Rect(27,height-48,375,33),
+                        "WASD / ARROWS  Move   E  Interact   ESC  Pause", hint);
                 }
             }
             finally { GUI.matrix = previous; }
@@ -72,11 +59,8 @@ namespace LKS.World
                 if (GUI.Button(new Rect(x+35,y+219,160,38),"Terminal preview",button)) OpenReading("TERMINAL");
                 if (GUI.Button(new Rect(x+209,y+219,160,38),"Archive preview",button)) OpenReading("ARCHIVE");
             }
-            if (GUI.Button(new Rect(x+35,y+283,334,37),"Restart walk",button))
-            {
-                player.RestartAtSpawn();
-                requests = 0;
-            }
+            if (GUI.Button(new Rect(x+35,y+283,334,37),"Restart station",button))
+                player.RequestRestart();
             if (GUI.Button(new Rect(x+35,y+333,334,37),"Reload station",button))
                 ReloadStation();
         }
