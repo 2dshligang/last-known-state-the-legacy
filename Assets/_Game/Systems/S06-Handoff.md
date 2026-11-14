@@ -1,0 +1,11 @@
+# S06 logistics
+
+Uses S01 API 1.0 and the [accepted S05 implementation](https://github.com/2dshligang/last-known-state-the-legacy/pull/10).
+
+- Read Current.Logistics after RestartWithPower. Choose PreserveSeedlings or RunLab. Each option replaces the other scheduled load and preserves the remaining allocation. Check the command result and read SeedlingPlanPowered for current supply. Restore air and water or shed optional loads after a rejected allocation, then retry. Seedlings arrived with Alexei. Preservation supports a future growing plan and produces no harvest during play.
+- The [CSA food toolkit](https://www.asc-csa.gc.ca/eng/youth-educators/toolkits/food-production/) links [Interplanetary Farming](https://www.asc-csa.gc.ca/eng/youth-educators/activities/fitness-and-nutrition/interplanetary-farming.asp). The activity explains that crop selection depends on growing conditions and time to harvest. Use StationLogistics.FoodExplanation as original English UI text. The station allocation is an engineering model.
+- Only the accepted report workflow should call QueueReport with message.research-report. The queue works entirely in local simulation. Use load.transmit to advance delivery while doing other objectives. Reading pause and loss of transmitter supply suspend the countdown. Read Capture for queued and delivered state. Delivered describes the fictional station simulation. Thirty powered simulation seconds is a fictional timing choice. Current science progress can proceed while queued.
+- Save LogisticsCheckpoint version 1 with power, life support and quest state. Restore through RestartWithPower. Keep message IDs, delivery state and remaining simulation seconds. Repeated queue requests return AlreadyApplied. The narrative year is 2089. Historical observations keep the archive's original dates, while remaining seconds belong to simulation time. Send no network request.
+- Use logistics.result queued, already-queued, unknown-message, invalid-choice and unavailable as display keys. Later report UI should distinguish “Queued”, “Waiting for transmitter power” and “Delivered in simulation”.
+
+Run LKS.Systems.Tests in Unity EditMode. Developer 1 binds the controls. Developer 2 integrates the report workflow and durable storage in later prompts.

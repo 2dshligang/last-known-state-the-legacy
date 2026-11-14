@@ -40,10 +40,17 @@ namespace LKS
         public StationPower Power { get; private set; }
         public StationLifeSupport LifeSupport { get; private set; }
 
-        internal void AttachLifeSupport(LifeSupportCheckpoint checkpoint)
+        public StationLogistics Logistics { get; private set; }
+
+        internal void AttachLifeSupport(LifeSupportCheckpoint checkpoint, LogisticsCheckpoint logisticsCheckpoint)
         {
             LifeSupport = new StationLifeSupport(() => ++sequence, pending.Enqueue, checkpoint);
-            Power.SupplyChanged = LifeSupport.Advance;
+            Logistics = new StationLogistics(Power, logisticsCheckpoint);
+            Power.SupplyChanged = (duration, support, actuator, transmitter) =>
+            {
+                LifeSupport.Advance(duration, support, actuator);
+                Logistics.Advance(duration, transmitter);
+            };
             Power.ReportSupply(0m, Power.Snapshot);
         }
 
@@ -161,6 +168,7 @@ namespace LKS
             quests?.Dispose();
             Power?.Dispose();
             LifeSupport?.Dispose();
+            Logistics?.Stop();
             foreach (var subscription in subscriptions.ToArray())
                 subscription.Dispose();
         }
