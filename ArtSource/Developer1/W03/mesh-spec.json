@@ -1,0 +1,38 @@
+{
+  "assets": [
+    {
+      "name": "AirlockFrame",
+      "parts": [
+        {"name":"Shell", "surface":"Shell", "center":[-1.525,1.1,0], "size":[0.95,2.2,0.2]},
+        {"name":"ShellRight", "surface":"Shell", "center":[1.175,1.1,0], "size":[1.65,2.2,0.2]},
+        {"name":"Lintel", "surface":"Shell", "center":[0,2.6,0], "size":[4,0.8,0.2]},
+        {"name":"TrimLeft", "surface":"Ochre", "center":[-1.09,1.1,-0.116], "size":[0.08,2.2,0.032]},
+        {"name":"TrimRight", "surface":"Ochre", "center":[0.39,1.1,-0.116], "size":[0.08,2.2,0.032]},
+        {"name":"TrimHeader", "surface":"Ochre", "center":[-0.35,2.24,-0.116], "size":[1.56,0.08,0.032]},
+        {"name":"KickPlateLeft", "surface":"Metal", "center":[-1.525,0.24,-0.116], "size":[0.79,0.32,0.032]},
+        {"name":"KickPlateRight", "surface":"Metal", "center":[1.175,0.24,-0.116], "size":[1.49,0.32,0.032]}
+      ]
+    },
+    {
+      "name": "AirlockLeaf",
+      "parts": [
+        {"name":"Shell", "surface":"Metal", "center":[0,1.11,0], "size":[1.48,2.18,0.12]},
+        {"name":"Recess", "surface":"Shell", "center":[0,1.25,-0.071], "size":[1.24,1.46,0.022]},
+        {"name":"TrimTop", "surface":"Ochre", "center":[0,1.94,-0.087], "size":[1.24,0.08,0.02]},
+        {"name":"TrimBottom", "surface":"Ochre", "center":[0,0.56,-0.087], "size":[1.24,0.08,0.02]},
+        {"name":"Handle", "surface":"Metal", "center":[-0.49,1.05,-0.105], "size":[0.12,0.32,0.078]}
+      ]
+    },
+    {
+      "name": "EchoHousing",
+      "parts": [
+        {"name":"Foot", "surface":"Metal", "center":[0,0.08,0], "size":[0.78,0.16,0.50]},
+        {"name":"Stand", "surface":"Shell", "center":[0,0.51,0.064], "size":[0.30,0.85,0.30]},
+        {"name":"Housing", "surface":"Shell", "center":[0,1.27,0], "size":[0.78,0.67,0.42]},
+        {"name":"Trim", "surface":"Ochre", "center":[0,0.97,-0.225], "size":[0.71,0.065,0.03]},
+        {"name":"Bezel", "surface":"Metal", "center":[0,1.33,-0.225], "size":[0.69,0.47,0.04]},
+        {"name":"Screen", "surface":"Screen", "center":[0,1.33,-0.251], "size":[0.58,0.34,0.012]}
+      ]
+    }
+  ]
+}
