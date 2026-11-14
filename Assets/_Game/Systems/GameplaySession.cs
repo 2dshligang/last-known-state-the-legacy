@@ -35,6 +35,23 @@ namespace LKS
         public IScienceCatalog Science { get; }
         public double Snapshot { get; private set; }
         private StationQuests quests;
+        private bool powerReadingPaused;
+        private decimal powerClockPosition;
+        public StationPower Power { get; private set; }
+
+        internal void AttachPower(PowerCheckpoint checkpoint)
+        {
+            Power = new StationPower(() => ++sequence, pending.Enqueue, checkpoint);
+        }
+
+        public void SetPowerReadingPaused(bool paused)
+        {
+            EnsureActive();
+            if (powerReadingPaused == paused)
+                return;
+            Tick();
+            powerReadingPaused = paused;
+        }
         public IQuestService Quests => quests;
 
         public IReadOnlyList<StableId> CaptureQuestCheckpoint()
@@ -72,11 +89,20 @@ namespace LKS
         public void Tick()
         {
             EnsureActive();
-            double elapsed = clock.Seconds - startedAt;
+            double now = clock.Seconds;
+            double elapsed = now - startedAt;
             if (double.IsNaN(elapsed) || double.IsInfinity(elapsed) || elapsed < Snapshot)
                 throw new InvalidOperationException("Session clock must be finite and monotonic.");
             if (elapsed == Snapshot)
                 return;
+
+            if (Power != null)
+            {
+                decimal position = ((decimal)now - (decimal)startedAt) * StationPower.SimulationSecondsPerGameSecond;
+                if (!powerReadingPaused)
+                    Power.Advance(position - powerClockPosition);
+                powerClockPosition = position;
+            }
 
             Snapshot = elapsed;
             var change = new StateChange<double>(++sequence, SessionId, TickId, elapsed);
@@ -125,6 +151,7 @@ namespace LKS
             pending.Clear();
             targets.Clear();
             quests?.Dispose();
+            Power?.Dispose();
             foreach (var subscription in subscriptions.ToArray())
                 subscription.Dispose();
         }

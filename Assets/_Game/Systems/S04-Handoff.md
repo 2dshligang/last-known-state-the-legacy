@@ -1,0 +1,11 @@
+# S04 power bindings
+
+Uses S01 API 1.0 and [S03](https://github.com/2dshligang/last-known-state-the-legacy/pull/6). The values come from Automation/samples/science/engineering-model.json. Show “Simplified game model — fictional station values” alongside the numbers. These engineering assumptions describe the game station.
+
+1. Developer 1 starts the scene run with RestartWithPower and supplies the existing readiness callback for ECHO and later milestones. Bind the recovery target from S03. W07 reads Current.Power.Snapshot and subscribes for updates. When the session restarts, bind to its new Power instance.
+2. The load IDs are load.air, load.water, load.seedling-preservation, load.archive, load.lab and load.transmit. Display generation and requested demand in kW and stored energy in kWh. Show requested and supplied status separately. Preview the complete requested set with Preview. Submit that same set with Commit and display the actual command result. The commit reevaluates the available energy.
+3. Resolve power.result keys applied (“Allocation applied”), unchanged (“Already selected”), insufficient (“Not enough power for these loads”), unknown-load (“Unknown load”), invalid-allocation (“Invalid load selection”) and unavailable (“Power controls are unavailable”).
+4. On entering focused reading, call Current.SetPowerReadingPaused(true). Call false when the last focused reader closes, including on disable. Advance uses one-second simulation steps with ten simulation seconds per unpaused game second. Pause is transient UI state.
+5. Store the version-1 PowerCheckpoint with the quest checkpoint. Preserve battery, requested IDs, reserve mode and the fractional step. After the battery cannot cover demand, the station runs on generation until the player applies a viable allocation. The battery can recharge during reserve mode. Supply both checkpoints to RestartWithPower when reloading. Pass neither for New Game. S16 owns durable storage and the full save schema.
+
+In Unity, run LKS.Systems.Tests in EditMode. W07 should preview and apply air, water, archive and lab, watch shedding when the battery runs out, and use the recovery interaction to restore air and water. Verify reading pause and that the console rebinds on New Game. S05 owns physical life-support readiness.
