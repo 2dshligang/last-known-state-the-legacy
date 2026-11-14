@@ -33,7 +33,7 @@ namespace LKS
             LifeSupportCheckpoint lifeSupportCheckpoint = null,
             LogisticsCheckpoint logisticsCheckpoint = null, IEnumerable<StableId> archiveCheckpoint = null,
             EchoInvestigationCheckpoint investigationCheckpoint = null, SampleCheckpoint sampleCheckpoint = null,
-            ResearchDraft researchCheckpoint = null)
+            ResearchDraft researchCheckpoint = null, OpeningProgress openingCheckpoint = OpeningProgress.Farewell)
         {
             if (readiness == null)
                 return Array.AsReadOnly(new[] { "Provide quest readiness services." });
@@ -43,7 +43,7 @@ namespace LKS
                 session.AttachPower(powerCheckpoint);
                 session.AttachLifeSupport(lifeSupportCheckpoint, logisticsCheckpoint, sampleCheckpoint);
                 session.AttachArchive(archiveCheckpoint, investigationCheckpoint);
-                session.AttachResearch(researchCheckpoint);
+                session.AttachResearch(researchCheckpoint, openingCheckpoint);
                 var restoredQuests = questCheckpoint == null
                     ? null : new List<StableId>(questCheckpoint);
                 if (restoredQuests != null && restoredQuests.Contains(StationQuests.RequiredStages[2]) &&
