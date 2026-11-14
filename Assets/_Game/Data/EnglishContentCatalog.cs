@@ -189,6 +189,35 @@ echo.freshness.rule|In this game model, the controller needs a reading no more t
 sample.layered-mudstone.context|These fine layers are a clue to how this fictional rock formed. Curiosity studied layered mudstone from an ancient Martian lake.
 sample.iron-rich-rock.context|Compare this fictional rock with the layered sample. Curiosity found iron minerals in rocks at Vera Rubin Ridge.
 sample.procedural-blank.context|Run the empty control to see what the instrument detects without a rock. Curiosity ran blank cups to check its instrument background.
+sample.result.context-recorded|Sample context recorded.
+sample.result.already-recorded|Sample context is already recorded.
+sample.result.record-context|Record where the sample came from first.
+sample.result.already-collected|Sample already collected.
+sample.result.collected|Sample collected.
+sample.result.already-started|This sample already has a run or a result.
+sample.result.collect-first|Collect the sample first.
+sample.result.lab-busy|The lab is busy.
+sample.result.run-blank|Run the blank control first.
+sample.result.power-lab|Supply power to the lab.
+sample.result.analysis-started|Analysis started.
+sample.result.no-active-run|There is no active run.
+sample.result.cancelled|Analysis cancelled.
+sample.result.failed-blank-first|Cleaning for a retry is available after a failed blank.
+sample.result.cleaned|Chamber cleaned. Run the blank again.
+sample.result.already-reviewed|This result is already reviewed.
+sample.result.await-evidence|Wait for the analysis result.
+sample.result.reviewed|Interpretation reviewed.
+sample.result.evidence-ready|Analysis result ready.
+sample.result.unknown-sample|Unknown sample.
+sample.result.unavailable|Sample controls are unavailable.
+sample.interpretation.pending|Run the analysis to see an interpretation.
+sample.interpretation.limited|The blank found instrument background. Clean the chamber and repeat the checks before drawing a conclusion.
+sample.layered-mudstone.observation|Fictional result. Fine layers are visible in the sample.
+sample.layered-mudstone.interpretation|The layers could have built up as sediment settled. More clues are needed to tell where it formed.
+sample.iron-rich-rock.observation|Fictional result. The comparison rock shows signs of iron minerals.
+sample.iron-rich-rock.interpretation|Iron minerals can help compare rocks. This finding alone cannot show that life was present.
+sample.procedural-blank.observation|Fictional result. Check the blank status for instrument background.
+sample.procedural-blank.interpretation|This blank passed the station check. Use it as the comparison for the rock runs.
 ending.final|Dad... I did it.
 ";
     }

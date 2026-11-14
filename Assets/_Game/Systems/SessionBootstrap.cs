@@ -32,7 +32,7 @@ namespace LKS
             IEnumerable<StableId> questCheckpoint = null, ISessionClock clock = null,
             LifeSupportCheckpoint lifeSupportCheckpoint = null,
             LogisticsCheckpoint logisticsCheckpoint = null, IEnumerable<StableId> archiveCheckpoint = null,
-            EchoInvestigationCheckpoint investigationCheckpoint = null)
+            EchoInvestigationCheckpoint investigationCheckpoint = null, SampleCheckpoint sampleCheckpoint = null)
         {
             if (readiness == null)
                 return Array.AsReadOnly(new[] { "Provide quest readiness services." });
@@ -40,13 +40,17 @@ namespace LKS
             return RestartCore(catalog, requiredRecords, createTargets, clock, session =>
             {
                 session.AttachPower(powerCheckpoint);
-                session.AttachLifeSupport(lifeSupportCheckpoint, logisticsCheckpoint);
+                session.AttachLifeSupport(lifeSupportCheckpoint, logisticsCheckpoint, sampleCheckpoint);
                 session.AttachArchive(archiveCheckpoint, investigationCheckpoint);
                 var restoredQuests = questCheckpoint == null
                     ? null : new List<StableId>(questCheckpoint);
                 if (restoredQuests != null && restoredQuests.Contains(StationQuests.RequiredStages[2]) &&
                     session.Investigation.Conclusion != EchoConclusion.Confirmed)
                     throw new ArgumentException("Restore confirmed ECHO evidence with completed ECHO progress.");
+                if (restoredQuests != null &&
+                    ((restoredQuests.Contains(StationQuests.RequiredStages[3]) && !session.Samples.AllCollected) ||
+                     (restoredQuests.Contains(StationQuests.RequiredStages[4]) && !session.Samples.AllReviewed)))
+                    throw new ArgumentException("Restore sample evidence with completed sample progress.");
                 var power = session.Power;
                 session.AttachQuests(stage =>
                 {
@@ -58,6 +62,10 @@ namespace LKS
                         return ResultCode.EvidenceInsufficient;
                     if (stage == StationQuests.RequiredStages[2])
                         return ResultCode.Applied;
+                    if (stage == StationQuests.RequiredStages[3])
+                        return session.Samples.AllCollected ? ResultCode.Applied : ResultCode.EvidenceInsufficient;
+                    if (stage == StationQuests.RequiredStages[4])
+                        return session.Samples.AllReviewed ? ResultCode.Applied : ResultCode.EvidenceInsufficient;
                     return readiness(stage);
                 }, power.Recover, restoredQuests);
             });
