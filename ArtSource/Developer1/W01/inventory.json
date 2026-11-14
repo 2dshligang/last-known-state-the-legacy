@@ -14,7 +14,7 @@
       "origin": "original-procedural",
       "author": "LKS project / Developer 1",
       "license": "Project-owned original placeholder; no third-party asset content",
-      "status": "prepared-for-W02-not-Unity-validated"
+      "status": "unity-import-verified-w02-approved-input"
     },
     {
       "id": "LKS_Floor_4m",
@@ -27,7 +27,7 @@
       "origin": "original-procedural",
       "author": "LKS project / Developer 1",
       "license": "Project-owned original placeholder; no third-party asset content",
-      "status": "prepared-for-W02-not-Unity-validated"
+      "status": "unity-import-verified-w02-approved-input"
     },
     {
       "id": "LKS_Equipment_Rack",
@@ -40,7 +40,7 @@
       "origin": "original-procedural",
       "author": "LKS project / Developer 1",
       "license": "Project-owned original placeholder; no third-party asset content",
-      "status": "prepared-for-W02-not-Unity-validated"
+      "status": "unity-import-verified-w02-approved-input"
     },
     {
       "id": "LKS_Lab_Bench",
@@ -53,7 +53,7 @@
       "origin": "original-procedural",
       "author": "LKS project / Developer 1",
       "license": "Project-owned original placeholder; no third-party asset content",
-      "status": "prepared-for-W02-not-Unity-validated"
+      "status": "unity-import-verified-w02-approved-input"
     },
     {
       "id": "LKS_Solar_Panel",
@@ -66,7 +66,7 @@
       "origin": "original-procedural",
       "author": "LKS project / Developer 1",
       "license": "Project-owned original placeholder; no third-party asset content",
-      "status": "prepared-for-W02-not-Unity-validated"
+      "status": "unity-import-verified-w02-approved-input"
     },
     {
       "id": "LKS_Rock_Layered",
@@ -79,7 +79,7 @@
       "origin": "original-procedural",
       "author": "LKS project / Developer 1",
       "license": "Project-owned original placeholder; no third-party asset content",
-      "status": "prepared-for-W02-not-Unity-validated"
+      "status": "unity-import-verified-w02-approved-input"
     },
     {
       "id": "LKS_Rock_Angular",
@@ -92,7 +92,7 @@
       "origin": "original-procedural",
       "author": "LKS project / Developer 1",
       "license": "Project-owned original placeholder; no third-party asset content",
-      "status": "prepared-for-W02-not-Unity-validated"
+      "status": "unity-import-verified-w02-approved-input"
     },
     {
       "id": "LKS_Rock_Rounded",
@@ -105,7 +105,7 @@
       "origin": "original-procedural",
       "author": "LKS project / Developer 1",
       "license": "Project-owned original placeholder; no third-party asset content",
-      "status": "prepared-for-W02-not-Unity-validated"
+      "status": "unity-import-verified-w02-approved-input"
     }
   ],
   "exportSettings": {

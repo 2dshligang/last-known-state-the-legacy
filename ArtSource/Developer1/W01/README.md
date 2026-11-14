@@ -1,23 +1,15 @@
 # W01 original blockout preparation
 
-Status: **partial W01; not accepted, not Unity-integrated, not a playable scene**.
-This packet completes independent geometry preparation while O01 and the shared
-Unity baseline are missing. It does not satisfy the W02 dependency gate.
+Status: **implemented and verified in Unity, ready for review in PR #2**.
 
 ## Base and ownership
 
-- Branch: `feature/world-W01-original-blockout`, based on accepted `main`
-  `5f11e94d6c2653ba09e018d65358859704bc4af3`.
-- GitHub PR #1 was OPEN and `merged=false` when checked on 2026-11-14;
-  its head was `bd83a706dcd01a593eb4c5cf5d24beae2defd848`. No merge attempted.
-- The proposed Automation prompts were read as task guidance, not copied into
-  main or treated as an accepted dependency. The explicit launch request also
-  authorizes editable Developer 1 Blender sources outside Assets.
-- Writes are limited to `Assets/_Game/Art/W01`, its folder metadata, and this
-  `ArtSource/Developer1/W01` subtree. No packages, settings, CI, shared parent
-  metadata, scenes, gameplay state, contracts, or another developer's work changed.
-- The pre-existing checkout was left untouched. This separate clone has a
-  pre-existing README line-ending normalization difference; README is excluded.
+O01, the automation foundation, and S01 are accepted in main at
+`5d324edab7c305bb6d803923617dc6226c4b67b4`. The W01 branch includes that base.
+W01 owns the original models and metadata in `Assets/_Game/Art/W01`, plus
+the editable sources, provenance and verification evidence in this folder.
+The S01 contract API is version 1.0. The identifiers in the W01 inventory
+describe art assets. World bindings and production service IDs are later work.
 
 ## Asset inventory and provenance
 
@@ -60,13 +52,11 @@ selected mesh only, scale 1, apply units, `FBX_SCALE_UNITS`, forward -Z, up Y,
 space transform enabled, experimental bake-space-transform disabled, face
 smoothing, triangulation enabled, no animation, bones, embedded textures, or
 external file copies. The FBX has 12 triangles. OBJ coordinates are explicitly
-rotated to Y-up, with no handedness reflection. Unity orientation remains pending.
+rotated to Y-up, with no handedness reflection. The imported Unity orientation was measured below.
 
 The `.meta` files reserve nine unique asset GUIDs using minimal importer records.
-Unity has not normalized those records. Keep their GUIDs and model paths when
-W02 establishes actual ModelImporter settings; never replace art wrapper identity
-or gameplay bindings because a visual mesh changes. Shared parent folder metadata
-must be assigned by the coordinator.
+Unity imported the assets and retained these records. W02 should keep asset GUIDs
+and paths when configuring import and building wrapper prefabs.
 
 ## Reproduction and verification
 
@@ -94,74 +84,61 @@ each inventory hashes the actual produced files. Artist revisions require a
 reviewed regeneration/version update, retaining accepted Unity GUIDs. Never delete
 the inventory or edited files to bypass a failed check.
 
-## Actual evidence, 2026-11-14
+## Verification, 2026-11-14
 
-- Git LFS 3.7.1 and Node 24.16.0 are available. About 125 GiB free on C: at preflight.
-- Both discovered Unity executables report `6000.6.9f1_8c45277fb9c5`.
-- `C:\unity\6000.6.9f1` contains Licensing Client, Package Manager,
-  WindowsStandaloneSupport, a bundled .NET runtime, and URP blank template 17.2.6.
-  The Program Files copy lacks the two client executables at the inspected paths.
-- A bounded batch startup of the C:\unity copy launched Licensing Client and
-  connected Package Manager, but emitted cache/assertion errors and remained at
-  `Licensing is not yet initialized`. The probe and its children were stopped.
-  No project was created, no license was accepted/activated, and licensing readiness
-  is **unverified**. A sandbox/account issue remains possible; this is not proof
-  that the full installation is broken or that a paid license is required.
-- `main` has no Packages, ProjectSettings, accepted O01 handoff, or gameplay API.
-- Blender generation: exit 0; editable .blend and binary FBX produced.
-- Blender verification: exit 0; dimensions, pivot, normals, UVs, 12 triangles,
-  FBX export/reimport into Blender, and deterministic OBJ output passed.
-- Node verification: exit 0; 18 hashes, nine unique GUIDs, seven closed consistently
-  wound OBJ meshes with positive volume, finite meter bounds and valid UVs passed.
-  An initial verifier header-length assertion was corrected and the test rerun.
-- Two repeat generations in a fixture: zero changed files. A manual file survived.
-  An intentional OBJ edit caused expected exit 1 before any writes; snapshot unchanged.
-- Fresh-root regeneration also passed the Blender round trip and independent Node
-  verifier; all seven OBJ files and model metadata matched the delivered hashes.
-- Blender contact sheet rendered and visually inspected: all eight silhouettes
-  present, wall/rack/bench readable, three rock shapes distinct. Neutral gray
-  preview only; contact-sheet spacing/shadows do not establish in-game grounding.
-  The inspected image is included as `preview.png` in this source folder.
-- Blender reported inability to write its user extension cache in the sandbox;
-  geometry/export/verification completed successfully despite that warning.
-- Unity compilation, EditMode/PlayMode tests, URP import, visual Editor inspection,
-  collisions, performance, save compatibility, and gameplay acceptance: **not run**.
+- Blender 5.3.0 generated the editable wall source and initial binary FBX.
+  Source dimensions, normals, UVs, the 12-triangle Blender FBX round trip and
+  deterministic OBJ geometry passed. Fresh-root generation produced the same
+  OBJ and metadata bytes. The repeated generation fixture preserved an
+  unrelated manual file and rejected edited output before writing.
+- Node verified 18 tracked file hashes, nine unique Unity GUIDs, mesh winding,
+  positive volume, UVs and dimensions of seven OBJ files, and the binary FBX
+  header. Git LFS fsck passed. All 17 automation tooling tests passed.
+- Unity 6000.6.9f1 compiled and imported all eight models from a fresh Library.
+  An Editor probe instantiated each model and measured mesh vertices in scene
+  coordinates. All dimensions matched the recorded inventory within 1 mm.
+  All meshes had normals and UV0 and geometry had 356 triangles total.
+- The wall imported at 4 x 3 x 0.2 m, with bounds from (-4, 0, -0.1) to
+  (0, 3, 0.1) relative to its snap pivot. This negative-X span is the measured
+  Unity result. Keep the imported root rotation when placing it beneath a
+  wrapper. In the first render probe, explicitly replacing root rotation with
+  identity laid the wall flat. Preserving the imported transform fixed it.
+- Visually checked the second Unity URP render with Direct3D 11. The image
+  shows all eight silhouettes, an upright wall and an orange 1 m reference
+  cube. It is saved as [unity-preview.png](unity-preview.png). Materials and
+  layout in this temporary preview were for import inspection.
+- Unity EditMode ran the four accepted S01 contract tests. All four passed,
+  with zero failures or skips. W01 does not supply an inspection scene,
+  wrapper prefabs, collision geometry, or a player build.
 
-## Precise handoff and remaining gates
+## Handoff to W02
 
-**Coordinator / O01:** provide an accepted Unity project commit with pinned Unity,
-URP/packages and lockfile, shared parent metadata, and evidence of a successful
-open/compile under the developer account. Resolve PR #1 through normal review;
-this work neither merges nor depends on its proposed tooling implementation.
+Use the eight original geometry files and dimensions in `inventory.json`.
+The first Unity import confirms the meter scale at global scale 1 and an
+upright FBX with the imported root rotation intact. Preserve the art GUIDs
+and build stable wrapper roots for snapping, collision and interactions.
+Configure URP test materials and inspect secondary UV needs. Color, normal,
+roughness and metallic textures are currently absent. The Kenney request
+returned a redirect to its HTML page and contributed no files.
 
-**Developer 1 / W02 after acceptance:** import the eight inventory models; inspect
-scale against a one-meter cube, wall snap pivot, facing/normals, and UVs. Establish
-URP materials, missing-texture report, collider intent, inspection scene and
-wrapper prefabs. Export a reviewed wall revision to the existing FBX path, keep
-its `.meta`, reimport twice, and verify references and colliders in Unity. Record
-screenshots. This is required before W03 door-wall/airlock/ECHO modeling.
-
-**Developer 2 / S01:** publish the accepted authoritative contracts and composition
-handoff before W04 binds any generated scene content. No contract change requested
-or parallel API created in this art-only packet.
-
-W01 is partial until dependency/asset acceptance; W02-W21 remain unexecuted.
-No safe next integration task is ready on the currently accepted main.
+After W01 is accepted, W02 adds persistent inspection content and verifies
+same-path reimport, prefab and collider stability. W03 can use that accepted
+result to build the wall opening, airlock and ECHO terminal.
 
 ## Eight-part task report
 
-1. FILES CREATED OR MODIFIED: the Art/W01 models and metadata; this Developer 1
-   source subtree with .blend, generator, inventory, sources, verifier and handoff.
-2. IMPLEMENTATION DETAILS: eight original meter-scale placeholders, stable asset
-   GUIDs, source FBX export settings, hash-protected repeatable generation.
-3. TESTS ACTUALLY EXECUTED: Blender generation/verification/render; Node geometry,
-   hash/GUID checks; repeatability/manual-file/changed-output fixtures; Git checks.
-4. TEST RESULTS: geometry checks passed; rejection test failed as expected without
-   writes. Unity and gameplay acceptance remain unverified. See evidence above.
-5. UNITY EDITOR ACTIONS REQUIRED: accepted O01 project, W02 inspection/import,
-   same-path revision/reimport, materials, colliders and prefab reference checks.
-6. INTEGRATION RISKS: no accepted Unity/package baseline or parent metadata;
-   importer defaults and licensing readiness unverified; FBX/.blend use Git LFS.
-7. REMAINING ISSUES: blocked external archive, partial W01, W02-W21 dependency gates,
-   no playable route or measured performance/playtime.
-8. SUGGESTED GIT COMMIT: `feat(world): prepare original W01 blockout assets`.
+1. FILES CREATED OR MODIFIED. Eight model assets and metadata, Blender source,
+   generator, inventory, provenance, verification scripts and preview images.
+2. IMPLEMENTATION DETAILS. Original meter-scale placeholders with stable art
+   GUIDs, documented FBX export and hash-protected repeatable generation.
+3. TESTS ACTUALLY EXECUTED. Blender and Node geometry checks, repeatability
+   fixtures, tooling tests, Unity model import and URP render, S01 EditMode.
+4. TEST RESULTS. All listed final checks passed. The edited-output fixture
+   correctly refused to write. The Unity render was visually inspected.
+5. UNITY EDITOR ACTIONS REQUIRED. W02 should configure persistent materials,
+   wrappers, colliders and the inspection scene.
+6. INTEGRATION RISKS. The wall requires its imported rotation. UV0 is tiled
+   per face. W02 must account for these properties when generating prefabs.
+7. REMAINING ISSUES. W01 is ready for review. W02 acceptance requires a
+   published W01 base and its own Unity checks.
+8. SUGGESTED GIT COMMIT. `test(world): verify W01 blockout in Unity`.
