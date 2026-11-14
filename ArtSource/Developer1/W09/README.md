@@ -36,8 +36,18 @@ closing the document.
 Play Mode tests open all four real records at zero audio volume. They
 verify keyboard selection and focus, exact list return, both pause sources,
 explicit and idempotent acknowledgment, unchanged quest progress, restored
-acknowledgment and release on disable or session replacement. The tests mount
-the reader on a temporary GameObject component in the accepted Station scene.
+acknowledgment and release on disable or session replacement. The tests
+temporarily mount the reader on the player in the accepted Station scene.
+On the S15 base, 10 Play Mode and 69 Edit Mode tests passed.
+
+A local Windows Player with a temporary mount rendered the list at
+1600 × 900 and every expanded record at 800 × 600 with audio volume at zero.
+
+- [Record list and visible keyboard selection](W09-record-list.png)
+- [Archived NASA observation](archive.donki-sep.png)
+- [Simplified power model](archive.power-model.png)
+- [Fictional research notes](archive.dmitry-notes.png)
+- [Fictional arrival record](archive.arrival.png)
 
 The production scene binding depends on the acceptance of
 [W08 PR #25](https://github.com/2dshligang/last-known-state-the-legacy/pull/25).
