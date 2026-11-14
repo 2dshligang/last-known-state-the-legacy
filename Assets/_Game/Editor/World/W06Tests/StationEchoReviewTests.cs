@@ -79,7 +79,9 @@ namespace LKS.Editor.World
             var session = interaction.Session;
             Assert.That(review.Open(player, () => interaction.Session));
             Assert.That(review.Replay());
-            yield return new WaitForSecondsRealtime(.18f);
+            float deadline = Time.realtimeSinceStartup + 3;
+            while (review.Playback.Seconds == 0m && Time.realtimeSinceStartup < deadline)
+                yield return null;
             Assert.That(review.Playback.Seconds, Is.Positive);
             player.SetPaused(true);
             try
