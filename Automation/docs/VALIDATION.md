@@ -14,6 +14,7 @@ The selected official Resources were verified from the directly downloaded chall
 
 - Node's test runner on Windows/Node 24.16.0: downloader rejection/caching/integrity cases, path handling, deterministic normalization, original geometry and scientific provenance tamper cases.
 - Source manifest and derived-output verification; repeated scientific transformation and procedural generation.
+- Real end-to-end replay through the finished downloader against NASA into a fresh workspace directory; the pinned SHA-256 matched.
 - PowerShell parser on the Unity wrapper. This checks syntax, not successful Unity execution.
 - Official GitHub API verification of checkout v4.2.2, upload-artifact v4.6.2 and setup-node v4.4.0 commit pins.
 - Git repository/history/ownership inspection; current authenticated account capability check.
@@ -21,7 +22,9 @@ The selected official Resources were verified from the directly downloaded chall
 
 ## Test results
 
-The first 15-test run passed 11 and failed 4 because temporary test directories were under an inaccessible AppData ancestor. Test scratch storage was moved into the workspace, preserving path/link checks; the next run passed 15/15. Two additional real-data/tamper tests were then added; the final run passed **17/17**, with zero failed or skipped tests. Source checks passed with 1 locked dataset, 5 original models and 9 scientific records. Repeated generation preserved bytes. The locked fetcher accepted the unchanged local snapshot. Action tag pins matched official repositories. No Unity visual/gameplay result is claimed.
+The first 15-test run passed 11 and failed 4 because temporary test directories were under an inaccessible AppData ancestor. Test scratch storage was moved into the workspace, preserving path/link checks; the next run passed 15/15. Two additional real-data/tamper tests were then added; the final run passed **17/17**, with zero failed or skipped tests. Source checks passed with 1 locked dataset, 5 original models and 9 scientific records. Repeated generation preserved bytes. The locked fetcher verified both the cached snapshot and a fresh real NASA download. Action tag pins matched official repositories. No Unity visual/gameplay result is claimed.
+
+The foundation was pushed in commit `c8ecb45` and [draft PR #1](https://github.com/2dshligang/last-known-state-the-legacy/pull/1) was created. Its first hosted Linux [PR check run](https://github.com/2dshligang/last-known-state-the-legacy/actions/runs/43585970408) and [branch push check run](https://github.com/2dshligang/last-known-state-the-legacy/actions/runs/43585957905) both completed successfully. These are tooling checks, not Unity game acceptance. Subsequent documentation-only commits require their own current-head CI result; verify the PR before merging.
 
 Unity exited **199** twice. The installation lacks the expected `Unity.Licensing.Client.exe` and `UnityPackageManager.exe`; both paths were checked and absent. The log reports licensing initialization failure and inability to connect to a licensing client. No Unity compilation, EditMode/PlayMode suite, Windows build or performance test was completed.
 

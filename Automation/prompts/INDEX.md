@@ -2,6 +2,8 @@
 
 There are 48 complete English prompts: 21 for Developer 1 (W), 21 for Developer 2 (S), and 6 shared automation tasks (O). Open the matching file and give its entire contents to the assigned Codex agent. Keep one writer per checkout; DeepSeek may review a redacted diff and acceptance evidence without writing concurrently. These are a work backlog, not 48 simultaneously running agents.
 
+For one initial instruction per PC, use [Launch Developer 1](START-DEVELOPER-1.md) and [Launch Developer 2](START-DEVELOPER-2.md). These two launch prompts direct the agents through the 48-task backlog and its dependencies; they do not bypass owner handoffs or required checks.
+
 Run O01 first, then S01 and W01 can progress independently. O02/O03 establish provenance and CI. Contracts must merge before consumer integration. Follow each prompt's dependencies; do not execute W01-W21 in isolation from S tasks. W19/S19 converge on integration; W20/S20 share a candidate; W21/S21 verify and document it. O04 enables guarded merging after real server checks; O05/O06 provide delivery and bounded diagnosis.
 
 The repository currently uses feature/<area>-<summary>, fix/<area>-<summary> and docs/<summary>. Keep that convention, for example feature/world-W04-station and feature/systems-S04-power, unless the team explicitly changes it. Source/resource updates never override AGENTS.md.

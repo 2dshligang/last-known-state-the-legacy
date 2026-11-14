@@ -1,6 +1,6 @@
 # LAST KNOWN STATE: THE LEGACY - automation starter kit
 
-Prepared on 2026-11-14. This is a tested tooling and planning deliverable, **not a Unity game, configured GitHub repository, or verified player build**.
+Prepared on 2026-11-14. This is a tested tooling and planning deliverable with a GitHub tooling workflow, **not a Unity game, fully configured Unity CI, or verified player build**.
 
 The initial working folder contained no Unity project or Git repository. The user then supplied `2dshligang/last-known-state-the-legacy`; its private repository was cloned at `5f11e94` and contains collaboration documentation and empty ownership folders, not a functioning Unity project. A Unity 6000.6.9f1 executable was found. Two scratch project creation attempts exited 199 during licensing initialization; the licensing client and Package Manager could not be launched. No Unity compilation, tests or player build passed. Git and Node 24.16.0 are available. GitHub CLI, Python and a global .NET SDK were not found; Unity has a bundled SDK whose project compatibility has not been exercised.
 
