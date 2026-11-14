@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "id": "asterion-prototype-v1",
+  "evidenceKind": "EngineeringModel",
+  "displayLabel": "Simplified game model - fictional station values",
+  "sources": [
+    "https://www.spaceappschallenge.org/2026/challenges/junior-astronaut-mission-trainer/"
+  ],
+  "disclaimer": "All capacities, loads and timing values below are design assumptions, not NASA measurements. This model is for gameplay, not habitat design.",
+  "power": {
+    "generationKw": 6,
+    "batteryCapacityKwh": 2,
+    "initialBatteryKwh": 1.5,
+    "chargeEfficiency": 0.9,
+    "dischargeEfficiency": 0.9,
+    "loads": [
+      {
+        "id": "air",
+        "kw": 2,
+        "priority": 0
+      },
+      {
+        "id": "water",
+        "kw": 1,
+        "priority": 1
+      },
+      {
+        "id": "seedling-preservation",
+        "kw": 1,
+        "priority": 2
+      },
+      {
+        "id": "archive",
+        "kw": 2,
+        "priority": 3
+      },
+      {
+        "id": "lab",
+        "kw": 3,
+        "priority": 3
+      },
+      {
+        "id": "transmit",
+        "kw": 2,
+        "priority": 3
+      }
+    ]
+  },
+  "simulation": {
+    "stepSeconds": 1,
+    "unpausedSecondsPerRealSecond": 10,
+    "explanation": "Compressed simulation time. Narrative reading pauses the simulation. Seedling preservation affects future supply, not instant food growth."
+  },
+  "radiation": {
+    "doseConversion": null,
+    "mode": "qualitative-training-event",
+    "stormPowerCost": "Only the actuator and shelter life-support consume power; passive shielding does not require continuous power."
+  },
+  "communication": {
+    "mode": "queued-message",
+    "oneWayDelaySeconds": null,
+    "delayStatus": "Needs a cited geometry-specific source or must remain an explicitly fictional scenario value."
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "eventYear": 2026,
+  "title": "Build a Junior Astronaut Mission Trainer",
+  "url": "https://www.spaceappschallenge.org/2026/challenges/junior-astronaut-mission-trainer/",
+  "checkedOn": "2026-11-14",
+  "verification": "Official HTML downloaded successfully over HTTPS; Resources URLs extracted from server-delivered page data. No third-party list substituted.",
+  "pageSha256": "054c1e642790d8a107aff58cd4fad955ebc3575049c8d3fbf97130b954a53944",
+  "officialLastPublishedAt": "2026-11-13T03:48:49.413870Z",
+  "resources": [
+    {
+      "id": "nasa-apis",
+      "title": "NASA Open APIs",
+      "url": "https://api.nasa.gov/",
+      "provider": "NASA",
+      "challengeListed": true,
+      "redistributionApproval": "reference-only; review selected dataset/media terms before downloading for release"
+    },
+    {
+      "id": "donki",
+      "title": "DONKI",
+      "url": "https://ccmc.gsfc.nasa.gov/tools/DONKI/",
+      "provider": "NASA",
+      "challengeListed": true,
+      "redistributionApproval": "See downloads.lock.json for the specific snapshot"
+    },
+    {
+      "id": "osdr",
+      "title": "Open Science Data Repository",
+      "url": "https://osdr.nasa.gov/bio/repo/",
+      "provider": "NASA",
+      "challengeListed": true,
+      "redistributionApproval": "reference-only; review selected dataset/media terms before downloading for release"
+    },
+    {
+      "id": "radlab",
+      "title": "RadLab data API",
+      "url": "https://visualization.osdr.nasa.gov/radlab/gui/data-api/",
+      "provider": "NASA",
+      "challengeListed": true,
+      "redistributionApproval": "reference-only; review selected dataset/media terms before downloading for release"
+    },
+    {
+      "id": "mars-trek",
+      "title": "Mars Trek",
+      "url": "https://trek.nasa.gov/mars/",
+      "provider": "NASA",
+      "challengeListed": true,
+      "redistributionApproval": "reference-only; review selected dataset/media terms before downloading for release"
+    },
+    {
+      "id": "csa-stem",
+      "title": "Space resources for STEM and youth organizations",
+      "url": "https://www.asc-csa.gc.ca/eng/youth-educators/resources-stem-and-youth-organizations.asp",
+      "provider": "CSA",
+      "challengeListed": true,
+      "redistributionApproval": "reference-only; review selected dataset/media terms before downloading for release"
+    },
+    {
+      "id": "csa-food",
+      "title": "Food production on the Moon and in remote areas",
+      "url": "https://www.asc-csa.gc.ca/eng/youth-educators/toolkits/food-production/",
+      "provider": "CSA",
+      "challengeListed": true,
+      "redistributionApproval": "reference-only; review selected dataset/media terms before downloading for release"
+    }
+  ],
+  "nestedLinks": [
+    {
+      "parentId": "osdr",
+      "url": "https://osdr.nasa.gov/osdr/data/search?term=KEYWORD",
+      "kind": "Official Resources example; replace KEYWORD with an actual query"
+    }
+  ]
+}
