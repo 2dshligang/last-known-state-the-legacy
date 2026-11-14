@@ -14,6 +14,12 @@ namespace LKS
             ISessionClock clock = null)
         {
             var errors = new List<string>();
+            if (!isActiveAndEnabled)
+            {
+                errors.Add("Enable the session bootstrap before starting the session.");
+                return errors.AsReadOnly();
+            }
+
             clock ??= new UnitySessionClock();
             double startedAt = clock.Seconds;
             if (double.IsNaN(startedAt) || double.IsInfinity(startedAt))

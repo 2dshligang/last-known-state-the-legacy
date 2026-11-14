@@ -78,6 +78,40 @@ namespace LKS.Tests
         }
 
         [Test]
+        public void FailingObserverDoesNotDropNotificationsForOtherObservers()
+        {
+            Start(new Target());
+            var session = bootstrap.Current;
+            using var failing = session.Subscribe(_ => throw new InvalidOperationException("Observer failed."));
+            var received = new System.Collections.Generic.List<long>();
+            using var healthy = session.Subscribe(change => received.Add(change.Sequence));
+
+            clock.Seconds++;
+            session.Tick();
+            clock.Seconds++;
+            session.Tick();
+            var error = Assert.Throws<AggregateException>(() => session.Dispatch());
+
+            Assert.That(error.InnerExceptions, Has.Count.EqualTo(2));
+            Assert.That(received, Is.EqualTo(new long[] { 1, 2 }));
+            Assert.DoesNotThrow(() => session.Dispatch());
+        }
+
+        [Test]
+        public void DisabledBootstrapRejectsStartBeforeCreatingTargets()
+        {
+            host.SetActive(false);
+            var errors = bootstrap.Restart(catalog, new[] { FixtureCatalog.Id },
+                () => throw new InvalidOperationException("Disabled bootstrap invoked the factory."), clock);
+
+            Assert.That(errors, Is.EqualTo(new[] { "Enable the session bootstrap before starting the session." }));
+            Assert.That(bootstrap.Current, Is.Null);
+            host.SetActive(true);
+            Start(new Target());
+            Assert.That(bootstrap.Current.Snapshot, Is.Zero);
+        }
+
+        [Test]
         public void InvalidConfigurationReportsMissingDependenciesBeforeCreatingTargets()
         {
             var errors = bootstrap.Restart(null, null, null, clock);

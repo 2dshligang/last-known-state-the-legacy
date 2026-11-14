@@ -17,7 +17,8 @@ namespace LKS
         private readonly double startedAt;
         private readonly Dictionary<StableId, IInteractable> targets;
         private readonly List<Subscription> subscriptions = new List<Subscription>();
-        private readonly Queue<Action> pending = new Queue<Action>();
+        private readonly Queue<(StateChange<double> Change, Subscription[] Listeners)> pending =
+            new Queue<(StateChange<double>, Subscription[])>();
         private long sequence;
         private bool dispatching;
         private bool disposed;
@@ -61,12 +62,8 @@ namespace LKS
 
             Snapshot = elapsed;
             var change = new StateChange<double>(++sequence, SessionId, TickId, elapsed);
-            var listeners = subscriptions.ToArray();
-            pending.Enqueue(() =>
-            {
-                foreach (var listener in listeners)
-                    listener.Notify(change);
-            });
+            if (subscriptions.Count > 0)
+                pending.Enqueue((change, subscriptions.ToArray()));
         }
 
         public void Dispatch()
@@ -76,16 +73,34 @@ namespace LKS
                 return;
 
             dispatching = true;
+            List<Exception> failures = null;
             try
             {
                 int count = pending.Count;
                 for (int index = 0; index < count && !disposed; index++)
-                    pending.Dequeue().Invoke();
+                {
+                    var notification = pending.Dequeue();
+                    foreach (var listener in notification.Listeners)
+                    {
+                        try
+                        {
+                            listener.Notify(notification.Change);
+                        }
+                        catch (Exception exception)
+                        {
+                            failures ??= new List<Exception>();
+                            failures.Add(exception);
+                        }
+                    }
+                }
             }
             finally
             {
                 dispatching = false;
             }
+
+            if (failures != null)
+                throw new AggregateException("One or more session observers failed.", failures);
         }
 
         public void Dispose()
