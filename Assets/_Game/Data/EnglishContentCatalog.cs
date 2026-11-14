@@ -50,6 +50,8 @@ namespace LKS
                 throw new ArgumentException("The final ending text has changed.", nameof(entries));
         }
 
+        public IEnumerable<StableId> Keys => text.Keys;
+
         public string Resolve(StableId key, bool development)
         {
             if (text.TryGetValue(key, out var value))
