@@ -17,8 +17,12 @@ namespace LKS
             CameraCue = new StableId(camera);
         }
 
-        public void Present(INarrativeView view, EnglishContentCatalog content) =>
-            view.ShowText(content.Resolve(TextKey, false), Portrait, CameraCue);
+        public void Present(INarrativeView view, EnglishContentCatalog content)
+        {
+            string text = content.Resolve(TextKey, false);
+            view.ShowText(text, Portrait, CameraCue);
+            PlayerTextAudit.Record(TextKey.ToString(), text);
+        }
     }
 
     public sealed class StationNarrative
