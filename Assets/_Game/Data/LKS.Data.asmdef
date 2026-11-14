@@ -1,5 +1,5 @@
 {
   "name": "LKS.Data",
   "references": ["LKS.Contracts"],
-  "noEngineReferences": true
+  "noEngineReferences": false
 }

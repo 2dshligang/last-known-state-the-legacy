@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c58e8ecb5b7c29ad0f610184f2fac4ce, type: 3}
+  m_Name: StationScienceCatalog
+  m_EditorClassIdentifier: LKS.Data::LKS.StationScienceCatalog
+  attribution: NASA CCMC DONKI; contributing instruments and linked event records retained. Research/educational use; no NASA endorsement.
+  license: LicenseRef-NASA-CCMC-public-data-usage
+  transformVersion: donki-sep-v1
+  rawSha256: f36c8854e40b0429299450815fb74a7eaae1df3573c58c0d7efc269f6c92cb24
+  normalizedSha256: 64e6ebda0d1d0f1a30e45d8ef35ca7ead69de5891cad82954ce1d121d848fd36
+  transformSha256: 9eb949570da3cc664f86746fead9bfd179a23dfdaac7b7617e0a154d263204c1
+  events:
+  - id: 2017-09-04T22:56:00-SEP-001
+    observedAt: 2017-09-04T22:56Z
+    recordUrl: https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13004/-1
+    units: No scalar dose measurement supplied
+    instruments:
+    - 'MODEL: REleASE:SOHO/EPHIN 15.8-39.8 MeV'
+    kind: 2
+  - id: 2017-09-04T23:52:00-SEP-001
+    observedAt: 2017-09-04T23:52Z
+    recordUrl: https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13000/-1
+    units: No scalar dose measurement supplied
+    instruments:
+    - 'SOHO: COSTEP 15.8-39.8 MeV'
+    kind: 1
+  - id: 2017-09-05T00:30:00-SEP-001
+    observedAt: 2017-09-05T00:30Z
+    recordUrl: https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/12984/-1
+    units: No scalar dose measurement supplied
+    instruments:
+    - 'GOES13: SEM/EPS >10 MeV'
+    kind: 1
+  - id: 2017-09-06T23:30:00-SEP-001
+    observedAt: 2017-09-06T23:30Z
+    recordUrl: https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13081/-1
+    units: No scalar dose measurement supplied
+    instruments:
+    - 'SOHO: COSTEP 15.8-39.8 MeV'
+    kind: 1
+  - id: 2017-09-06T23:45:00-SEP-001
+    observedAt: 2017-09-06T23:45Z
+    recordUrl: https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13036/-1
+    units: No scalar dose measurement supplied
+    instruments:
+    - 'GOES13: SEM/EPS >10 MeV'
+    kind: 1
+  - id: 2017-09-10T16:25:00-SEP-001
+    observedAt: 2017-09-10T16:25Z
+    recordUrl: https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13101/-1
+    units: No scalar dose measurement supplied
+    instruments:
+    - 'GOES13: SEM/EPS >100 MeV'
+    kind: 1
+  - id: 2017-09-10T16:45:00-SEP-001
+    observedAt: 2017-09-10T16:45Z
+    recordUrl: https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13104/-1
+    units: No scalar dose measurement supplied
+    instruments:
+    - 'GOES13: SEM/EPS >10 MeV'
+    kind: 1
+  - id: 2017-09-10T20:00:00-SEP-001
+    observedAt: 2017-09-10T20:00Z
+    recordUrl: https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13112/-1
+    units: No scalar dose measurement supplied
+    instruments:
+    - 'SOHO: COSTEP 15.8-39.8 MeV'
+    kind: 1
+  - id: 2017-09-13T05:33:00-SEP-001
+    observedAt: 2017-09-13T05:33Z
+    recordUrl: https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13134/-1
+    units: No scalar dose measurement supplied
+    instruments:
+    - 'STEREO A: IMPACT 13-100 MeV'
+    kind: 1
