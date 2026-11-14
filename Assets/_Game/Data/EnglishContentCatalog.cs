@@ -218,6 +218,42 @@ sample.iron-rich-rock.observation|Fictional result. The comparison rock shows si
 sample.iron-rich-rock.interpretation|Iron minerals can help compare rocks. This finding alone cannot show that life was present.
 sample.procedural-blank.observation|Fictional result. Check the blank status for instrument background.
 sample.procedural-blank.interpretation|This blank passed the station check. Use it as the comparison for the rock runs.
+report.result.already-accepted|This report has already been accepted.
+report.result.unavailable|Research controls are unavailable.
+report.result.complete-sections|Complete all five report sections.
+report.result.life-unsupported|Organics can form without life. The evidence cannot confirm life.
+report.result.confirm-echo|Confirm the station incident with ECHO first.
+report.result.valid-blank|Check the instrument with a valid blank before drawing conclusions.
+report.result.contradictory-blank|The current blank passed. Earlier instrument background cannot describe this run.
+report.result.cite-blank|Include the valid blank in your observations.
+report.result.cite-reviewed-samples|Review both rock results and include them in your observations.
+report.result.duplicate-observation|Include each observation once.
+report.result.interpretation-needed|Choose a cautious interpretation that fits the evidence.
+report.result.alternative-needed|Include another way the rocks could have changed.
+report.result.state-uncertainty|Say what the current evidence leaves open.
+report.result.follow-up-needed|Choose a comparison and a fresh blank for the next check.
+report.result.accepted|Dmitry's report is complete. The evidence supports a cautious explanation and a next step.
+report.section.observations|Observations
+report.section.interpretation|What the evidence could mean
+report.section.alternatives|Other explanations
+report.section.uncertainty|What is still uncertain
+report.section.follow-up|What to check next
+report.choice.observation.layersvisible|The rock sample shows fine layers.
+report.choice.observation.ironmineralsigns|The comparison rock shows signs of iron minerals.
+report.choice.observation.blankpassed|The current blank passed.
+report.choice.observation.blankshowedbackground|The current blank found instrument background.
+report.choice.interpretation.sedimentmayhavesettled|The fine layers could have formed as sediment settled.
+report.choice.interpretation.formationremainsuncertain|Several environments could explain these rocks.
+report.choice.interpretation.lifeconfirmed|The samples prove that life was here.
+report.choice.alternative.winddeposition|Wind could also have carried sediment here.
+report.choice.alternative.latermineralchange|The minerals could have changed after the rock formed.
+report.choice.alternative.noalternatives|There is no other explanation.
+report.choice.uncertainty.originuncertain|The rock's exact origin is still uncertain.
+report.choice.uncertainty.moreevidenceneededforlife|We would need more evidence to test for life.
+report.choice.uncertainty.nouncertainty|The evidence answers every question.
+report.choice.follow-up.comparenearbylayerswithblank|Compare nearby layers and use a fresh blank.
+report.choice.follow-up.checkmineralswithfreshblank|Check the minerals in a second sample and use a fresh blank.
+report.choice.follow-up.none|No more checks are needed.
 ending.final|Dad... I did it.
 ";
     }
