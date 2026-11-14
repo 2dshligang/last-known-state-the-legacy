@@ -20,6 +20,7 @@ namespace LKS.World
         [SerializeField] private StationGenerationManifest station;
         [SerializeField] private StationExteriorGate gate;
         [SerializeField] private StationPowerConsole powerConsole;
+        [SerializeField] private StationShelterSet shelter;
 
         private EnglishContentCatalog text;
         private StationInteractionAnchor[] anchors;
@@ -121,6 +122,8 @@ namespace LKS.World
 
         public string Describe(StationInteractionAnchor anchor)
         {
+            if (shelter != null && StationShelterSet.Handles(anchor.TargetId))
+                return shelter.Describe(anchor.TargetId);
             if (powerConsole != null && anchor.TargetId == StationPowerConsole.Target)
             {
                 string reason = powerConsole.OpenBlockReason;
@@ -158,6 +161,8 @@ namespace LKS.World
                 Time.unscaledTimeAsDouble < nextUse) return false;
             var anchor = FindAimedTarget(ray);
             if (anchor == null) return false;
+            if (shelter != null && StationShelterSet.Handles(anchor.TargetId))
+                return shelter.Open(anchor.TargetId);
             if (powerConsole != null && anchor.TargetId == StationPowerConsole.Target)
             {
                 if (powerConsole.Open()) return true;

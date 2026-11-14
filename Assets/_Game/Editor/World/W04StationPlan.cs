@@ -69,9 +69,12 @@ namespace LKS.Editor.World
             Fixture("power-console", "POWER CONTROL", left, 1.44f*bay, 1.10f, Vector3.left, "quest.safe-power");
             Fixture("power-recovery", "RESTORE SAFE POWER", right, 1.68f*bay, 1.10f, Vector3.right, "target.power-recovery");
             Fixture("echo", "ECHO ARCHIVE", right, 2.54f*bay, 1.36f, Vector3.right, "quest.echo-evidence");
-            Fixture("seedling", "SEEDLING CABINET", left, 3.62f*bay, 1.42f, Vector3.left);
-            Box("fixture.shelter-bench", P(right,.27f,3.50f*bay), P(.54f,.54f,1.3f), "Metal");
-            SideLabel("shelter", "SHELTER", right-.36f, 1.55f, 3.50f*bay, Vector3.right);
+            Fixture("seedling", "SEEDLING CABINET", left, 3.62f*bay, 1.42f, Vector3.left,
+                StationShelterSet.SeedlingTarget.value);
+            float cabinet = 3.62f * bay;
+            Box("seedling.tray", P(left+.251f,.66f,cabinet), P(.028f,.38f,.52f), "Ochre", false);
+            SideLabel("seedling-status", "STANDBY", left+.29f, .64f, cabinet, Vector3.left, .078f);
+            Shelter();
             Fixture("analysis", "SAMPLE ANALYSIS", left, 4.33f*bay, 1.10f, Vector3.left, "quest.analysis");
             Fixture("report", "RESEARCH REPORT", right, 4.49f*bay, 1.10f, Vector3.right, "quest.report");
             Fixture("photo", "DAD'S PHOTO", left, 4.79f*bay, 1.10f, Vector3.left, "quest.ending");
@@ -126,10 +129,10 @@ namespace LKS.Editor.World
                 node.Facing = facing;
                 node.Size = P(letterSize,0,0);
             }
-            void SideLabel(string id, string text, float x, float y, float z, Vector3 facing)
+            void SideLabel(string id, string text, float x, float y, float z, Vector3 facing, float letterSize = .105f)
             {
                 Box("fixture."+id+".sign", P(x,y,z), P(.06f,.23f,1.2f), "Metal", false);
-                Label("fixture."+id+".label", text, P(x,y,z)-facing*.037f, facing,.105f);
+                Label("fixture."+id+".label", text, P(x,y,z)-facing*.037f, facing,letterSize);
             }
             void Fixture(string id, string text, float x, float z, float top, Vector3 facing, string target = null)
             {
@@ -139,6 +142,35 @@ namespace LKS.Editor.World
                 if (target != null)
                     Anchor(id, target, P(x,top-.14f,z)-facing*.28f, P(x,0,z)-facing*1.13f);
             }
+
+            void Shelter()
+            {
+                float start = 3 * bay;
+                float front = width / 2 - 1.35f;
+                float chamber = front + .74f;
+                float console = start + 2.18f;
+                float sideEntry = start + bay - .83f;
+                Box("shelter.shield-south", P(chamber,1.18f,start+.24f), P(1.49f,2.36f,.20f), "Shell");
+                Box("shelter.shield-north", P(chamber,1.18f,start+bay-.21f), P(1.49f,2.36f,.20f), "Shell");
+                Box("shelter.shield-roof", P(chamber,2.26f,start+bay/2), P(1.50f,.23f,bay-.45f), "Shell");
+                Box("shelter.shield-front-short", P(front,1.09f,start+.48f), P(.25f,2.18f,.68f), "Shell");
+                float frontEnd = start + bay - 1.33f;
+                Box("shelter.shield-front-long", P(front,1.09f,(start+1.87f+frontEnd)/2),
+                    P(.25f,2.18f,frontEnd-start-1.87f), "Shell");
+                Box("shelter.shutter", P(front+.13f,1.055f,start+.34f), P(.13f,2.11f,1.13f), "Ochre");
+                New("shelter.shutter-stop", Kind.Point, P(front+.13f,1.055f,start+1.35f));
+                New("shelter.side-approach", Kind.Point, P(0,0,sideEntry));
+                New("shelter.interior", Kind.Point, P(chamber,0,sideEntry));
+                Box("fixture.shelter-bench", P(width/2-.25f,.26f,start+1.73f), P(.42f,.52f,1.24f), "Metal");
+                Box("shelter.side-route-mark", P(chamber-.37f,.004f,sideEntry), P(1.62f,.008f,.07f), "Ochre", false);
+                SideLabel("shelter", "SHELTER", front-.23f, 1.86f, console, Vector3.right, .12f);
+                SideLabel("shelter-status", "TRAINING READY", front-.19f, 1.51f, console, Vector3.right, .078f);
+                Box("shelter.control-face", P(front-.151f,1.21f,console), P(.04f,.24f,.39f), "Ochre", false);
+                Anchor("shelter-console", StationShelterSet.ShelterTarget.value, P(front-.191f,1.21f,console),
+                    P(front-.70f,0,console));
+                SideLabel("shelter-side", "SIDE ACCESS", front-.18f, 2.18f, sideEntry, Vector3.right, .096f);
+            }
+
             void Anchor(string id, string target, Vector3 position, Vector3 approach)
             {
                 New("approach."+id, Kind.Point, approach);

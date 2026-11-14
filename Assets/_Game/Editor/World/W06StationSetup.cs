@@ -107,6 +107,26 @@ namespace LKS.Editor.World
                 consoleBinding.FindProperty("player").objectReferenceValue = player;
                 consoleBinding.FindProperty("interaction").objectReferenceValue = bridge;
                 changed |= consoleBinding.ApplyModifiedPropertiesWithoutUndo();
+                var shelter = player.GetComponent<StationShelterSet>();
+                if (anchors.Any(anchor => anchor.TargetId == StationShelterSet.ShelterTarget))
+                {
+                    if (shelter == null)
+                    {
+                        shelter = player.gameObject.AddComponent<StationShelterSet>();
+                        changed = true;
+                    }
+                    var nodes = manifest.Entries.ToDictionary(entry => entry.id.value, entry => entry.node);
+                    var shelterBinding = new SerializedObject(shelter);
+                    shelterBinding.FindProperty("player").objectReferenceValue = player;
+                    shelterBinding.FindProperty("interaction").objectReferenceValue = bridge;
+                    shelterBinding.FindProperty("shutter").objectReferenceValue = nodes["shelter.shutter"].transform;
+                    shelterBinding.FindProperty("closedStop").objectReferenceValue = nodes["shelter.shutter-stop"].transform;
+                    shelterBinding.FindProperty("shelterStatus").objectReferenceValue =
+                        nodes["fixture.shelter-status.label"].GetComponent<StationLabel>();
+                    shelterBinding.FindProperty("seedlingStatus").objectReferenceValue =
+                        nodes["fixture.seedling-status.label"].GetComponent<StationLabel>();
+                    changed |= shelterBinding.ApplyModifiedPropertiesWithoutUndo();
+                }
 
                 var binding = new SerializedObject(bridge);
                 binding.FindProperty("player").objectReferenceValue = player;
@@ -116,13 +136,14 @@ namespace LKS.Editor.World
                 binding.FindProperty("station").objectReferenceValue = manifest;
                 binding.FindProperty("gate").objectReferenceValue = gate;
                 binding.FindProperty("powerConsole").objectReferenceValue = console;
+                binding.FindProperty("shelter").objectReferenceValue = shelter;
                 changed |= binding.ApplyModifiedPropertiesWithoutUndo();
                 if (changed)
                 {
                     EditorSceneManager.MarkSceneDirty(station);
                     if (!EditorSceneManager.SaveScene(station)) throw new IOException("Failed to save W06 scene wiring.");
                 }
-                Debug.Log($"W07_INSTALL_PASS {anchors.Length} stable quest targets, exterior airlock and power console. Changed: {changed}.");
+                Debug.Log($"W08_INSTALL_PASS {anchors.Length} interaction anchors. Changed: {changed}.");
             }
             finally
             {
