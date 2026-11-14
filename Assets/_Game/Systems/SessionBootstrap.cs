@@ -30,7 +30,8 @@ namespace LKS
             IEnumerable<StableId> requiredRecords, Func<IEnumerable<IInteractable>> createTargets,
             Func<StableId, ResultCode> readiness, PowerCheckpoint powerCheckpoint = null,
             IEnumerable<StableId> questCheckpoint = null, ISessionClock clock = null,
-            LifeSupportCheckpoint lifeSupportCheckpoint = null)
+            LifeSupportCheckpoint lifeSupportCheckpoint = null,
+            LogisticsCheckpoint logisticsCheckpoint = null)
         {
             if (readiness == null)
                 return Array.AsReadOnly(new[] { "Provide quest readiness services." });
@@ -38,7 +39,7 @@ namespace LKS
             return RestartCore(catalog, requiredRecords, createTargets, clock, session =>
             {
                 session.AttachPower(powerCheckpoint);
-                session.AttachLifeSupport(lifeSupportCheckpoint);
+                session.AttachLifeSupport(lifeSupportCheckpoint, logisticsCheckpoint);
                 var power = session.Power;
                 session.AttachQuests(stage =>
                 {

@@ -57,7 +57,7 @@ namespace LKS
         private bool disposed;
         private bool batteryReserveMode;
 
-        internal Action<decimal, bool, bool> SupplyChanged { get; set; }
+        internal Action<decimal, bool, bool, bool> SupplyChanged { get; set; }
 
         public PowerSnapshot Snapshot { get; private set; }
         public bool EssentialSupportSupplied =>
@@ -149,7 +149,7 @@ namespace LKS
                 decimal supplied = Allocate(requested, states, batteryReserveMode);
                 if (states != null)
                     SupplyChanged.Invoke(StepSeconds, IsSupplied(states, Air) && IsSupplied(states, Water),
-                        IsSupplied(states, ShelterActuator));
+                        IsSupplied(states, ShelterActuator), IsSupplied(states, Transmit));
                 decimal balance = Generation - supplied;
                 decimal delta = balance >= 0m ? balance * Efficiency / 3600m : balance / (3600m * Efficiency);
                 decimal next = Math.Max(0m, Math.Min(Capacity, battery + delta));
@@ -167,7 +167,7 @@ namespace LKS
 
         internal void ReportSupply(decimal duration, PowerSnapshot snapshot) =>
             SupplyChanged?.Invoke(duration, IsSupplied(snapshot.Loads, Air) && IsSupplied(snapshot.Loads, Water),
-                IsSupplied(snapshot.Loads, ShelterActuator));
+                IsSupplied(snapshot.Loads, ShelterActuator), IsSupplied(snapshot.Loads, Transmit));
 
         private static bool IsSupplied(IEnumerable<LoadState> loads, StableId id) =>
             loads.Any(load => load.Id == id && load.Supplied);
