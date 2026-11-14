@@ -43,6 +43,12 @@ namespace LKS
 
         public StationLogistics Logistics { get; private set; }
         public StationSamples Samples { get; private set; }
+        public StationResearch Research { get; private set; }
+
+        internal void AttachResearch(ResearchDraft checkpoint)
+        {
+            Research = new StationResearch(Samples, Investigation, () => ++sequence, pending.Enqueue, checkpoint);
+        }
         public StationArchive Archive { get; private set; }
         public StationEcho Echo { get; private set; }
 
@@ -194,6 +200,7 @@ namespace LKS
             LifeSupport?.Dispose();
             Logistics?.Stop();
             Samples?.Dispose();
+            Research?.Dispose();
             Archive?.Stop();
             Echo?.Dispose();
             Investigation?.Stop();
