@@ -1,0 +1,6 @@
+{
+  "name": "LKS.Quests",
+  "rootNamespace": "LKS",
+  "references": ["LKS.Contracts"],
+  "noEngineReferences": true
+}

@@ -11,7 +11,24 @@ namespace LKS
 
         public IReadOnlyList<string> Restart(IScienceCatalog catalog,
             IEnumerable<StableId> requiredRecords, Func<IEnumerable<IInteractable>> createTargets,
-            ISessionClock clock = null)
+            ISessionClock clock = null) =>
+            RestartCore(catalog, requiredRecords, createTargets, clock, null);
+
+        public IReadOnlyList<string> RestartWithQuests(IScienceCatalog catalog,
+            IEnumerable<StableId> requiredRecords, Func<IEnumerable<IInteractable>> createTargets,
+            Func<StableId, ResultCode> readiness, Func<CommandResult> recovery,
+            IEnumerable<StableId> checkpoint = null, ISessionClock clock = null)
+        {
+            if (readiness == null || recovery == null)
+                return Array.AsReadOnly(new[] { "Provide quest readiness and power recovery services." });
+
+            return RestartCore(catalog, requiredRecords, createTargets, clock,
+                session => session.AttachQuests(readiness, recovery, checkpoint));
+        }
+
+        private IReadOnlyList<string> RestartCore(IScienceCatalog catalog,
+            IEnumerable<StableId> requiredRecords, Func<IEnumerable<IInteractable>> createTargets,
+            ISessionClock clock, Action<GameplaySession> configure)
         {
             var errors = new List<string>();
             if (!isActiveAndEnabled)
@@ -64,6 +81,17 @@ namespace LKS
             if (errors.Count == 0)
             {
                 var next = new GameplaySession(clock, startedAt, catalog, targets);
+                try
+                {
+                    configure?.Invoke(next);
+                }
+                catch (ArgumentException exception)
+                {
+                    next.Dispose();
+                    errors.Add(exception.Message);
+                    return errors.AsReadOnly();
+                }
+
                 StopSession();
                 Current = next;
             }
