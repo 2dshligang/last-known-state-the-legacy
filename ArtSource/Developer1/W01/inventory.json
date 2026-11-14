@@ -172,35 +172,35 @@
     },
     {
       "path": "Assets/_Game/Art/W01/wall-straight-4m.fbx.meta",
-      "sha256": "696a5ee3410088d54c34f323f08f69796a7e799696ffb4bc2fa22422b0f35d4c"
+      "sha256": "ababaa04162ba8941fd061245744e4d668068219d3601660819b2b4ffa44bf5d"
     },
     {
       "path": "Assets/_Game/Art/W01/floor-4m.obj.meta",
-      "sha256": "c8dae65eee1136fd505b1a931012ea3ac1b30e2cddc4960bbe0e268cfe67d743"
+      "sha256": "82ab969ab02dbbe9e0241be7ae53e8f8bde1b80580fedfe77ac95abc33362d20"
     },
     {
       "path": "Assets/_Game/Art/W01/equipment-rack.obj.meta",
-      "sha256": "efa2a5fb29351a4863fb8c57fb9df4adefc70f13f5b1430e1854e9a81f3d121e"
+      "sha256": "bd073139994620d84278d298ef1efbed468d9a42f5018aa1c9b7e10412aa000c"
     },
     {
       "path": "Assets/_Game/Art/W01/lab-bench.obj.meta",
-      "sha256": "d987d9b16ea32e60546dcbe0f8744b83c37188d8e9b2bb9bf004b56889b815b9"
+      "sha256": "981ab2e8e8ab6e0fabe212a8bc9b9eaaff75428ac0688a5d115e4f866edf8fca"
     },
     {
       "path": "Assets/_Game/Art/W01/solar-panel.obj.meta",
-      "sha256": "925caa1d3b24e5fe479fd638dfd00e76bc35e7a36e9bd5f6ab7b3de122777264"
+      "sha256": "5165fba27425d84fe936930f632bf42a72cfd3f682963b7957b8227f89cb324f"
     },
     {
       "path": "Assets/_Game/Art/W01/rock-layered.obj.meta",
-      "sha256": "ce2c16109e6b5b5d415b8225dd3d652b83545f568cd065bdef541b4675290fd3"
+      "sha256": "5e57df2f01891783aa8bfcaf61210fa375edf1d40bc1663c441dd14906e402ea"
     },
     {
       "path": "Assets/_Game/Art/W01/rock-angular.obj.meta",
-      "sha256": "b1137c005d516e9962d64784f83b459c7c33b9ec63ae06975ed9d933d4c521c1"
+      "sha256": "4b5c448ef3f58a18fd1fbc0cb5621f096049338c67917a7fed39ceff63af935d"
     },
     {
       "path": "Assets/_Game/Art/W01/rock-rounded.obj.meta",
-      "sha256": "0d60d703561146895d9ec11fa6443f04cf7df5e193988849fbeb5487ae5ec075"
+      "sha256": "8816bc109c431f1368f777979ade9925296543efad4fe99e20eb9d65fcd1b7f1"
     }
   ]
 }
