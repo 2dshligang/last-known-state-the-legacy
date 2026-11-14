@@ -65,6 +65,8 @@ namespace LKS
                 EvidenceKind.Observation, false, "nasa-donki-sep-2017"),
             new ArchiveEntry("archive.power-model", 2089, 11, 14, 0, 0,
                 EvidenceKind.EngineeringModel, true, "asterion-prototype-v1"),
+            new ArchiveEntry("archive.dmitry-notes", 2059, 8, 18, 0, 0,
+                EvidenceKind.Fiction, true),
             new ArchiveEntry("archive.arrival", 2089, 11, 14, 0, 0,
                 EvidenceKind.Fiction, true)
         });
@@ -254,6 +256,14 @@ report.choice.uncertainty.nouncertainty|The evidence answers every question.
 report.choice.follow-up.comparenearbylayerswithblank|Compare nearby layers and use a fresh blank.
 report.choice.follow-up.checkmineralswithfreshblank|Check the minerals in a second sample and use a fresh blank.
 report.choice.follow-up.none|No more checks are needed.
+narrative.farewell|January 20, 2059. Alexei is eight. His father Dmitry is leaving for Mars to study ancient rocks. Dmitry gives Alexei a photograph. ""Write down what you see,"" he says. ""Then ask what it could mean.""
+narrative.arrival|November 14, 2089. Alexei is 39. He carries the photograph into the silent ASTERION station. His father's work is still here. First, he needs to restore air and power.
+narrative.research-context|Dmitry wanted to know what this place was like long ago. Alexei checks the rock results against the blank, keeps the uncertainties in his report, and leaves a clear next step for the next scientist.
+narrative.action.continue|Continue
+narrative.action.skip|Skip opening
+narrative.action.replay|Replay opening
+archive.dmitry-notes.summary|Dmitry kept his rock notes separate from his ideas about how the rocks formed.
+archive.dmitry-notes.detail|The station's fictional research notes ask whether fine layers could have formed as sediment settled. Dmitry planned to compare nearby rocks and check for material left behind by the instrument. The expedition ended before he could finish.
 ending.final|Dad... I did it.
 ";
     }

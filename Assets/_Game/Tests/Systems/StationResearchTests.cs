@@ -44,9 +44,13 @@ namespace LKS.Tests
             });
 
             Assert.That(run.Research.Snapshot, Is.EqualTo(ReportStatus.Incomplete));
+            Assert.That(run.Narrative.TryGetResearchContext(out _), Is.False);
             Assert.That(run.Research.Evaluate(Draft()).Code, Is.EqualTo(ResultCode.Applied));
             Assert.That(run.Research.Snapshot, Is.EqualTo(ReportStatus.Incomplete));
             Assert.That(run.Research.Submit(Draft()).Code, Is.EqualTo(ResultCode.Applied));
+            Assert.That(run.Narrative.TryGetResearchContext(out var context), Is.True);
+            Assert.That(context.Portrait, Is.EqualTo(new StableId("portrait.dmitry-photograph")));
+            Assert.That(run.Archive.Content.Resolve(context.TextKey, false), Is.Not.Empty);
             Assert.That(run.Research.Submit(Draft()).Code, Is.EqualTo(ResultCode.AlreadyApplied));
             run.Dispatch();
             Assert.That(completions, Is.EqualTo(1));
