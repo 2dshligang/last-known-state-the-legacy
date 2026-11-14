@@ -58,6 +58,8 @@ namespace LKS
             remaining = checkpoint.RemainingSeconds;
         }
 
+        public DeliveryState Delivery => delivery;
+
         public bool SeedlingPlanPowered => schedule == FoodSchedule.PreserveSeedlings &&
             IsSupplied(StationPower.Seedlings);
 

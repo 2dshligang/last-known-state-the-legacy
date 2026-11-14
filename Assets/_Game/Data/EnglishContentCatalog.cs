@@ -264,6 +264,16 @@ narrative.action.skip|Skip opening
 narrative.action.replay|Replay opening
 archive.dmitry-notes.summary|Dmitry kept his rock notes separate from his ideas about how the rocks formed.
 archive.dmitry-notes.detail|The station's fictional research notes ask whether fine layers could have formed as sediment settled. Dmitry planned to compare nearby rocks and check for material left behind by the instrument. The expedition ended before he could finish.
+ending.result.unavailable|The photograph is unavailable.
+ending.result.completed|The ending is already complete.
+ending.result.restore-air|Restore safe air before viewing the photograph.
+ending.result.confirm-echo|Confirm the station incident in ECHO.
+ending.result.review-samples|Review the samples with a valid blank control.
+ending.result.accept-report|Complete and submit the research report first.
+ending.result.queue-report|Queue the accepted report for transmission.
+ending.result.finish-objectives|Finish the remaining station objectives.
+ending.result.ready|The photograph is ready to inspect.
+ending.action.replay|Replay ending
 ending.final|Dad... I did it.
 ";
     }
