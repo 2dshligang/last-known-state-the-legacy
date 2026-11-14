@@ -186,6 +186,9 @@ echo.result.uncertain-reading|The time records are too uncertain to confirm this
 echo.result.confirmed|The old reading guided the controller decision. Backup power later ran out.
 echo.result.already-confirmed|This explanation is already confirmed.
 echo.freshness.rule|In this game model, the controller needs a reading no more than one minute old. The time records may be off by fifteen seconds. The old reading may still describe an earlier time.
+sample.layered-mudstone.context|These fine layers are a clue to how this fictional rock formed. Curiosity studied layered mudstone from an ancient Martian lake.
+sample.iron-rich-rock.context|Compare this fictional rock with the layered sample. Curiosity found iron minerals in rocks at Vera Rubin Ridge.
+sample.procedural-blank.context|Run the empty control to see what the instrument detects without a rock. Curiosity ran blank cups to check its instrument background.
 ending.final|Dad... I did it.
 ";
     }
