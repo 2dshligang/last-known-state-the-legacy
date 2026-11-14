@@ -38,6 +38,14 @@ namespace LKS
         private bool powerReadingPaused;
         private decimal powerClockPosition;
         public StationPower Power { get; private set; }
+        public StationLifeSupport LifeSupport { get; private set; }
+
+        internal void AttachLifeSupport(LifeSupportCheckpoint checkpoint)
+        {
+            LifeSupport = new StationLifeSupport(() => ++sequence, pending.Enqueue, checkpoint);
+            Power.SupplyChanged = LifeSupport.Advance;
+            Power.ReportSupply(0m, Power.Snapshot);
+        }
 
         internal void AttachPower(PowerCheckpoint checkpoint)
         {
@@ -152,6 +160,7 @@ namespace LKS
             targets.Clear();
             quests?.Dispose();
             Power?.Dispose();
+            LifeSupport?.Dispose();
             foreach (var subscription in subscriptions.ToArray())
                 subscription.Dispose();
         }

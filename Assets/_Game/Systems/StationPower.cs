@@ -37,6 +37,7 @@ namespace LKS
         public static readonly StableId Lab = new StableId("load.lab");
         public static readonly StableId Seedlings = new StableId("load.seedling-preservation");
         public static readonly StableId Transmit = new StableId("load.transmit");
+        public static readonly StableId ShelterActuator = new StableId("load.shelter-actuator");
         private static readonly StableId Network = new StableId("power.station");
         private static readonly StableId Allocation = new StableId("cause.power-allocation");
         private static readonly StableId Simulation = new StableId("cause.power-step");
@@ -44,7 +45,7 @@ namespace LKS
         // In priority order, with equal priorities resolved by ordinal stable ID.
         private static readonly (StableId Id, decimal Kw)[] Loads =
         {
-            (Air, 2m), (Water, 1m), (Seedlings, 1m), (Archive, 2m), (Lab, 3m), (Transmit, 2m)
+            (Air, 2m), (Water, 1m), (Seedlings, 1m), (Archive, 2m), (Lab, 3m), (ShelterActuator, 1m), (Transmit, 2m)
         };
 
         private readonly Func<long> nextSequence;
@@ -55,6 +56,8 @@ namespace LKS
         private decimal pendingSeconds;
         private bool disposed;
         private bool batteryReserveMode;
+
+        internal Action<decimal, bool, bool> SupplyChanged { get; set; }
 
         public PowerSnapshot Snapshot { get; private set; }
         public bool EssentialSupportSupplied =>
@@ -106,6 +109,7 @@ namespace LKS
             requested = selection;
             batteryReserveMode = false;
             Publish(projection, Allocation);
+            ReportSupply(0m, projection);
             return outcome;
         }
 
@@ -141,20 +145,32 @@ namespace LKS
                 decimal demand = RequestedDemand(requested);
                 if (demand > Generation + battery * (3600m * Efficiency) + PowerRoundingToleranceKw)
                     batteryReserveMode = true;
-                decimal supplied = Allocate(requested, null, batteryReserveMode);
+                List<LoadState> states = SupplyChanged == null ? null : new List<LoadState>(Loads.Length);
+                decimal supplied = Allocate(requested, states, batteryReserveMode);
+                if (states != null)
+                    SupplyChanged.Invoke(StepSeconds, IsSupplied(states, Air) && IsSupplied(states, Water),
+                        IsSupplied(states, ShelterActuator));
                 decimal balance = Generation - supplied;
                 decimal delta = balance >= 0m ? balance * Efficiency / 3600m : balance / (3600m * Efficiency);
                 decimal next = Math.Max(0m, Math.Min(Capacity, battery + delta));
                 if (next < 0.000000000001m)
                     next = 0m;
-                if (next == battery)
+                if (next == battery && SupplyChanged == null)
                     break;
                 battery = next;
                 steps--;
             }
             if (battery != initial || batteryReserveMode != initialReserveMode)
                 Publish(Project(requested, batteryReserveMode), Simulation);
+            ReportSupply(0m, Snapshot);
         }
+
+        internal void ReportSupply(decimal duration, PowerSnapshot snapshot) =>
+            SupplyChanged?.Invoke(duration, IsSupplied(snapshot.Loads, Air) && IsSupplied(snapshot.Loads, Water),
+                IsSupplied(snapshot.Loads, ShelterActuator));
+
+        private static bool IsSupplied(IEnumerable<LoadState> loads, StableId id) =>
+            loads.Any(load => load.Id == id && load.Supplied);
 
         private PowerSnapshot Project(HashSet<StableId> selection, bool reserveMode = false)
         {
@@ -228,6 +244,7 @@ namespace LKS
         public void Dispose()
         {
             disposed = true;
+            SupplyChanged = null;
             foreach (var observer in observers.ToArray())
                 observer.Dispose();
         }
