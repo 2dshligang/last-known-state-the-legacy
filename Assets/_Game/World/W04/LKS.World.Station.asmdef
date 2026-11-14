@@ -1,0 +1,5 @@
+{
+  "name": "LKS.World.Station",
+  "rootNamespace": "LKS.World",
+  "references": ["LKS.Contracts"]
+}
