@@ -43,10 +43,12 @@ namespace LKS
 
         public StationLogistics Logistics { get; private set; }
         public StationArchive Archive { get; private set; }
+        public StationEcho Echo { get; private set; }
 
         internal void AttachArchive(IEnumerable<StableId> checkpoint)
         {
             Archive = new StationArchive(this, checkpoint);
+            Echo = new StationEcho(() => ++sequence, pending.Enqueue);
         }
 
         internal void SetArchiveReadingPaused(bool paused)
@@ -133,6 +135,7 @@ namespace LKS
                 powerClockPosition = position;
             }
 
+            Echo?.Advance((decimal)elapsed - (decimal)Snapshot);
             Snapshot = elapsed;
             var change = new StateChange<double>(++sequence, SessionId, TickId, elapsed);
             foreach (var listener in subscriptions.ToArray())
@@ -184,6 +187,7 @@ namespace LKS
             LifeSupport?.Dispose();
             Logistics?.Stop();
             Archive?.Stop();
+            Echo?.Dispose();
             foreach (var subscription in subscriptions.ToArray())
                 subscription.Dispose();
         }

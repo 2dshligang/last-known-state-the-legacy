@@ -168,6 +168,11 @@ archive.arrival.summary|Alexei arrives at the station where his father worked.
 archive.arrival.detail|In 2059, Alexei said goodbye to his father Dmitry. Thirty years later, he returns to Mars to find out what happened and finish his father's research.
 science.organics|Organic molecules can form without life. Finding them gives scientists a clue to study.
 science.food|Growing food takes time and suitable light, water, nutrients and temperature.
+echo.stale-input.caption|The controller received an old power reading.
+echo.controller-decision.caption|The controller treated the old reading as current.
+echo.backup-estimate.caption|The model suggests backup power took over.
+echo.missing-interval.caption|Part of the station log is missing here.
+echo.backup-exhausted.caption|The final station log shows backup power ran out.
 ending.final|Dad... I did it.
 ";
     }
