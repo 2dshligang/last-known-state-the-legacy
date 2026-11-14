@@ -42,6 +42,7 @@ namespace LKS
         public StationLifeSupport LifeSupport { get; private set; }
 
         public StationLogistics Logistics { get; private set; }
+        public StationSamples Samples { get; private set; }
         public StationArchive Archive { get; private set; }
         public StationEcho Echo { get; private set; }
 
@@ -61,14 +62,17 @@ namespace LKS
             archiveReadingPaused = paused;
         }
 
-        internal void AttachLifeSupport(LifeSupportCheckpoint checkpoint, LogisticsCheckpoint logisticsCheckpoint)
+        internal void AttachLifeSupport(LifeSupportCheckpoint checkpoint, LogisticsCheckpoint logisticsCheckpoint,
+            SampleCheckpoint sampleCheckpoint)
         {
             LifeSupport = new StationLifeSupport(() => ++sequence, pending.Enqueue, checkpoint);
             Logistics = new StationLogistics(Power, logisticsCheckpoint);
-            Power.SupplyChanged = (duration, support, actuator, transmitter) =>
+            Samples = new StationSamples(Power, () => ++sequence, pending.Enqueue, sampleCheckpoint);
+            Power.SupplyChanged = (duration, support, actuator, transmitter, lab) =>
             {
                 LifeSupport.Advance(duration, support, actuator);
                 Logistics.Advance(duration, transmitter);
+                Samples.Advance(duration, lab);
             };
             Power.ReportSupply(0m, Power.Snapshot);
         }
@@ -189,6 +193,7 @@ namespace LKS
             Power?.Dispose();
             LifeSupport?.Dispose();
             Logistics?.Stop();
+            Samples?.Dispose();
             Archive?.Stop();
             Echo?.Dispose();
             Investigation?.Stop();
