@@ -51,3 +51,12 @@ the shutter, release actuator power after latching, walk the physical side
 route in both directions, and verify restoring checkpoints and starting a
 fresh scene. The W04 verification tests repeatable generation, manual
 object preservation and interaction-ray clearance.
+
+On the accepted S15 base, Unity 6000.6.9f1 passed 10 Play Mode and 69 Edit
+Mode tests. A repeat install left the scene unchanged, and the Windows
+x64 station preview built. The visual captures used the actual Windows
+Player with controlled S05/S06 checkpoints.
+
+- [Shelter control with an interrupted actuator](W08-shelter-panel.png)
+- [Seedling choice at 800 × 600](W08-seedlings.png)
+- [Latched shutter and marked side access](W08-shelter-world.png)
