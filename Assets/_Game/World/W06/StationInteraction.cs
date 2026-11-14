@@ -19,6 +19,7 @@ namespace LKS.World
         [SerializeField] private StationScienceCatalog science;
         [SerializeField] private StationGenerationManifest station;
         [SerializeField] private StationExteriorGate gate;
+        [SerializeField] private StationPowerConsole powerConsole;
 
         private EnglishContentCatalog text;
         private StationInteractionAnchor[] anchors;
@@ -120,6 +121,12 @@ namespace LKS.World
 
         public string Describe(StationInteractionAnchor anchor)
         {
+            if (powerConsole != null && anchor.TargetId == StationPowerConsole.Target)
+            {
+                string reason = powerConsole.OpenBlockReason;
+                return reason == null ? "E  Open power console\nPower control" :
+                    "Open power console / Power control\n" + reason;
+            }
             string name = Name(anchor.TargetId);
             string action = ActionText(anchor.TargetId);
             if (!TryRead(anchor, out _, out var state))
@@ -150,7 +157,14 @@ namespace LKS.World
             if (player.IsPaused || player.HasReadingFocus ||
                 Time.unscaledTimeAsDouble < nextUse) return false;
             var anchor = FindAimedTarget(ray);
-            if (anchor == null || !TryRead(anchor, out var target, out var state)) return false;
+            if (anchor == null) return false;
+            if (powerConsole != null && anchor.TargetId == StationPowerConsole.Target)
+            {
+                if (powerConsole.Open()) return true;
+                Show(powerConsole.OpenBlockReason ?? "Power controls are unavailable.");
+                return false;
+            }
+            if (!TryRead(anchor, out var target, out var state)) return false;
             if (!state.Available)
             {
                 Show(Unavailable(anchor.TargetId, state.PromptKey));
@@ -220,8 +234,7 @@ namespace LKS.World
             foreach (var target in StationQuests.RequiredStages)
             {
                 if (snapshot[target] != QuestStatus.Available) continue;
-                var next = target.value == "quest.safe-power" && !HasDoorPower ? StationQuests.RecoveryTarget : target;
-                return anchors.FirstOrDefault(anchor => anchor.TargetId == next);
+                return anchors.FirstOrDefault(anchor => anchor.TargetId == target);
             }
             return null;
         }

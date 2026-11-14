@@ -2686,6 +2686,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6197830041814119030, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
       insertIndex: -1
       addedObject: {fileID: 337964006}
+    - targetCorrespondingSourceObject: {fileID: 6197830041814119030, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 337964007}
   m_SourcePrefab: {fileID: 100100000, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
 --- !u!1 &337964002 stripped
 GameObject:
@@ -2737,6 +2740,21 @@ MonoBehaviour:
   science: {fileID: 11400000, guid: d6bf7084bee53b24aab73fb6c8219675, type: 2}
   station: {fileID: 936072935}
   gate: {fileID: 11923204}
+  powerConsole: {fileID: 337964007}
+--- !u!114 &337964007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337964002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47df7094d531a814f82ad58b4f8ce2e3, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LKS.World.Interaction::LKS.World.StationPowerConsole
+  interaction: {fileID: 337964006}
+  player: {fileID: 337964004}
 --- !u!1 &353784103
 GameObject:
   m_ObjectHideFlags: 0

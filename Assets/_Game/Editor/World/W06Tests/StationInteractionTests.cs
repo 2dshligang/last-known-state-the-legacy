@@ -63,7 +63,7 @@ namespace LKS.Editor.World
             Assert.That(interaction.Submit(AimAt(Anchor(StationQuests.RequiredStages[0]))), Is.True);
             Assert.That(power.Commit(new[] { StationPower.Archive }).Succeeded);
             Assert.That(interaction.Describe(Anchor(StationQuests.RequiredStages[1])),
-                Does.Contain("Restore air and water"));
+                Does.Contain("Open power console"));
             Assert.That(gate.IsOpen, Is.False);
             Place(motor, end - 2);
             Assert.That(Advance(motor, 1), Is.LessThan(end - .9f), "Unpowered leaf must block the corridor.");

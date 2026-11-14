@@ -37,6 +37,7 @@ namespace LKS.World
         }
         public bool IsPaused => paused;
         public bool HasReadingFocus => readers.Count != 0;
+        public bool HasApplicationFocus => focused;
         public bool HasWorldFocus => focused && captureRequested && !paused && !HasReadingFocus;
         public bool CanInteract => HasWorldFocus && Cursor.lockState == CursorLockMode.Locked &&
             Time.frameCount > suppressUntil;

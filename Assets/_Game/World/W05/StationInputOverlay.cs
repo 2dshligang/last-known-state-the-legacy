@@ -27,7 +27,8 @@ namespace LKS.World
             {
                 if (player.IsPaused) DrawPause(width, height);
                 else if (view != null) DrawReading(width, height);
-                else if (!player.CanInteract && !player.HasWorldFocus)
+                else if (player.HasReadingFocus) return;
+                else if (!player.HasWorldFocus)
                 {
                     var rect = new Rect(width/2-180, height/2-24, 360, 48);
                     if (GUI.Button(rect, "Click to resume", button)) player.ResumePointer();
@@ -52,9 +53,9 @@ namespace LKS.World
             GUI.Label(new Rect(x+35,y+66,334,26), $"Mouse sensitivity  {player.Sensitivity:F2}", body);
             player.Sensitivity = GUI.HorizontalSlider(new Rect(x+36,y+95,330,22),player.Sensitivity,.035f,.4f);
             player.InvertY = GUI.Toggle(new Rect(x+35,y+125,334,27),player.InvertY,"Invert vertical look",body);
-            if (GUI.Button(new Rect(x+35,y+175,334,34), view == null ? "Resume" : "Return to reading", button))
+            if (GUI.Button(new Rect(x+35,y+175,334,34), player.HasReadingFocus ? "Return to reading" : "Resume", button))
                 player.SetPaused(false);
-            if (view == null)
+            if (!player.HasReadingFocus)
             {
                 if (GUI.Button(new Rect(x+35,y+219,160,38),"Terminal preview",button)) OpenReading("TERMINAL");
                 if (GUI.Button(new Rect(x+209,y+219,160,38),"Archive preview",button)) OpenReading("ARCHIVE");
