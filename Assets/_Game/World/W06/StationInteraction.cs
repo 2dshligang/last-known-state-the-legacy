@@ -72,17 +72,18 @@ namespace LKS.World
             gate.Present(HasDoorPower, player.transform.position);
         }
 
-        public void NewRun() => Restore(null, null, null, null, null, null, null);
+        public void NewRun() => Restore(null, null, null, null, null, null, null, null);
 
         public bool Restore(PowerCheckpoint power, IEnumerable<StableId> quests,
             LifeSupportCheckpoint lifeSupport, LogisticsCheckpoint logistics,
-            IEnumerable<StableId> archive, EchoInvestigationCheckpoint investigation, SampleCheckpoint samples)
+            IEnumerable<StableId> archive, EchoInvestigationCheckpoint investigation, SampleCheckpoint samples,
+            ResearchDraft research)
         {
             var errors = bootstrap.RestartWithPower(science, RequiredScience,
                 () => Array.Empty<IInteractable>(), _ => ResultCode.EvidenceInsufficient,
                 powerCheckpoint: power, questCheckpoint: quests, lifeSupportCheckpoint: lifeSupport,
                 logisticsCheckpoint: logistics, archiveCheckpoint: archive,
-                investigationCheckpoint: investigation, sampleCheckpoint: samples);
+                investigationCheckpoint: investigation, sampleCheckpoint: samples, researchCheckpoint: research);
             if (errors.Count != 0)
             {
                 StartError = errors[0];

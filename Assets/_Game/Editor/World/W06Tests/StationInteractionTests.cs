@@ -101,11 +101,12 @@ namespace LKS.Editor.World
             var archive = saved.Archive.Capture();
             var investigation = saved.Investigation.Capture();
             var samples = saved.Samples.Capture();
+            var research = saved.Research.CaptureAccepted();
             interaction.NewRun();
             Assert.That(interaction.HasDoorPower, Is.False);
             Assert.That(interaction.Session.CaptureQuestCheckpoint(), Is.Empty);
 
-            Assert.That(interaction.Restore(power, quests, life, logistics, archive, investigation, samples), Is.True);
+            Assert.That(interaction.Restore(power, quests, life, logistics, archive, investigation, samples, research), Is.True);
             Assert.That(interaction.Session, Is.Not.SameAs(saved));
             Assert.That(interaction.Session.CaptureQuestCheckpoint(), Is.EqualTo(quests));
             Assert.That(interaction.Session.Power.Capture().Requested, Is.EquivalentTo(power.Requested));

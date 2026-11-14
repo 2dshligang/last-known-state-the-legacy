@@ -11,7 +11,7 @@ generated hierarchy, so regeneration preserves its identity and manual scene
 objects.
 
 W06 consumes S01 contracts 1.0, S03 `StationQuests`, S04 `StationPower`, and
-the accepted S05–S11 services through `SessionBootstrap.RestartWithPower`.
+the accepted S05–S12 services through `SessionBootstrap.RestartWithPower`.
 It validates the S10 catalog record `donki.2017-09-04t23-52-00-sep-001` at
 startup. The archived record is an observation. Recovery and the physical
 airlock are fictional station presentation driven by the station's engineering
@@ -46,8 +46,8 @@ movement sends no gameplay commands.
   nonessential power allocation, the blocked exit, safe exterior return,
   checkpoint restoration and scene reload. The checkpoint test captures the
   accepted services' snapshots and restores them through W06.
-- Local results were 6/6 in Play Mode, 50/50 in Edit Mode and a successful
-  Windows x64 station preview build. The W04 geometry and generator
+- Play Mode, Edit Mode and a Windows x64 station preview build were run.
+  The W04 geometry and generator
   verification passed, including regeneration with manual scene content.
   A second W06 install reported no scene changes.
 - To review the URP stills, use
@@ -63,10 +63,11 @@ movement sends no gameplay commands.
 - Developer 1 continues in W07 with the allocation UI through
   `StationInteraction.Session.Power`. W09–W13 provide the archive and sample
   evidence actions. Their quest confirmations already use the accepted
-  evidence gates. Report and photograph confirmations wait for the later
-  authoritative report and ending integration.
+  evidence gates. The report confirmation uses S12 and its submission UI
+  belongs to W15. The photograph waits for S14 ending readiness.
 - Developer 2 owns S16 disk persistence. The tested integration point is
   `StationInteraction.Restore` with the accepted power, quest, life support,
-  logistics, archive, investigation and sample checkpoint types. Restore
+  logistics, archive, investigation, sample and accepted research checkpoint
+  types. Restore
   places the player at arrival. Disk serialization, UI and position restore
   remain outside this verified checkpoint path.
