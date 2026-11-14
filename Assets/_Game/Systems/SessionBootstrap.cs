@@ -56,6 +56,9 @@ namespace LKS
                 if (restoredQuests != null && restoredQuests.Contains(StationQuests.RequiredStages[5]) &&
                     session.Research.Snapshot != ReportStatus.Accepted)
                     throw new ArgumentException("Restore an accepted report with completed report progress.");
+                if (restoredQuests != null && restoredQuests.Contains(StationEnding.Photograph) &&
+                    !session.Ending.HasTransmission)
+                    throw new ArgumentException("Restore the report transmission with completed ending progress.");
                 var power = session.Power;
                 session.AttachQuests(stage =>
                 {
@@ -73,6 +76,8 @@ namespace LKS
                         return session.Samples.AllReviewed ? ResultCode.Applied : ResultCode.EvidenceInsufficient;
                     if (stage == StationQuests.RequiredStages[5])
                         return session.Research.Snapshot == ReportStatus.Accepted ? ResultCode.Applied : ResultCode.EvidenceInsufficient;
+                    if (stage == StationEnding.Photograph)
+                        return session.Ending.Readiness().Code;
                     return readiness(stage);
                 }, power.Recover, restoredQuests);
             });

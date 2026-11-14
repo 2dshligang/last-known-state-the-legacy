@@ -45,11 +45,14 @@ namespace LKS
         public StationSamples Samples { get; private set; }
         public StationResearch Research { get; private set; }
         public StationNarrative Narrative { get; private set; }
+        public StationEnding Ending { get; private set; }
+        internal bool IsDisposed => disposed;
 
         internal void AttachResearch(ResearchDraft checkpoint, OpeningProgress openingCheckpoint)
         {
             Research = new StationResearch(Samples, Investigation, () => ++sequence, pending.Enqueue, checkpoint);
             Narrative = new StationNarrative(Research, openingCheckpoint);
+            Ending = new StationEnding(this);
         }
         public StationArchive Archive { get; private set; }
         public StationEcho Echo { get; private set; }
@@ -113,7 +116,8 @@ namespace LKS
         {
             quests = new StationQuests(readiness, recovery, checkpoint, () => ++sequence, pending.Enqueue);
             foreach (var target in quests.CreateTargets())
-                targets.Add(target.Id, target);
+                targets.Add(target.Id, Ending != null && target.Id == StationEnding.Photograph
+                    ? Ending.BindPhotograph(target) : target);
         }
 
         public bool TryGetTarget(StableId id, out IInteractable target)
