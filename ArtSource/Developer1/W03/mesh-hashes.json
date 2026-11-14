@@ -1,0 +1,34 @@
+{
+  "blender": "5.3.0",
+  "buildHash": "02f0899d78e3",
+  "exportSettings": {
+    "use_selection": true,
+    "object_types": [
+      "MESH"
+    ],
+    "global_scale": 1.0,
+    "apply_unit_scale": true,
+    "apply_scale_options": "FBX_SCALE_UNITS",
+    "axis_forward": "-Z",
+    "axis_up": "Y",
+    "use_space_transform": true,
+    "bake_space_transform": false,
+    "use_mesh_modifiers": true,
+    "mesh_smooth_type": "FACE",
+    "use_triangles": true,
+    "add_leaf_bones": false,
+    "bake_anim": false,
+    "path_mode": "AUTO",
+    "embed_textures": false
+  },
+  "files": {
+    "ArtSource/Developer1/W03/mesh-spec.json": "3f413b6d3dd6c41078d554bb356fd76e655e2bcc7637a56f910e801c85dd42e0",
+    "ArtSource/Developer1/W03/build_station_meshes.py": "8fb49a3917a335458a09f15c0d69eb0a5a20c04c308b6d5cad5561aa91707696",
+    "ArtSource/Developer1/W03/AirlockFrame.blend": "f3a778c45c17b8d42ae843cafaa44e65eae731f3ef6a2096cf58683273dcee04",
+    "Assets/_Game/Art/W03/Models/AirlockFrame.fbx": "225e8ca19798a12af6ce45df1a9308cdc3fe23baa5015bcc25d0ef9deffd8aff",
+    "ArtSource/Developer1/W03/AirlockLeaf.blend": "7557c7df0731984520393db71c82369f49f230b4a15805fedbbbcf2fb0a74a18",
+    "Assets/_Game/Art/W03/Models/AirlockLeaf.fbx": "31df3579c1108426fdf33a0e887c6adf961c6e14aed1e1ed7156367be4dd9549",
+    "ArtSource/Developer1/W03/EchoHousing.blend": "0cd131f8733f63c1aa40ef65e4e7709415f32a325592a4d15c12a127328d1a95",
+    "Assets/_Game/Art/W03/Models/EchoHousing.fbx": "d0a23a9a004a8242356607ee40e519a686f433779c2e62db71b326067418b51e"
+  }
+}

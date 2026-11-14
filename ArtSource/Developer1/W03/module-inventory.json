@@ -1,0 +1,143 @@
+{
+    "units": "meters",
+    "modules": [
+        {
+            "id": "module.corridor",
+            "prefab": "Assets/_Game/Prefabs/W03/Corridor.prefab",
+            "usage": "Level 4 m bay with floor, ceiling and two side walls.",
+            "width": 4.400000095367432,
+            "height": 3.4000000953674316,
+            "depth": 4.0,
+            "snapStart": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "snapEnd": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 4.0
+            },
+            "inspectPoint": {
+                "x": 0.0,
+                "y": 1.0,
+                "z": 2.0
+            }
+        },
+        {
+            "id": "module.airlock",
+            "prefab": "Assets/_Game/Prefabs/W03/Airlock.prefab",
+            "usage": "1.4 x 2.2 m clear passage when open; +X sliding leaf.",
+            "width": 4.0,
+            "height": 3.0,
+            "depth": 0.5199999809265137,
+            "snapStart": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "snapEnd": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "inspectPoint": {
+                "x": -0.3499999940395355,
+                "y": 1.0499999523162842,
+                "z": -0.6200000047683716
+            }
+        },
+        {
+            "id": "module.utility-cabinet",
+            "prefab": "Assets/_Game/Prefabs/W03/UtilityCabinet.prefab",
+            "usage": "Wall-side power service location.",
+            "width": 0.800000011920929,
+            "height": 1.350000023841858,
+            "depth": 0.5,
+            "snapStart": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "snapEnd": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "inspectPoint": {
+                "x": 0.0,
+                "y": 1.0399999618530273,
+                "z": -0.3100000023841858
+            }
+        },
+        {
+            "id": "module.lab-workstation",
+            "prefab": "Assets/_Game/Prefabs/W03/LabWorkstation.prefab",
+            "usage": "Open-leg bench with recessed equipment top.",
+            "width": 1.7999999523162842,
+            "height": 1.1699999570846558,
+            "depth": 0.6600000262260437,
+            "snapStart": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "snapEnd": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "inspectPoint": {
+                "x": 0.0,
+                "y": 1.0199999809265137,
+                "z": -0.41999998688697815
+            }
+        },
+        {
+            "id": "module.echo-terminal",
+            "prefab": "Assets/_Game/Prefabs/W03/EchoTerminal.prefab",
+            "usage": "Archive and ECHO terminal; screen faces local -Z.",
+            "width": 0.7799999713897705,
+            "height": 1.6050000190734863,
+            "depth": 0.5070000290870667,
+            "snapStart": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "snapEnd": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "inspectPoint": {
+                "x": 0.0,
+                "y": 1.3300000429153442,
+                "z": -0.3400000035762787
+            }
+        },
+        {
+            "id": "module.shelter",
+            "prefab": "Assets/_Game/Prefabs/W03/Shelter.prefab",
+            "usage": "Recessed bench and canopy within an existing bay.",
+            "width": 1.1200000047683716,
+            "height": 1.6200000047683716,
+            "depth": 0.6600000262260437,
+            "snapStart": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "snapEnd": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "inspectPoint": {
+                "x": 0.0,
+                "y": 0.8199999928474426,
+                "z": -0.4300000071525574
+            }
+        }
+    ]
+}
