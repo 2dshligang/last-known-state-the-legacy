@@ -45,9 +45,12 @@ namespace LKS
         public StationArchive Archive { get; private set; }
         public StationEcho Echo { get; private set; }
 
-        internal void AttachArchive(IEnumerable<StableId> checkpoint)
+        public EchoInvestigation Investigation { get; private set; }
+
+        internal void AttachArchive(IEnumerable<StableId> checkpoint, EchoInvestigationCheckpoint investigationCheckpoint)
         {
             Archive = new StationArchive(this, checkpoint);
+            Investigation = new EchoInvestigation(Archive, investigationCheckpoint);
             Echo = new StationEcho(() => ++sequence, pending.Enqueue);
         }
 
@@ -188,6 +191,7 @@ namespace LKS
             Logistics?.Stop();
             Archive?.Stop();
             Echo?.Dispose();
+            Investigation?.Stop();
             foreach (var subscription in subscriptions.ToArray())
                 subscription.Dispose();
         }
