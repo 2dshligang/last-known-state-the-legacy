@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "id": "wall",
+      "path": "samples/art/wall.obj",
+      "sha256": "2183842c3f37a114b85604c2d25f5d4c9357185dac1ad47f87ed4d8629d38b5e",
+      "origin": "procedural",
+      "author": "LKS project",
+      "generator": "tools/fallbacks.mjs",
+      "license": "Project-owned original placeholder",
+      "dimensionsMeters": [
+        4,
+        3,
+        0.2
+      ],
+      "approval": "approved"
+    },
+    {
+      "id": "floor",
+      "path": "samples/art/floor.obj",
+      "sha256": "55b52da352523ffb7829bf489ab9a58add0d308a0e7b63859e160fd043479e8e",
+      "origin": "procedural",
+      "author": "LKS project",
+      "generator": "tools/fallbacks.mjs",
+      "license": "Project-owned original placeholder",
+      "dimensionsMeters": [
+        4,
+        0.2,
+        4
+      ],
+      "approval": "approved"
+    },
+    {
+      "id": "equipment-rack",
+      "path": "samples/art/equipment-rack.obj",
+      "sha256": "b38274d590f0ea93356e147ffdfc32bdb3ea426d783c13ca69a9b5fb75e0f10c",
+      "origin": "procedural",
+      "author": "LKS project",
+      "generator": "tools/fallbacks.mjs",
+      "license": "Project-owned original placeholder",
+      "dimensionsMeters": [
+        0.8,
+        2,
+        0.6
+      ],
+      "approval": "approved"
+    },
+    {
+      "id": "lab-bench",
+      "path": "samples/art/lab-bench.obj",
+      "sha256": "b36efa409613728b5b31de5b5227da2a7dd758482d1e80372dd57395875933f7",
+      "origin": "procedural",
+      "author": "LKS project",
+      "generator": "tools/fallbacks.mjs",
+      "license": "Project-owned original placeholder",
+      "dimensionsMeters": [
+        2,
+        0.9,
+        0.8
+      ],
+      "approval": "approved"
+    },
+    {
+      "id": "solar-panel",
+      "path": "samples/art/solar-panel.obj",
+      "sha256": "5f5013c815206351b5213957f5e9ada832353d0d1a3ac19309d7316d6e43d39c",
+      "origin": "procedural",
+      "author": "LKS project",
+      "generator": "tools/fallbacks.mjs",
+      "license": "Project-owned original placeholder",
+      "dimensionsMeters": [
+        2,
+        0.08,
+        1
+      ],
+      "approval": "approved"
+    }
+  ]
+}

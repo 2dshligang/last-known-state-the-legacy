@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "transformVersion": "donki-sep-v1",
+  "sourceSha256": "f36c8854e40b0429299450815fb74a7eaae1df3573c58c0d7efc269f6c92cb24",
+  "displayLabel": "Archived NASA event records (2017)",
+  "limitations": "These event records do not supply Mars surface dose or predict conditions in 2059 or 2089.",
+  "events": [
+    {
+      "id": "2017-09-04T22:56:00-SEP-001",
+      "observedAtUtc": "2017-09-04T22:56Z",
+      "sourceId": "nasa-donki-sep-2017",
+      "sourceRecordUrl": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13004/-1",
+      "sourceVersion": 1,
+      "instruments": [
+        "MODEL: REleASE:SOHO/EPHIN 15.8-39.8 MeV"
+      ],
+      "evidenceKind": "ModelOutput",
+      "linkedEventIds": [
+        "2017-09-04T20:15:00-FLR-001",
+        "2017-09-04T20:36:00-CME-001"
+      ],
+      "location": "Instrument-specific; not an ASTERION surface measurement",
+      "dose": null,
+      "doseUnit": null
+    },
+    {
+      "id": "2017-09-04T23:52:00-SEP-001",
+      "observedAtUtc": "2017-09-04T23:52Z",
+      "sourceId": "nasa-donki-sep-2017",
+      "sourceRecordUrl": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13000/-1",
+      "sourceVersion": 1,
+      "instruments": [
+        "SOHO: COSTEP 15.8-39.8 MeV"
+      ],
+      "evidenceKind": "ObservedEvent",
+      "linkedEventIds": [
+        "2017-09-04T20:15:00-FLR-001",
+        "2017-09-04T20:36:00-CME-001"
+      ],
+      "location": "Instrument-specific; not an ASTERION surface measurement",
+      "dose": null,
+      "doseUnit": null
+    },
+    {
+      "id": "2017-09-05T00:30:00-SEP-001",
+      "observedAtUtc": "2017-09-05T00:30Z",
+      "sourceId": "nasa-donki-sep-2017",
+      "sourceRecordUrl": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/12984/-1",
+      "sourceVersion": 2,
+      "instruments": [
+        "GOES13: SEM/EPS >10 MeV"
+      ],
+      "evidenceKind": "ObservedEvent",
+      "linkedEventIds": [
+        "2017-09-04T20:15:00-FLR-001",
+        "2017-09-04T20:36:00-CME-001"
+      ],
+      "location": "Instrument-specific; not an ASTERION surface measurement",
+      "dose": null,
+      "doseUnit": null
+    },
+    {
+      "id": "2017-09-06T23:30:00-SEP-001",
+      "observedAtUtc": "2017-09-06T23:30Z",
+      "sourceId": "nasa-donki-sep-2017",
+      "sourceRecordUrl": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13081/-1",
+      "sourceVersion": 1,
+      "instruments": [
+        "SOHO: COSTEP 15.8-39.8 MeV"
+      ],
+      "evidenceKind": "ObservedEvent",
+      "linkedEventIds": [
+        "2017-09-06T11:53:00-FLR-001",
+        "2017-09-06T12:24:00-CME-001"
+      ],
+      "location": "Instrument-specific; not an ASTERION surface measurement",
+      "dose": null,
+      "doseUnit": null
+    },
+    {
+      "id": "2017-09-06T23:45:00-SEP-001",
+      "observedAtUtc": "2017-09-06T23:45Z",
+      "sourceId": "nasa-donki-sep-2017",
+      "sourceRecordUrl": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13036/-1",
+      "sourceVersion": 2,
+      "instruments": [
+        "GOES13: SEM/EPS >10 MeV"
+      ],
+      "evidenceKind": "ObservedEvent",
+      "linkedEventIds": [
+        "2017-09-04T19:39:00-CME-001",
+        "2017-09-04T20:15:00-FLR-001",
+        "2017-09-04T20:36:00-CME-001",
+        "2017-09-06T23:08:00-IPS-001"
+      ],
+      "location": "Instrument-specific; not an ASTERION surface measurement",
+      "dose": null,
+      "doseUnit": null
+    },
+    {
+      "id": "2017-09-10T16:25:00-SEP-001",
+      "observedAtUtc": "2017-09-10T16:25Z",
+      "sourceId": "nasa-donki-sep-2017",
+      "sourceRecordUrl": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13101/-1",
+      "sourceVersion": 1,
+      "instruments": [
+        "GOES13: SEM/EPS >100 MeV"
+      ],
+      "evidenceKind": "ObservedEvent",
+      "linkedEventIds": [
+        "2017-09-10T15:35:00-FLR-001",
+        "2017-09-10T16:09:00-CME-001"
+      ],
+      "location": "Instrument-specific; not an ASTERION surface measurement",
+      "dose": null,
+      "doseUnit": null
+    },
+    {
+      "id": "2017-09-10T16:45:00-SEP-001",
+      "observedAtUtc": "2017-09-10T16:45Z",
+      "sourceId": "nasa-donki-sep-2017",
+      "sourceRecordUrl": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13104/-1",
+      "sourceVersion": 1,
+      "instruments": [
+        "GOES13: SEM/EPS >10 MeV"
+      ],
+      "evidenceKind": "ObservedEvent",
+      "linkedEventIds": [
+        "2017-09-10T15:35:00-FLR-001",
+        "2017-09-10T16:09:00-CME-001"
+      ],
+      "location": "Instrument-specific; not an ASTERION surface measurement",
+      "dose": null,
+      "doseUnit": null
+    },
+    {
+      "id": "2017-09-10T20:00:00-SEP-001",
+      "observedAtUtc": "2017-09-10T20:00Z",
+      "sourceId": "nasa-donki-sep-2017",
+      "sourceRecordUrl": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13112/-1",
+      "sourceVersion": 1,
+      "instruments": [
+        "SOHO: COSTEP 15.8-39.8 MeV"
+      ],
+      "evidenceKind": "ObservedEvent",
+      "linkedEventIds": [
+        "2017-09-10T15:35:00-FLR-001",
+        "2017-09-10T16:09:00-CME-001"
+      ],
+      "location": "Instrument-specific; not an ASTERION surface measurement",
+      "dose": null,
+      "doseUnit": null
+    },
+    {
+      "id": "2017-09-13T05:33:00-SEP-001",
+      "observedAtUtc": "2017-09-13T05:33Z",
+      "sourceId": "nasa-donki-sep-2017",
+      "sourceRecordUrl": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/13134/-1",
+      "sourceVersion": 1,
+      "instruments": [
+        "STEREO A: IMPACT 13-100 MeV"
+      ],
+      "evidenceKind": "ObservedEvent",
+      "linkedEventIds": [
+        "2017-09-10T16:09:00-CME-001",
+        "2017-09-12T07:23:00-FLR-001",
+        "2017-09-12T19:03:00-FLR-001"
+      ],
+      "location": "Instrument-specific; not an ASTERION surface measurement",
+      "dose": null,
+      "doseUnit": null
+    }
+  ]
+}

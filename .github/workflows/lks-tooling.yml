@@ -1,0 +1,42 @@
+name: LKS Tooling
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - feature/ops-automation-foundation
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lks-tooling-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tooling:
+    name: Tooling validation only
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+      - name: Test provenance and acquisition tools
+        working-directory: Automation
+        run: node --test tests/*.test.mjs
+      - name: Verify source hashes and exact derived data
+        working-directory: Automation
+        run: node tools/verify.mjs
+      - name: Verify repeatable generation
+        working-directory: Automation
+        run: |
+          node tools/normalize-donki.mjs
+          node tools/fallbacks.mjs
+          git diff --exit-code -- samples sources
+      - name: Report scope
+        run: echo 'Tooling validation only. Unity game compilation, tests, build and release readiness are NOT established by this workflow.'
