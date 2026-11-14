@@ -21,8 +21,8 @@ Target playtime: 20–25 minutes.
 
 ## Technology
 
-- Unity 6.6
-- Universal Render Pipeline (URP)
+- Unity 6000.6.9f1
+- Universal Render Pipeline (URP) 17.6.0
 - C# under the `LKS` namespace
 - Windows x64
 - Performance target: 1920x1080 at 60 FPS on RTX 2060 Super, Ryzen 5 5600 and 32 GB RAM
@@ -38,7 +38,7 @@ Do not edit files owned by the other developer without explicit coordination. Se
 
 ## Project status
 
-Repository foundation only. The exact Unity 6.6 editor patch and compatible URP package version must be selected and committed by the team before production work begins.
+The repository contains a Unity project with a bootstrap scene for checking the editor and Windows x64 build setup. See the [Unity setup instructions](docs/UNITY_SETUP.md).
 
 ## Non-negotiable content rules
 
@@ -50,8 +50,8 @@ Repository foundation only. The exact Unity 6.6 editor patch and compatible URP 
 
 ## Getting started
 
-1. Install the team-approved Unity 6.6 editor patch with Windows Build Support.
-2. Clone the repository.
+1. Install Unity 6000.6.9f1 with Windows Build Support and sign in to Unity Hub on your machine.
+2. Clone the repository with Git LFS enabled.
 3. Open the repository root from Unity Hub.
 4. Confirm that URP is installed and assigned before creating production scenes.
 5. Work only in your owned directories or coordinate an ownership exception in the pull request.
@@ -64,5 +64,3 @@ Repository foundation only. The exact Unity 6.6 editor patch and compatible URP 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Scientific integrity](docs/SCIENTIFIC_INTEGRITY.md)
 - [Definition of done](docs/DEFINITION_OF_DONE.md)
-
-
