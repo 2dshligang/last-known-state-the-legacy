@@ -97,6 +97,17 @@ namespace LKS.Editor.World
                     bridge = player.gameObject.AddComponent<StationInteraction>();
                     changed = true;
                 }
+                var console = player.GetComponent<StationPowerConsole>();
+                if (console == null)
+                {
+                    console = player.gameObject.AddComponent<StationPowerConsole>();
+                    changed = true;
+                }
+                var consoleBinding = new SerializedObject(console);
+                consoleBinding.FindProperty("player").objectReferenceValue = player;
+                consoleBinding.FindProperty("interaction").objectReferenceValue = bridge;
+                changed |= consoleBinding.ApplyModifiedPropertiesWithoutUndo();
+
                 var binding = new SerializedObject(bridge);
                 binding.FindProperty("player").objectReferenceValue = player;
                 binding.FindProperty("view").objectReferenceValue = camera;
@@ -104,13 +115,14 @@ namespace LKS.Editor.World
                 binding.FindProperty("science").objectReferenceValue = catalog;
                 binding.FindProperty("station").objectReferenceValue = manifest;
                 binding.FindProperty("gate").objectReferenceValue = gate;
+                binding.FindProperty("powerConsole").objectReferenceValue = console;
                 changed |= binding.ApplyModifiedPropertiesWithoutUndo();
                 if (changed)
                 {
                     EditorSceneManager.MarkSceneDirty(station);
                     if (!EditorSceneManager.SaveScene(station)) throw new IOException("Failed to save W06 scene wiring.");
                 }
-                Debug.Log($"W06_INSTALL_PASS {anchors.Length} stable quest targets and one exterior airlock. Changed: {changed}.");
+                Debug.Log($"W07_INSTALL_PASS {anchors.Length} stable quest targets, exterior airlock and power console. Changed: {changed}.");
             }
             finally
             {
