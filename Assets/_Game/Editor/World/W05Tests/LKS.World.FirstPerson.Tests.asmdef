@@ -1,0 +1,5 @@
+{
+  "name": "LKS.World.FirstPerson.Tests",
+  "references": ["LKS.World.FirstPerson", "LKS.World.Station", "LKS.Contracts", "LKS.Systems"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

@@ -1,0 +1,5 @@
+{
+  "name": "LKS.World.FirstPerson",
+  "rootNamespace": "LKS.World",
+  "references": ["LKS.Contracts", "LKS.Systems", "Unity.InputSystem"]
+}
