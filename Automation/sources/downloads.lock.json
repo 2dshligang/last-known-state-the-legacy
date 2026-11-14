@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "allowedHosts": [
+    "ccmc.gsfc.nasa.gov"
+  ],
+  "entries": [
+    {
+      "id": "nasa-donki-sep-2017",
+      "url": "https://ccmc.gsfc.nasa.gov/DONKI-API/get/SEP?startDate=2017-09-01&endDate=2017-09-15",
+      "path": "sources/raw/donki-sep-2017.json",
+      "format": "json",
+      "maxBytes": 1000000,
+      "bytes": 5437,
+      "sha256": "f36c8854e40b0429299450815fb74a7eaae1df3573c58c0d7efc269f6c92cb24",
+      "retrievedAtUtc": "2026-11-14T10:09:24.570Z",
+      "sourcePage": "https://ccmc.gsfc.nasa.gov/tools/DONKI/",
+      "challengeUrl": "https://www.spaceappschallenge.org/2026/challenges/junior-astronaut-mission-trainer/",
+      "relationship": "challenge-resource-derived",
+      "provider": "NASA CCMC / Moon to Mars Space Weather Analysis Office",
+      "license": "LicenseRef-NASA-CCMC-public-data-usage",
+      "licenseUrl": "https://ccmc.gsfc.nasa.gov/tools/DONKI/#donki-rules-of-the-road",
+      "additionalTerms": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "attribution": "NASA CCMC DONKI; contributing instruments and linked event records retained. Research/educational use; no NASA endorsement.",
+      "approval": "approved",
+      "approvalScope": "Small public historical event snapshot for this educational prototype; no NASA marks or third-party media included.",
+      "units": "No scalar dose measurement supplied",
+      "timeRangeUtc": [
+        "2017-09-01",
+        "2017-09-15"
+      ],
+      "missionContext": "Multiple observing instruments; not Mars surface telemetry",
+      "transform": "tools/normalize-donki.mjs",
+      "runtimeOutput": "samples/science/donki-events.json",
+      "limitations": [
+        "Historical records, not live data.",
+        "A model record is not an observation.",
+        "SEP event detection does not establish Mars surface dose.",
+        "No 2059 or 2089 measurements exist in this snapshot."
+      ]
+    }
+  ]
+}

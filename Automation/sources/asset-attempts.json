@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "id": "kenney-space-kit",
+      "sourceUrl": "https://kenney.nl/assets/space-kit",
+      "downloadUrl": "https://kenney.nl/media/pages/assets/space-kit/20874c75ac-1677698978/kenney_space-kit.zip",
+      "attemptedOn": "2026-11-14",
+      "license": "CC0-1.0",
+      "licenseEvidence": "Official item page viewed through web tool identifies CC0.",
+      "result": "rejected-html-instead-of-zip",
+      "receivedBytes": 17849,
+      "receivedSha256": "865fa37e658092a0f9891837d03ac511cca61ebdf9df0cc837e0f177b1969938",
+      "imported": false,
+      "fallback": "sources/generated-assets.json",
+      "nextAction": "Re-discover official download link; do not bypass restrictions or import the HTML response."
+    }
+  ]
+}
