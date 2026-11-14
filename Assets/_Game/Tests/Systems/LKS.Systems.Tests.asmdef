@@ -1,7 +1,7 @@
 {
   "name": "LKS.Systems.Tests",
   "rootNamespace": "LKS",
-  "references": ["LKS.Contracts", "LKS.Systems"],
+  "references": ["LKS.Contracts", "LKS.Systems", "LKS.Quests"],
   "includePlatforms": ["Editor"],
   "optionalUnityReferences": ["TestAssemblies"]
 }

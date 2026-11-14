@@ -17,8 +17,8 @@ namespace LKS
         private readonly double startedAt;
         private readonly Dictionary<StableId, IInteractable> targets;
         private readonly List<Subscription> subscriptions = new List<Subscription>();
-        private readonly Queue<(StateChange<double> Change, Subscription[] Listeners)> pending =
-            new Queue<(StateChange<double>, Subscription[])>();
+        private readonly Queue<Action> pending =
+            new Queue<Action>();
         private long sequence;
         private bool dispatching;
         private bool disposed;
@@ -34,6 +34,24 @@ namespace LKS
 
         public IScienceCatalog Science { get; }
         public double Snapshot { get; private set; }
+        private StationQuests quests;
+        public IQuestService Quests => quests;
+
+        public IReadOnlyList<StableId> CaptureQuestCheckpoint()
+        {
+            EnsureActive();
+            if (quests == null)
+                throw new InvalidOperationException("The session has no station quest graph.");
+            return quests.CaptureCheckpoint();
+        }
+
+        internal void AttachQuests(Func<StableId, ResultCode> readiness, Func<CommandResult> recovery,
+            IEnumerable<StableId> checkpoint)
+        {
+            quests = new StationQuests(readiness, recovery, checkpoint, () => ++sequence, pending.Enqueue);
+            foreach (var target in quests.CreateTargets())
+                targets.Add(target.Id, target);
+        }
 
         public bool TryGetTarget(StableId id, out IInteractable target)
         {
@@ -62,8 +80,8 @@ namespace LKS
 
             Snapshot = elapsed;
             var change = new StateChange<double>(++sequence, SessionId, TickId, elapsed);
-            if (subscriptions.Count > 0)
-                pending.Enqueue((change, subscriptions.ToArray()));
+            foreach (var listener in subscriptions.ToArray())
+                pending.Enqueue(() => listener.Notify(change));
         }
 
         public void Dispatch()
@@ -79,18 +97,14 @@ namespace LKS
                 int count = pending.Count;
                 for (int index = 0; index < count && !disposed; index++)
                 {
-                    var notification = pending.Dequeue();
-                    foreach (var listener in notification.Listeners)
+                    try
                     {
-                        try
-                        {
-                            listener.Notify(notification.Change);
-                        }
-                        catch (Exception exception)
-                        {
-                            failures ??= new List<Exception>();
-                            failures.Add(exception);
-                        }
+                        pending.Dequeue().Invoke();
+                    }
+                    catch (Exception exception)
+                    {
+                        failures ??= new List<Exception>();
+                        failures.Add(exception);
                     }
                 }
             }
@@ -110,6 +124,7 @@ namespace LKS
             disposed = true;
             pending.Clear();
             targets.Clear();
+            quests?.Dispose();
             foreach (var subscription in subscriptions.ToArray())
                 subscription.Dispose();
         }
