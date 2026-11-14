@@ -28,6 +28,13 @@ namespace LKS.World
 
         // Presentation-only events. W06 resolves the target and sends the authoritative request.
         public event Action InteractPressed;
+        public event Action RestartRequested;
+
+        internal void RequestRestart()
+        {
+            if (RestartRequested == null) RestartAtSpawn();
+            else RestartRequested.Invoke();
+        }
         public bool IsPaused => paused;
         public bool HasReadingFocus => readers.Count != 0;
         public bool HasWorldFocus => focused && captureRequested && !paused && !HasReadingFocus;

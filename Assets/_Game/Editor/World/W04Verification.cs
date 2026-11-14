@@ -100,6 +100,24 @@ namespace LKS.Editor.World
 
         private static void ValidateRoute(StationGenerationManifest manifest)
         {
+            var roots = manifest.gameObject.scene.GetRootGameObjects();
+            var player = roots.Select(root => root.GetComponent<StationFirstPerson>()).SingleOrDefault(item => item != null);
+            var body = player != null ? player.GetComponent<CharacterController>() : null;
+            bool wasEnabled = body != null && body.enabled;
+            // This geometry check assumes the powered route. W06 Play Mode covers closed and unpowered traversal.
+            var exteriorGate = roots.Select(root => root.GetComponent<StationExteriorGate>()).SingleOrDefault(gate => gate != null);
+            exteriorGate?.Present(true, manifest.Layout.Spawn);
+            if (wasEnabled) body.enabled = false;
+            try { ValidateClearance(manifest); }
+            finally
+            {
+                if (wasEnabled) body.enabled = true;
+                exteriorGate?.Present(false, manifest.Layout.Spawn);
+            }
+        }
+
+        private static void ValidateClearance(StationGenerationManifest manifest)
+        {
             Physics.SyncTransforms();
             var configuration = manifest.Layout;
             var anchors = manifest.GetComponentsInChildren<StationInteractionAnchor>();
@@ -186,7 +204,7 @@ namespace LKS.Editor.World
             Debug.Log("W04_URP_PREVIEW_PASS");
         }
 
-        private static void Capture(Camera camera, string path)
+        internal static void Capture(Camera camera, string path)
         {
             Check(!string.IsNullOrWhiteSpace(path) && !File.Exists(path), "Set a new PNG output path.");
             var target = new RenderTexture(1600, 1000, 24, RenderTextureFormat.ARGB32);

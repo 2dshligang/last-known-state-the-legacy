@@ -433,6 +433,95 @@ Transform:
   m_Children: []
   m_Father: {fileID: 936072936}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &11923201
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1079807591259647454, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 1079807591259647454, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1079807591259647454, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 23.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1079807591259647454, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1079807591259647454, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1079807591259647454, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1079807591259647454, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1079807591259647454, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1079807591259647454, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1079807591259647454, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7816038780704143958, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+      propertyPath: m_Name
+      value: door.exterior-airlock
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7816038780704143958, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 11923204}
+  m_SourcePrefab: {fileID: 100100000, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+--- !u!1 &11923202 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7816038780704143958, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+  m_PrefabInstance: {fileID: 11923201}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &11923203 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6032203493596164020, guid: 2ee4697245cb47744b26b480d267098d, type: 3}
+  m_PrefabInstance: {fileID: 11923201}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 11923202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc621c9adc5864140885f1d92de1670a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LKS.World::LKS.World.AirlockPresentation
+--- !u!114 &11923204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 11923202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b23c26d5ba74db468a4685b74dfd5ee, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LKS.World.Interaction::LKS.World.StationExteriorGate
+  door: {fileID: 11923203}
 --- !u!1 &39500372
 GameObject:
   m_ObjectHideFlags: 0
@@ -2593,8 +2682,61 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6197830041814119030, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 337964006}
   m_SourcePrefab: {fileID: 100100000, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
+--- !u!1 &337964002 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6197830041814119030, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
+  m_PrefabInstance: {fileID: 337964001}
+  m_PrefabAsset: {fileID: 0}
+--- !u!20 &337964003 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 1808154626889800969, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
+  m_PrefabInstance: {fileID: 337964001}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &337964004 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7012875102909672958, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
+  m_PrefabInstance: {fileID: 337964001}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337964002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63068fbc635cafc4c9c15d7b706593dc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LKS.World.FirstPerson::LKS.World.StationFirstPerson
+--- !u!114 &337964005 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 273752875960970427, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
+  m_PrefabInstance: {fileID: 337964001}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337964002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f4534d43b972bed9c49a56d8d196250, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LKS.Systems::LKS.SessionBootstrap
+--- !u!114 &337964006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337964002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de6d8708683b47343b15d8ee9c707853, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LKS.World.Interaction::LKS.World.StationInteraction
+  player: {fileID: 337964004}
+  view: {fileID: 337964003}
+  bootstrap: {fileID: 337964005}
+  science: {fileID: 11400000, guid: d6bf7084bee53b24aab73fb6c8219675, type: 2}
+  station: {fileID: 936072935}
+  gate: {fileID: 11923204}
 --- !u!1 &353784103
 GameObject:
   m_ObjectHideFlags: 0
@@ -13890,3 +14032,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 936072936}
   - {fileID: 337964001}
+  - {fileID: 11923201}

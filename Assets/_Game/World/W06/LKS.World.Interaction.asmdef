@@ -1,0 +1,5 @@
+{
+  "name": "LKS.World.Interaction",
+  "rootNamespace": "LKS.World",
+  "references": ["LKS.Contracts", "LKS.Data", "LKS.Quests", "LKS.Systems", "LKS.World", "LKS.World.Station", "LKS.World.FirstPerson"]
+}
