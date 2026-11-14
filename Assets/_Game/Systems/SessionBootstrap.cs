@@ -31,7 +31,7 @@ namespace LKS
             Func<StableId, ResultCode> readiness, PowerCheckpoint powerCheckpoint = null,
             IEnumerable<StableId> questCheckpoint = null, ISessionClock clock = null,
             LifeSupportCheckpoint lifeSupportCheckpoint = null,
-            LogisticsCheckpoint logisticsCheckpoint = null)
+            LogisticsCheckpoint logisticsCheckpoint = null, IEnumerable<StableId> archiveCheckpoint = null)
         {
             if (readiness == null)
                 return Array.AsReadOnly(new[] { "Provide quest readiness services." });
@@ -40,6 +40,7 @@ namespace LKS
             {
                 session.AttachPower(powerCheckpoint);
                 session.AttachLifeSupport(lifeSupportCheckpoint, logisticsCheckpoint);
+                session.AttachArchive(archiveCheckpoint);
                 var power = session.Power;
                 session.AttachQuests(stage =>
                 {
@@ -47,6 +48,8 @@ namespace LKS
                         return ResultCode.Applied;
                     if (stage == StationQuests.RequiredStages[1])
                         return session.LifeSupport.Snapshot.Air == AirStatus.Safe ? ResultCode.Applied : ResultCode.InsufficientResources;
+                    if (stage == StationQuests.RequiredStages[2] && !session.Archive.RequiredEntryAcknowledged)
+                        return ResultCode.EvidenceInsufficient;
                     return readiness(stage);
                 }, power.Recover, questCheckpoint);
             });

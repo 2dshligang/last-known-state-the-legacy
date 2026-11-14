@@ -1,5 +1,5 @@
 {
   "name": "LKS.Systems",
   "rootNamespace": "LKS",
-  "references": ["LKS.Contracts", "LKS.Quests"]
+  "references": ["LKS.Contracts", "LKS.Quests", "LKS.Data"]
 }

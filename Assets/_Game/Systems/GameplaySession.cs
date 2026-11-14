@@ -36,11 +36,25 @@ namespace LKS
         public double Snapshot { get; private set; }
         private StationQuests quests;
         private bool powerReadingPaused;
+        private bool archiveReadingPaused;
         private decimal powerClockPosition;
         public StationPower Power { get; private set; }
         public StationLifeSupport LifeSupport { get; private set; }
 
         public StationLogistics Logistics { get; private set; }
+        public StationArchive Archive { get; private set; }
+
+        internal void AttachArchive(IEnumerable<StableId> checkpoint)
+        {
+            Archive = new StationArchive(this, checkpoint);
+        }
+
+        internal void SetArchiveReadingPaused(bool paused)
+        {
+            EnsureActive();
+            Tick();
+            archiveReadingPaused = paused;
+        }
 
         internal void AttachLifeSupport(LifeSupportCheckpoint checkpoint, LogisticsCheckpoint logisticsCheckpoint)
         {
@@ -114,7 +128,7 @@ namespace LKS
             if (Power != null)
             {
                 decimal position = ((decimal)now - (decimal)startedAt) * StationPower.SimulationSecondsPerGameSecond;
-                if (!powerReadingPaused)
+                if (!powerReadingPaused && !archiveReadingPaused)
                     Power.Advance(position - powerClockPosition);
                 powerClockPosition = position;
             }
@@ -169,6 +183,7 @@ namespace LKS
             Power?.Dispose();
             LifeSupport?.Dispose();
             Logistics?.Stop();
+            Archive?.Stop();
             foreach (var subscription in subscriptions.ToArray())
                 subscription.Dispose();
         }
