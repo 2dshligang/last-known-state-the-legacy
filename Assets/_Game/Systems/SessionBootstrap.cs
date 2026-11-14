@@ -32,7 +32,8 @@ namespace LKS
             IEnumerable<StableId> questCheckpoint = null, ISessionClock clock = null,
             LifeSupportCheckpoint lifeSupportCheckpoint = null,
             LogisticsCheckpoint logisticsCheckpoint = null, IEnumerable<StableId> archiveCheckpoint = null,
-            EchoInvestigationCheckpoint investigationCheckpoint = null, SampleCheckpoint sampleCheckpoint = null)
+            EchoInvestigationCheckpoint investigationCheckpoint = null, SampleCheckpoint sampleCheckpoint = null,
+            ResearchDraft researchCheckpoint = null)
         {
             if (readiness == null)
                 return Array.AsReadOnly(new[] { "Provide quest readiness services." });
@@ -42,6 +43,7 @@ namespace LKS
                 session.AttachPower(powerCheckpoint);
                 session.AttachLifeSupport(lifeSupportCheckpoint, logisticsCheckpoint, sampleCheckpoint);
                 session.AttachArchive(archiveCheckpoint, investigationCheckpoint);
+                session.AttachResearch(researchCheckpoint);
                 var restoredQuests = questCheckpoint == null
                     ? null : new List<StableId>(questCheckpoint);
                 if (restoredQuests != null && restoredQuests.Contains(StationQuests.RequiredStages[2]) &&
@@ -51,6 +53,9 @@ namespace LKS
                     ((restoredQuests.Contains(StationQuests.RequiredStages[3]) && !session.Samples.AllCollected) ||
                      (restoredQuests.Contains(StationQuests.RequiredStages[4]) && !session.Samples.AllReviewed)))
                     throw new ArgumentException("Restore sample evidence with completed sample progress.");
+                if (restoredQuests != null && restoredQuests.Contains(StationQuests.RequiredStages[5]) &&
+                    session.Research.Snapshot != ReportStatus.Accepted)
+                    throw new ArgumentException("Restore an accepted report with completed report progress.");
                 var power = session.Power;
                 session.AttachQuests(stage =>
                 {
@@ -66,6 +71,8 @@ namespace LKS
                         return session.Samples.AllCollected ? ResultCode.Applied : ResultCode.EvidenceInsufficient;
                     if (stage == StationQuests.RequiredStages[4])
                         return session.Samples.AllReviewed ? ResultCode.Applied : ResultCode.EvidenceInsufficient;
+                    if (stage == StationQuests.RequiredStages[5])
+                        return session.Research.Snapshot == ReportStatus.Accepted ? ResultCode.Applied : ResultCode.EvidenceInsufficient;
                     return readiness(stage);
                 }, power.Recover, restoredQuests);
             });
