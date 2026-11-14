@@ -49,6 +49,15 @@ A test advances an accepted nearly empty checkpoint to zero while the panel
 is closed, verifies the lab was shed, checks the refusal and applies a
 viable selection.
 
+On accepted base S14 (`34d42b7`), 8 Play Mode and 65 Edit Mode tests passed,
+the Windows x64 station preview built, and a second installer run left the
+scene unchanged. The actual console was inspected in a local Windows Player
+with controlled service checkpoints for both captures. The capture fixture
+is absent from the game build and this branch.
+
+- [Proposed demand exceeds generation at 1920 × 1080](W07-allocation-preview.png)
+- [Empty battery and shed laboratory at 800 × 600](W07-empty-battery.png)
+
 For a manual check at 1920 × 1080 and 800 × 600, preview air, water, archive
 and lab together. Check the generation, proposed demand, battery units,
 load statuses and the warning. Open pause over the panel, return to reading,
