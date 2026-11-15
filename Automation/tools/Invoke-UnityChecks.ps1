@@ -3,7 +3,7 @@
 param(
     [Parameter(Mandatory)][string]$ProjectPath,
     [Parameter(Mandatory)][string]$UnityPath,
-    [Parameter(Mandatory)][ValidateSet('Compile','EditMode','PlayMode','Build')][string]$Mode,
+    [Parameter(Mandatory)][ValidateSet('All','Compile','EditMode','PlayMode','Build')][string]$Mode,
     [ValidateRange(1,120)][int]$TimeoutMinutes = 30
 )
 $ErrorActionPreference = 'Stop'
@@ -21,6 +21,15 @@ if ($versionText -notmatch $revisionPattern) { throw 'Expected a pinned Unity ed
 $expectedProductVersion = $expectedVersion + '_' + $Matches[1]
 $installedVersion = (Get-Item -LiteralPath $unity).VersionInfo.ProductVersion
 if ($installedVersion -cne $expectedProductVersion) { throw "Editor mismatch: project expects $expectedProductVersion, found $installedVersion" }
+if ($Mode -eq 'All') {
+    $checkArgs = @{ ProjectPath = $project; UnityPath = $unity; TimeoutMinutes = $TimeoutMinutes }
+    & $PSCommandPath @checkArgs -Mode Compile
+    & (Join-Path $PSScriptRoot 'Invoke-CSharpQuality.ps1') -ProjectPath $project -UnityPath $unity
+    & $PSCommandPath @checkArgs -Mode EditMode
+    & $PSCommandPath @checkArgs -Mode PlayMode
+    & $PSCommandPath @checkArgs -Mode Build
+    return
+}
 $runId = [Guid]::NewGuid().ToString('N')
 $out = Join-Path $project "TestResults/$runId"
 New-Item -ItemType Directory -Path $out | Out-Null

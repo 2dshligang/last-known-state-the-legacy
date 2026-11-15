@@ -1,55 +1,52 @@
-# O03 CI handoff
+# O03 local validation handoff
 
 Base: [O01 #3](https://github.com/2dshligang/last-known-state-the-legacy/pull/3)
 and [O02 #36](https://github.com/2dshligang/last-known-state-the-legacy/pull/36).
-Unity `6000.6.9f1`, revision `8c45277fb9c5`, URP `17.6.0`,
-Input System `1.20.1`, and Unity Test Framework `1.8.0` remain pinned
-in the project settings and package lock.
+The project pins Unity `6000.6.9f1` revision `8c45277fb9c5`, URP `17.6.0`,
+Input System `1.20.1`, and Unity Test Framework `1.8.0`.
 
-The active **Tooling validation only** job runs on pull requests, pushes
-to main and merge groups. It checks the Unity asset inventory, pinned sources,
-generation stability, and the Unity result validator with synthetic fixtures.
-For local reproduction, run `node tools/verify.mjs` and
-`node --test tests/*.test.mjs` from Automation, then run
-`./Automation/tests/Test-UnityGate.ps1` and
-`node Automation/tools/unity-policy.mjs .` from the repository root.
+## Acceptance
 
-The coordinator and repository administrator own the runner handoff.
+GitHub runs **Tooling validation only** on pull requests, pushes to main,
+and merge groups. It verifies the Unity asset inventory, pinned sources,
+repeatable generation, and failure handling with synthetic fixtures.
+The team runs Unity compilation, C# quality checks, EditMode, PlayMode,
+and Win64 builds locally for gameplay and release changes. A hosted Unity
+runner is optional and outside the current O03 acceptance criteria.
 
-1. Provision a disposable, isolated Windows x64 runner with label
-   `lks-ephemeral`, exact Unity revision, Windows player support, Git LFS,
-   and a legal Unity entitlement. Restrict runner access to this repository
-   and the trusted workflow. Review the source of merge groups admitted to
-   the runner. Keep licensing credentials out of workflow inputs and published files.
-2. Configure the `unity-ci` environment and set `UNITY_EDITOR_PATH` on the
-   runner. The artifact contains an allowlisted diagnostic log with diagnostic
-   codes and test totals. Raw logs, XML, and formatter reports stay on the
-   runner for authorized inspection.
-   Set repository variable `LKS_CI_READY=true` after provisioning and copy
-   `Automation/templates/ci.yml.example` into `.github/workflows`.
-3. Run the full workflow on a passing revision and deliberate compile,
-   test, missing results, and license failures in an isolated validation
-   branch and runner. Check Win64 player smoke separately. Record the
-   actual GitHub check context before changing branch protection.
-   The intended job label is **Unity validation gate**.
-4. After compilation, run `./Automation/tools/Invoke-CSharpQuality.ps1
-   -ProjectPath . -UnityPath <Unity.exe>`. It verifies the SHA-256 hashes
-   and compiler registration of the bundled Unity Roslyn analyzers plus
-   the exact bundled SDK and formatter versions in
-   `sources/csharp-quality.json` (schema 1). It rejects increases in the
-   per-file whitespace count. A different finding can replace one removed
-   within a legacy file without raising its count. As the owners fix legacy
-   files, reduce those counts through review until the baseline is empty.
+## Run Unity before reviewing a build
 
-The full workflow template compiles scripts, runs both suites, and builds
-Win64. Each invocation has a unique output directory. Missing logs, missing
-or skipped tests, compilation or license errors, and incomplete builds fail
-the Unity job. The aggregate gate requires both jobs to succeed. Outputs are
-CI candidates. Public delivery and signing belong to O05.
+Use Windows x64 with PowerShell 7, Git LFS, and the pinned Editor with
+Windows player support. Activate Unity through its supported workflow
+on the development machine. Close the Editor and begin from a clean,
+separate checkout of the exact commit being reviewed. Unity imports can
+modify tracked metadata and settings. Use the separate checkout to keep
+these outputs away from ongoing edits.
 
-Local verification on base `fc786bf` passed compilation, 86 EditMode tests,
-24 PlayMode tests and a Win64 build. The quality check verified the analyzer
-registration in 23 compiler responses. A formatting regression fixture was
-rejected and the diagnostic export fixture retained the compiler code while
-omitting the raw log message. The GitHub API reported zero registered
-self-hosted runners for this repository during O03 verification.
+From its repository root, run:
+
+```powershell
+$unity = 'C:/Program Files/Unity/Hub/Editor/6000.6.9f1/Editor/Unity.exe'
+./Automation/tools/Invoke-UnityChecks.ps1 -ProjectPath . -UnityPath $unity -Mode All
+```
+
+The command stops at the first failure. It writes separate logs and NUnit
+reports under `TestResults/<run-id>/` and the player under
+`Builds/<run-id>/`. Keep the entire player directory together. Start
+`LastKnownState.exe` and record the commit SHA, Unity version, test totals,
+and whether the player reached the opening. Attach the sanitized log or
+relevant review evidence to the PR. To produce a log with only allowlisted
+diagnostic codes and test counts, run `Export-UnityDiagnostics.ps1` with
+`-ResultsPath TestResults` and an output path outside the raw test results.
+
+The C# check verifies the SHA-256 hashes and compiler registration of the
+bundled Unity Roslyn analyzers, and the bundled SDK and formatter versions
+in `sources/csharp-quality.json` (schema 1). It rejects increases in each
+file's whitespace count. A new finding can replace one removed within a
+legacy file without raising its count. Reduce those limits as the owners
+fix legacy files.
+
+The coordinator maintains these scripts. Each developer runs the local
+checks for changes they own. `Automation/templates/ci.yml.example` is
+retained as a reference for a future licensed runner. Public delivery
+and signing belong to O05.

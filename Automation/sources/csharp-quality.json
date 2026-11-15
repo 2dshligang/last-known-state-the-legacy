@@ -18,7 +18,7 @@
     "Assets/_Game/Science/Editor/DonkiSnapshotImporter.cs": 3,
     "Assets/_Game/Systems/StationSaves.cs": 15,
     "Assets/_Game/Tests/Systems/ReleaseAuditTests.cs": 5,
-    "Assets/_Game/World/W05/StationInputOverlay.cs": 141,
+    "Assets/_Game/World/W05/StationInputOverlay.cs": 1,
     "Assets/_Game/World/W06/EchoProjection.cs": 42
   }
 }
