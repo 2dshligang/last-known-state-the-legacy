@@ -16,19 +16,22 @@ namespace LKS.World
         private Page page;
         private int focus;
         private Texture2D photograph;
+        private bool showPhotograph;
         private string status;
 
         internal bool IsOpen => lease != null;
         internal string FinalText { get; private set; }
+        internal Texture2D DisplayedPhotograph => showPhotograph ? photograph : null;
         internal bool InCredits => page == Page.Credits;
         private bool Completed => observed?.Ending?.Completion.Snapshot == true;
         private bool CanControl => IsOpen && station.isActiveAndEnabled && player.HasApplicationFocus && !player.IsPaused &&
             ReferenceEquals(observed, station.Session);
 
-        internal void Bind(StationFirstPerson input, StationInteraction bridge)
+        internal void Bind(StationFirstPerson input, StationInteraction bridge, Texture2D sharedPhotograph)
         {
             player = input;
             station = bridge;
+            photograph = sharedPhotograph;
         }
 
         private void Update() => ObserveSession();
@@ -111,8 +114,7 @@ namespace LKS.World
         void INarrativeView.ShowText(string text, StableId portrait, StableId cameraCue)
         {
             FinalText = text;
-            if (portrait.value == "portrait.dmitry-photograph" && cameraCue.value == "camera.final-photograph")
-                photograph ??= Resources.Load<Texture2D>("W14/DmitryPhoto");
+            showPhotograph = portrait.value == "portrait.dmitry-photograph" && cameraCue.value == "camera.final-photograph";
         }
 
         internal void OpenMenu()
@@ -147,6 +149,14 @@ namespace LKS.World
             return Show(Page.Menu);
         }
 
+        internal bool SaveProgress()
+        {
+            if (!CanControl || page != Page.Menu) return false;
+            var result = station.SaveCampaign();
+            status = Resolve(result.MessageKey);
+            return result.Succeeded;
+        }
+
         private bool Show(Page next)
         {
             if (!isActiveAndEnabled || player == null || !player.isActiveAndEnabled) return false;
@@ -166,12 +176,14 @@ namespace LKS.World
             lease = null;
             page = Page.Closed;
             FinalText = null;
+            showPhotograph = false;
             prior?.Dispose();
         }
 
         private void ReturnToStation()
         {
             Close();
+            station.SyncOpening();
             if (!player.HasWorldFocus) player.ResumePointer();
         }
 

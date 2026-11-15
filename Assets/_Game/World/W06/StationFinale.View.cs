@@ -40,10 +40,10 @@ namespace LKS.World
 
         private void DrawPhotograph()
         {
-            if (photograph != null)
+            if (DisplayedPhotograph != null)
             {
                 Fill(new Rect(315, 25, 270, 326), Ink);
-                GUI.DrawTexture(new Rect(324, 34, 252, 308), photograph, ScaleMode.ScaleToFit, false);
+                GUI.DrawTexture(new Rect(324, 34, 252, 308), DisplayedPhotograph, ScaleMode.ScaleToFit, false);
             }
             Write(new Rect(80, 370, 740, 60), FinalText, title, Ink);
             if (Button(new Rect(232, 472, 213, 42), "View credits", 0)) Credits();
@@ -64,14 +64,17 @@ namespace LKS.World
             if (Button(new Rect(275, 164, 350, 44), "Continue saved game", 0)) Continue();
             if (Button(new Rect(275, 222, 350, 44), "New game", 1)) station.NewRun();
             if (Button(new Rect(275, 280, 350, 44), "Replay ending", 2, Completed)) Replay();
-            if (Button(new Rect(275, 338, 350, 44), "Return to station", 3)) ReturnToStation();
-            Write(new Rect(70, 474, 760, 32), "Tab moves between controls. Enter selects.", detail, Muted);
+            bool openingPending = observed?.Narrative?.CaptureOpening() is OpeningProgress.Farewell or OpeningProgress.Arrival;
+            if (Button(new Rect(275, 338, 350, 44), openingPending ? "Return to opening" : "Return to station", 3))
+                ReturnToStation();
+            if (Button(new Rect(275, 396, 350, 44), "Save progress", 4)) SaveProgress();
+            Write(new Rect(70, 480, 760, 32), "Tab moves between controls. Enter selects.", detail, Muted);
         }
 
         internal void HandleKeyboard(Event input)
         {
             if (!CanControl || input.type != EventType.KeyDown) return;
-            int count = page == Page.Menu ? 4 : page == Page.Photograph ? 2 : 1;
+            int count = page == Page.Menu ? 5 : page == Page.Photograph ? 2 : 1;
             if (input.keyCode == KeyCode.Tab)
             {
                 int step = input.shift ? -1 : 1;
@@ -90,6 +93,7 @@ namespace LKS.World
                         case 1: station.NewRun(); break;
                         case 2: Replay(); break;
                         case 3: ReturnToStation(); break;
+                        case 4: SaveProgress(); break;
                     }
                 }
             }

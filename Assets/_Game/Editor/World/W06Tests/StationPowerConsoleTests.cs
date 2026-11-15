@@ -66,7 +66,8 @@ namespace LKS.Editor.World
             Assert.That(console.Proposed.Loads.Single(load => load.Id == StationPower.Transmit).Requested, Is.False);
 
             interaction.NewRun();
-            Assert.That(console.IsOpen || player.HasReadingFocus, Is.False);
+            Assert.That(console.IsOpen, Is.False);
+            Assert.That(player.HasReadingFocus, Is.True, "Restart opens the narrative.");
             Assert.That(console.Apply(), Is.False);
             Assert.That(interaction.Session.Power, Is.Not.SameAs(power));
             yield return LoadStation();
@@ -88,7 +89,8 @@ namespace LKS.Editor.World
             var essentials = new[] { StationPower.Air, StationPower.Water };
             Assert.That(bootstrap.RestartWithPower(catalog, Array.Empty<StableId>(),
                 () => Array.Empty<IInteractable>(), _ => ResultCode.EvidenceInsufficient,
-                new PowerCheckpoint(.05m, 0, essentials), new[] { StationQuests.RequiredStages[0] }, clock), Is.Empty);
+                new PowerCheckpoint(.05m, 0, essentials), new[] { StationQuests.RequiredStages[0] }, clock,
+                openingCheckpoint: OpeningProgress.Complete), Is.Empty);
             var active = bootstrap.Current;
             var power = active.Power;
             Assert.That(console.Open(), Is.True);
@@ -128,6 +130,8 @@ namespace LKS.Editor.World
         private static IEnumerator LoadStation()
         {
             yield return EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters(LoadSceneMode.Single));
+            yield return null;
+            Object.FindAnyObjectByType<SessionBootstrap>().Current.Narrative.SkipOpening();
             yield return null;
             var player = Object.FindAnyObjectByType<StationFirstPerson>();
             player.SendMessage("OnApplicationFocus", true);

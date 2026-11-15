@@ -114,6 +114,9 @@ namespace LKS.Editor.World
                 Assert.That(bridge.Submit(photo));
                 Assert.That(finale.IsOpen);
                 Assert.That(finale.FinalText, Is.EqualTo("Dad... I did it."));
+                var opening = bridge.GetComponent<StationOpening>();
+                Assert.That(opening.Photograph, Is.Not.Null);
+                Assert.That(finale.DisplayedPhotograph, Is.SameAs(opening.Photograph));
                 Assert.That(finale.InCredits, Is.False);
                 Assert.That(session.Ending.Completion.Snapshot);
                 Assert.That(session.Logistics.Delivery, Is.EqualTo(DeliveryState.Queued));
@@ -127,6 +130,7 @@ namespace LKS.Editor.World
                 Assert.That(bridge.Session, Is.Not.SameAs(session));
                 Assert.That(bridge.Session.Ending.Completion.Snapshot);
                 Assert.That(finale.FinalText, Is.EqualTo("Dad... I did it."));
+                Assert.That(finale.DisplayedPhotograph, Is.SameAs(opening.Photograph));
                 Assert.That(bridge.Session.CaptureQuestCheckpoint(), Is.EqualTo(StationQuests.RequiredStages));
                 Assert.That(completions, Is.EqualTo(1));
             }
@@ -134,6 +138,133 @@ namespace LKS.Editor.World
             {
                 RemoveTemporaryCampaign(path);
             }
+        }
+
+        [UnityTest]
+        public IEnumerator NewCampaignRestoresArrivalAndReachesTheEndingThroughTheSavedStation()
+        {
+            yield return EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/_Game/Scenes/Station.unity",
+                new LoadSceneParameters(LoadSceneMode.Single));
+            yield return null;
+            var bridge = Object.FindAnyObjectByType<StationInteraction>();
+            var player = bridge.GetComponent<StationFirstPerson>();
+            player.SendMessage("OnApplicationFocus", true);
+            var opening = player.GetComponent<StationOpening>();
+            var finale = player.GetComponent<StationFinale>();
+            string path = SetTemporaryCampaign(bridge);
+            try
+            {
+                Assert.That(opening.IsOpen && opening.Continue());
+                Assert.That(bridge.Session.Narrative.CaptureOpening(), Is.EqualTo(OpeningProgress.Arrival));
+                Assert.That(opening.OpenGameMenu() && finale.SaveProgress());
+                Assert.That(finale.IsOpen && !opening.IsOpen);
+                bridge.NewRun();
+                Assert.That(opening.Passage, Does.Contain("January 20, 2059"));
+                Assert.That(opening.OpenGameMenu() && finale.Continue());
+                Assert.That(opening.IsOpen && !finale.IsOpen);
+                Assert.That(opening.Passage, Does.Contain("November 14, 2089"));
+                Assert.That(bridge.Session.CaptureQuestCheckpoint(), Is.Empty);
+                Assert.That(opening.Continue() && player.HasWorldFocus);
+
+                yield return StationEchoInvestigationTests.CompleteArrivalAndPower(bridge);
+                var reader = player.GetComponent<StationArchiveReader>();
+                var review = player.GetComponent<StationEchoReview>();
+                var investigation = player.GetComponent<StationEchoInvestigation>();
+                StationEchoInvestigationTests.OpenArchiveAndAcknowledge(bridge, reader);
+                Assert.That(reader.OpenReplay());
+                StationEchoInvestigationTests.OpenInvestigation(review, investigation);
+                foreach (var clue in EchoInvestigation.RequiredClues)
+                    Assert.That(investigation.Inspect(clue) && investigation.ReturnToComparison() && investigation.ToggleOrder(clue));
+                Assert.That(investigation.SubmitOrder() && investigation.ConfirmQuest());
+                investigation.Close();
+
+                yield return CollectSamples(bridge);
+                yield return AnalyzeSamples(bridge);
+
+                var report = player.GetComponent<StationResearchTerminal>();
+                Assert.That(bridge.Submit(AimAt(StationResearchTerminal.Target)));
+                Assert.That(report.ToggleObservation(ReportObservation.LayersVisible) &&
+                    report.ToggleObservation(ReportObservation.IronMineralSigns) &&
+                    report.ToggleObservation(ReportObservation.BlankPassed));
+                for (int section = 0; section < 4; section++) Assert.That(report.CycleChoice(section, 1));
+                Assert.That(report.SubmitReport() && report.QueueReport());
+                report.HandleKeys(new Event { type = EventType.KeyDown, keyCode = KeyCode.Return });
+                Assert.That(player.HasWorldFocus);
+                Assert.That(bridge.Submit(WalkToPhotograph(bridge)));
+                Assert.That(finale.FinalText, Is.EqualTo("Dad... I did it."));
+                Assert.That(finale.DisplayedPhotograph, Is.SameAs(opening.Photograph));
+                Assert.That(bridge.Session.CaptureQuestCheckpoint(), Is.EqualTo(StationQuests.RequiredStages));
+            }
+            finally
+            {
+                RemoveTemporaryCampaign(path);
+            }
+        }
+
+        private static IEnumerator CollectSamples(StationInteraction bridge)
+        {
+            yield return PickUp(bridge, AimAt(StationSamples.Blank));
+            var motor = bridge.GetComponent<FirstPersonMotor>();
+            var layout = Object.FindAnyObjectByType<StationGenerationManifest>().Layout;
+            float near = layout.InteriorEnd + 2;
+            float far = layout.InteriorEnd + layout.ExteriorDepth - 1.5f;
+            var camera = bridge.GetComponentInChildren<Camera>().transform;
+            Physics.SyncTransforms();
+            Walk(new Vector3(0, 0, motor.transform.position.z));
+            Walk(new Vector3(0, 0, near));
+            foreach (var sample in FictionalSample.All.Where(item => item.Id != StationSamples.Blank))
+            {
+                var rock = StationInteractionTests.Anchor(sample.Id);
+                Walk(new Vector3(rock.Approach.position.x, 0, near));
+                Walk(rock.Approach.position);
+                yield return PickUp(bridge, Face(camera, rock));
+                Walk(new Vector3(rock.Approach.position.x, 0, near));
+                Walk(new Vector3(0, 0, near));
+            }
+
+            var dust = StationInteractionTests.Anchor(StationQuests.RequiredStages[3]);
+            float side = layout.ExteriorWidth / 2 - 1.3f;
+            Walk(new Vector3(side, 0, near));
+            Walk(new Vector3(side, 0, far));
+            Walk(dust.Approach.position);
+            Assert.That(bridge.Submit(Face(camera, dust)));
+            Walk(new Vector3(side, 0, far));
+            Walk(new Vector3(side, 0, near));
+            Walk(new Vector3(0, 0, near));
+            Walk(new Vector3(0, 0, layout.InteriorEnd - 2));
+            yield return new WaitForSecondsRealtime(.31f);
+
+            void Walk(Vector3 point) => StationArchiveReaderTests.Walk(motor, point);
+        }
+
+        private static IEnumerator PickUp(StationInteraction bridge, Ray aim)
+        {
+            Assert.That(bridge.Submit(aim));
+            yield return new WaitForSecondsRealtime(.31f);
+            Assert.That(bridge.Submit(aim));
+            yield return new WaitForSecondsRealtime(.31f);
+        }
+
+        private static IEnumerator AnalyzeSamples(StationInteraction bridge)
+        {
+            var session = bridge.Session;
+            Assert.That(session.Power.RequestLoad(StationPower.Archive, false).Succeeded);
+            Assert.That(session.Power.RequestLoad(StationPower.Lab, true).Succeeded);
+            Assert.That(bridge.Submit(AimAt(StationLaboratory.Target)));
+            var lab = bridge.GetComponent<StationLaboratory>();
+            Assert.That(lab.StartAnalysis(StationSamples.Blank));
+            yield return new WaitForSecondsRealtime(.75f);
+            Assert.That(session.Samples.BlankControl, Is.EqualTo(ControlStatus.Invalid));
+            Assert.That(lab.Clean());
+            foreach (var id in new[] { StationSamples.Blank }.Concat(
+                FictionalSample.All.Select(item => item.Id).Where(id => id != StationSamples.Blank)))
+            {
+                Assert.That(lab.StartAnalysis(id));
+                yield return new WaitForSecondsRealtime(.75f);
+                Assert.That(lab.Interpret(id, true));
+            }
+            Assert.That(lab.Confirm());
+            lab.Close();
         }
 
         private static void RestoreReviewed(StationInteraction bridge, ResearchDraft accepted = null)
@@ -163,27 +294,19 @@ namespace LKS.Editor.World
             Assert.That(anchor.Approach.position.z, Is.GreaterThan(layout.InteriorEnd));
             var motor = bridge.GetComponent<FirstPersonMotor>();
             var approach = anchor.Approach.position;
-            WalkTo(new Vector3(0, 0, approach.z));
-            WalkTo(approach);
-            var camera = bridge.GetComponentInChildren<Camera>().transform;
-            camera.LookAt(anchor.transform.position);
-            Physics.SyncTransforms();
-            var ray = new Ray(camera.position, camera.forward);
+            StationArchiveReaderTests.Walk(motor, new Vector3(0, 0, motor.transform.position.z));
+            StationArchiveReaderTests.Walk(motor, new Vector3(0, 0, approach.z));
+            StationArchiveReaderTests.Walk(motor, approach);
+            var ray = Face(bridge.GetComponentInChildren<Camera>().transform, anchor);
             Assert.That(bridge.FindAimedTarget(ray), Is.SameAs(anchor));
             return ray;
+        }
 
-            void WalkTo(Vector3 point)
-            {
-                for (int index = 0; index < 160; index++)
-                {
-                    Vector3 direction = point - motor.transform.position;
-                    direction.y = 0;
-                    if (direction.sqrMagnitude < .001f) return;
-                    Vector3 local = motor.transform.InverseTransformDirection(direction);
-                    motor.Move(Vector2.ClampMagnitude(new Vector2(local.x, local.z) / .27f, 1), .08f);
-                }
-                Assert.Fail($"Unable to walk to the overlook at {point:F2} from {motor.transform.position:F2}.");
-            }
+        private static Ray Face(Transform camera, StationInteractionAnchor anchor)
+        {
+            camera.LookAt(anchor.transform.position);
+            Physics.SyncTransforms();
+            return new Ray(camera.position, camera.forward);
         }
 
         private static string SetTemporaryCampaign(StationInteraction bridge)

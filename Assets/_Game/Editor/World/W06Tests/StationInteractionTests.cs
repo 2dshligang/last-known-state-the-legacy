@@ -122,6 +122,8 @@ namespace LKS.Editor.World
         {
             yield return EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters(LoadSceneMode.Single));
             yield return null;
+            Object.FindAnyObjectByType<SessionBootstrap>().Current.Narrative.SkipOpening();
+            yield return null;
             var interaction = Object.FindAnyObjectByType<StationInteraction>();
             Assert.That(interaction.StartError, Is.Null);
             Assert.That(interaction.Session, Is.Not.Null);
