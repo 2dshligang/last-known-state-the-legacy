@@ -17,11 +17,12 @@ namespace LKS.Editor.World
                 : EditorUtility.SaveFilePanel("Build Station for Windows", "", "LastKnownState", "exe");
             if (string.IsNullOrWhiteSpace(output)) return;
 
+            W19StationValidation.Verify();
             output = Path.GetFullPath(output);
             Directory.CreateDirectory(Path.GetDirectoryName(output));
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
-                scenes = new[] { W04StationGenerator.ScenePath },
+                scenes = new[] { LKS.World.StationSceneEntry.Path },
                 locationPathName = output,
                 target = BuildTarget.StandaloneWindows64
             });

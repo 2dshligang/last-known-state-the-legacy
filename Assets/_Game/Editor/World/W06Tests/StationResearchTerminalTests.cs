@@ -143,10 +143,11 @@ namespace LKS.Editor.World
         [UnityTest]
         public IEnumerator NewCampaignRestoresArrivalAndReachesTheEndingThroughTheSavedStation()
         {
-            yield return EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/_Game/Scenes/Station.unity",
+            yield return EditorSceneManager.LoadSceneAsyncInPlayMode(StationSceneEntry.Path,
                 new LoadSceneParameters(LoadSceneMode.Single));
             yield return null;
-            var bridge = Object.FindAnyObjectByType<StationInteraction>();
+            var bridge = StationSceneEntry.Resolve(SceneManager.GetSceneByPath(StationSceneEntry.Path));
+            Assert.That(bridge.StartError, Is.Null);
             var player = bridge.GetComponent<StationFirstPerson>();
             player.SendMessage("OnApplicationFocus", true);
             var opening = player.GetComponent<StationOpening>();
@@ -166,23 +167,38 @@ namespace LKS.Editor.World
                 Assert.That(bridge.Session.CaptureQuestCheckpoint(), Is.Empty);
                 Assert.That(opening.Continue() && player.HasWorldFocus);
 
-                yield return StationEchoInvestigationTests.CompleteArrivalAndPower(bridge);
+                Assert.That(bridge.Submit(WalkToInterior(bridge, StationQuests.RequiredStages[0])));
+                yield return new WaitForSecondsRealtime(.31f);
+                Assert.That(bridge.Submit(WalkToInterior(bridge, StationPowerConsole.Target)));
+                var power = player.GetComponent<StationPowerConsole>();
+                Assert.That(power.Toggle(StationPower.Air) && power.Toggle(StationPower.Water) &&
+                    power.Toggle(StationPower.Archive) && power.Apply() && power.ConfirmLifeSupport());
+                power.Close();
+                ReloadChapter(bridge, finale, 2, "life-support");
                 var reader = player.GetComponent<StationArchiveReader>();
                 var review = player.GetComponent<StationEchoReview>();
                 var investigation = player.GetComponent<StationEchoInvestigation>();
-                StationEchoInvestigationTests.OpenArchiveAndAcknowledge(bridge, reader);
+                Assert.That(bridge.Submit(WalkToInterior(bridge, StationArchiveReader.Target)));
+                Assert.That(reader.OpenDocument(0, Vector2.zero) && reader.MarkAsRead() && reader.ReturnToList());
                 Assert.That(reader.OpenReplay());
                 StationEchoInvestigationTests.OpenInvestigation(review, investigation);
                 foreach (var clue in EchoInvestigation.RequiredClues)
                     Assert.That(investigation.Inspect(clue) && investigation.ReturnToComparison() && investigation.ToggleOrder(clue));
                 Assert.That(investigation.SubmitOrder() && investigation.ConfirmQuest());
                 investigation.Close();
+                ReloadChapter(bridge, finale, 3, "echo");
+                Assert.That(bridge.Session.Archive.RequiredEntryAcknowledged);
+                Assert.That(bridge.Session.Investigation.Conclusion, Is.EqualTo(EchoConclusion.Confirmed));
 
                 yield return CollectSamples(bridge);
-                yield return AnalyzeSamples(bridge);
+                ReloadChapter(bridge, finale, 4, "sampling");
+                Assert.That(bridge.Session.Samples.AllCollected);
+                yield return AnalyzeSamples(bridge, finale, power);
+                ReloadChapter(bridge, finale, 5, "analysis");
+                Assert.That(bridge.Session.Samples.AllReviewed);
 
                 var report = player.GetComponent<StationResearchTerminal>();
-                Assert.That(bridge.Submit(AimAt(StationResearchTerminal.Target)));
+                Assert.That(bridge.Submit(WalkToInterior(bridge, StationResearchTerminal.Target)));
                 Assert.That(report.ToggleObservation(ReportObservation.LayersVisible) &&
                     report.ToggleObservation(ReportObservation.IronMineralSigns) &&
                     report.ToggleObservation(ReportObservation.BlankPassed));
@@ -190,10 +206,21 @@ namespace LKS.Editor.World
                 Assert.That(report.SubmitReport() && report.QueueReport());
                 report.HandleKeys(new Event { type = EventType.KeyDown, keyCode = KeyCode.Return });
                 Assert.That(player.HasWorldFocus);
-                Assert.That(bridge.Submit(WalkToPhotograph(bridge)));
+                ReloadChapter(bridge, finale, 6, "report-queued");
+                Assert.That(bridge.Session.Logistics.Delivery, Is.EqualTo(DeliveryState.Queued));
+                Assert.That(bridge.Submit(WalkToInterior(bridge, StationPowerConsole.Target)));
+                Assert.That(power.Toggle(StationPower.Lab) && power.Toggle(StationPower.Transmit) && power.Apply());
+                power.Close();
+                var photoRay = WalkToPhotograph(bridge);
+                Assert.That(bridge.Session.Power.Snapshot.Loads.Single(load => load.Id == StationPower.Transmit).Supplied);
+                Assert.That(bridge.Submit(photoRay));
                 Assert.That(finale.FinalText, Is.EqualTo("Dad... I did it."));
                 Assert.That(finale.DisplayedPhotograph, Is.SameAs(opening.Photograph));
                 Assert.That(bridge.Session.CaptureQuestCheckpoint(), Is.EqualTo(StationQuests.RequiredStages));
+                Assert.That(finale.SkipToMenu() && finale.Continue());
+                Assert.That(bridge.Session.Ending.Completion.Snapshot);
+                Assert.That(finale.FinalText, Is.EqualTo("Dad... I did it."));
+                Debug.Log("W19_ROUTE_PASS: opened the final photograph and loaded the completed campaign.");
             }
             finally
             {
@@ -203,7 +230,7 @@ namespace LKS.Editor.World
 
         private static IEnumerator CollectSamples(StationInteraction bridge)
         {
-            yield return PickUp(bridge, AimAt(StationSamples.Blank));
+            yield return PickUp(bridge, WalkToInterior(bridge, StationSamples.Blank));
             var motor = bridge.GetComponent<FirstPersonMotor>();
             var layout = Object.FindAnyObjectByType<StationGenerationManifest>().Layout;
             float near = layout.InteriorEnd + 2;
@@ -245,14 +272,19 @@ namespace LKS.Editor.World
             yield return new WaitForSecondsRealtime(.31f);
         }
 
-        private static IEnumerator AnalyzeSamples(StationInteraction bridge)
+        private static IEnumerator AnalyzeSamples(StationInteraction bridge, StationFinale finale, StationPowerConsole power)
         {
-            var session = bridge.Session;
-            Assert.That(session.Power.RequestLoad(StationPower.Archive, false).Succeeded);
-            Assert.That(session.Power.RequestLoad(StationPower.Lab, true).Succeeded);
-            Assert.That(bridge.Submit(AimAt(StationLaboratory.Target)));
+            Assert.That(bridge.Submit(WalkToInterior(bridge, StationPowerConsole.Target)));
+            Assert.That(power.Toggle(StationPower.Archive) && power.Toggle(StationPower.Lab) && power.Apply());
+            power.Close();
+            Assert.That(bridge.Submit(WalkToInterior(bridge, StationLaboratory.Target)));
             var lab = bridge.GetComponent<StationLaboratory>();
             Assert.That(lab.StartAnalysis(StationSamples.Blank));
+            lab.Close();
+            ReloadChapter(bridge, finale, 4, "lab-in-flight");
+            var session = bridge.Session;
+            Assert.That(session.Samples.Capture().PendingId, Is.EqualTo(StationSamples.Blank));
+            Assert.That(bridge.Submit(WalkToInterior(bridge, StationLaboratory.Target)));
             yield return new WaitForSecondsRealtime(.75f);
             Assert.That(session.Samples.BlankControl, Is.EqualTo(ControlStatus.Invalid));
             Assert.That(lab.Clean());
@@ -265,6 +297,33 @@ namespace LKS.Editor.World
             }
             Assert.That(lab.Confirm());
             lab.Close();
+        }
+
+        private static void ReloadChapter(StationInteraction bridge, StationFinale finale, int stage, string chapter)
+        {
+            var before = bridge.Session;
+            var expected = StationQuests.RequiredStages.Take(stage).ToArray();
+            Assert.That(before.CaptureQuestCheckpoint(), Is.EqualTo(expected), chapter);
+            finale.OpenMenu();
+            Assert.That(finale.SaveProgress() && finale.Continue(), chapter);
+            Assert.That(bridge.Session, Is.Not.SameAs(before), chapter);
+            Assert.That(bridge.Session.CaptureQuestCheckpoint(), Is.EqualTo(expected), chapter);
+            Assert.That(bridge.GetComponent<StationFirstPerson>().HasWorldFocus, Is.True, chapter);
+            Debug.Log($"W19_CHECKPOINT_PASS {chapter}: {stage} milestones");
+        }
+
+        private static Ray WalkToInterior(StationInteraction bridge, StableId target)
+        {
+            var anchor = StationInteractionTests.Anchor(target);
+            var motor = bridge.GetComponent<FirstPersonMotor>();
+            var approach = anchor.Approach.position;
+            Physics.SyncTransforms();
+            StationArchiveReaderTests.Walk(motor, new Vector3(0, 0, motor.transform.position.z));
+            StationArchiveReaderTests.Walk(motor, new Vector3(0, 0, approach.z));
+            StationArchiveReaderTests.Walk(motor, approach);
+            var ray = Face(bridge.GetComponentInChildren<Camera>().transform, anchor);
+            Assert.That(bridge.FindAimedTarget(ray), Is.SameAs(anchor), $"Approach and sight line for {target}");
+            return ray;
         }
 
         private static void RestoreReviewed(StationInteraction bridge, ResearchDraft accepted = null)
