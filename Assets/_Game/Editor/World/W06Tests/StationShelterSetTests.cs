@@ -134,6 +134,8 @@ namespace LKS.Editor.World
         {
             yield return EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters(LoadSceneMode.Single));
             yield return null;
+            Object.FindAnyObjectByType<SessionBootstrap>().Current.Narrative.SkipOpening();
+            yield return null;
             Object.FindAnyObjectByType<StationFirstPerson>().SendMessage("OnApplicationFocus", true);
             Physics.SyncTransforms();
         }
@@ -144,7 +146,8 @@ namespace LKS.Editor.World
             var errors = bootstrap.RestartWithPower(bootstrap.Current.Science, Array.Empty<StableId>(),
                 () => Array.Empty<IInteractable>(), _ => ResultCode.EvidenceInsufficient,
                 new PowerCheckpoint(0m, 0m, loads), new[] { Arrival }, clock,
-                lifeSupportCheckpoint: new LifeSupportCheckpoint(1m, 10m, 0m, false));
+                lifeSupportCheckpoint: new LifeSupportCheckpoint(1m, 10m, 0m, false),
+                openingCheckpoint: OpeningProgress.Complete);
             Assert.That(errors, Is.Empty);
             return bootstrap.Current;
         }
