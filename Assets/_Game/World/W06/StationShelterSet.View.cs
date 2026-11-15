@@ -6,10 +6,10 @@ namespace LKS.World
 {
     public sealed partial class StationShelterSet
     {
-        private static readonly Color Ink = new Color32(236, 242, 243, 255);
-        private static readonly Color Muted = new Color32(183, 205, 212, 255);
-        private static readonly Color Accent = new Color32(119, 230, 209, 255);
-        private static readonly Color Notice = new Color32(255, 199, 129, 255);
+        private static readonly Color Ink = StationUi.Ink;
+        private static readonly Color Muted = StationUi.Muted;
+        private static readonly Color Accent = StationUi.Accent;
+        private static readonly Color Notice = StationUi.Amber;
         private readonly StationKeyboardFocus keyboard = new();
         private GUIStyle title, body, heading, button;
 
@@ -29,8 +29,7 @@ namespace LKS.World
                 (Screen.height - height * scale) / 2, 0), Quaternion.identity, new Vector3(scale, scale, 1));
             try
             {
-                Fill(new Rect(0, 0, width, height), new Color32(16, 24, 30, 255));
-                Fill(new Rect(0, 0, width, 3), Accent);
+                StationUi.Frame(new Rect(0, 0, width, height), Accent);
                 bool shelter = page == ShelterTarget;
                 Write(new Rect(24, 17, 630, 42), shelter ? "Shelter control" : "Seedling cabinet", title, Ink);
                 if (keyboard.Button(new Rect(716, 23, 144, 38), "Close panel", "close", button, Close))
@@ -118,7 +117,7 @@ namespace LKS.World
             title = new GUIStyle(GUI.skin.label) { fontSize = 35, fontStyle = FontStyle.Bold };
             body = new GUIStyle(GUI.skin.label) { fontSize = 18, wordWrap = true, alignment = TextAnchor.UpperLeft };
             heading = new GUIStyle(body) { fontSize = 21, fontStyle = FontStyle.Bold };
-            button = new GUIStyle(GUI.skin.button) { fontSize = 17 };
+            button = StationUi.ButtonStyle(17, wrap: true);
         }
 
         private static void Write(Rect rect, string message, GUIStyle style, Color color)
@@ -127,13 +126,6 @@ namespace LKS.World
             GUI.Label(rect, message, style);
         }
 
-        private static void Fill(Rect rect, Color color)
-        {
-            if (Event.current.type != EventType.Repaint) return;
-            var previous = GUI.color;
-            GUI.color = color;
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = previous;
-        }
+        private static void Fill(Rect rect, Color color) => StationUi.Fill(rect, color);
     }
 }

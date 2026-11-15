@@ -6,6 +6,19 @@ namespace LKS.World
 {
     public static class StationUi
     {
+        public static readonly Color Panel = new Color32(17, 23, 28, 255);
+        public static readonly Color Surface = new Color32(27, 36, 43, 255);
+        public static readonly Color Control = new Color32(37, 56, 65, 255);
+        public static readonly Color Ink = new Color32(242, 239, 231, 255);
+        public static readonly Color Muted = new Color32(185, 196, 204, 255);
+        public static readonly Color Accent = new Color32(128, 216, 204, 255);
+        public static readonly Color Amber = new Color32(255, 202, 120, 255);
+        public static readonly Color Alert = new Color32(255, 143, 133, 255);
+        public static readonly Color Edge = new Color32(57, 69, 79, 255);
+        private static readonly Color Primary = new Color32(47, 83, 83, 255);
+
+        private static GUIStyle invisibleButton;
+        private static Texture2D controlTexture, hoverTexture, pressedTexture;
         private const string TextPreference = "LKS.Station.LargeText";
         private static bool? largeText;
 
@@ -38,9 +51,71 @@ namespace LKS.World
             GUI.color = previous;
         }
 
+        public static void Frame(Rect area, Color tone)
+        {
+            Fill(area, Panel);
+            Fill(new Rect(area.x, area.y, area.width, 1), Edge);
+            Fill(new Rect(area.x, area.y, 52, 4), tone);
+            Fill(new Rect(area.x, area.yMax - 1, area.width, 1), Edge);
+        }
+
+        public static GUIStyle ButtonStyle(int size, bool wrap = false)
+        {
+            controlTexture ??= Pixel(Control);
+            hoverTexture ??= Pixel(new Color32(50, 76, 85, 255));
+            pressedTexture ??= Pixel(new Color32(61, 91, 97, 255));
+            var style = new GUIStyle(GUI.skin.button)
+            {
+                fontSize = size,
+                wordWrap = wrap,
+                border = new RectOffset(0, 0, 0, 0),
+                padding = new RectOffset(6, 6, 4, 4)
+            };
+            style.normal.background = controlTexture;
+            style.normal.textColor = Ink;
+            style.hover.background = hoverTexture;
+            style.hover.textColor = Ink;
+            style.active.background = pressedTexture;
+            style.active.textColor = Ink;
+            style.focused.background = hoverTexture;
+            style.focused.textColor = Ink;
+            return style;
+        }
+
+        public static bool DrawButton(Rect area, string text, GUIStyle label, bool enabled = true,
+            bool focused = false, bool primary = false)
+        {
+            enabled &= GUI.enabled;
+            if (focused && enabled) Outline(area);
+            bool hovering = enabled && area.Contains(Event.current.mousePosition);
+            Fill(area, !enabled ? Panel : hovering ? Control : primary ? Primary : Surface);
+            Fill(new Rect(area.x, area.y, area.width, 1), Edge);
+            Fill(new Rect(area.x, area.yMax - 1, area.width, 1), Edge);
+            if (primary && enabled)
+                Fill(new Rect(area.x, area.y, 4, area.height), Accent);
+            invisibleButton ??= new GUIStyle(GUIStyle.none);
+            bool wasEnabled = GUI.enabled;
+            GUI.enabled = enabled;
+            bool clicked = GUI.Button(area, GUIContent.none, invisibleButton);
+            GUI.enabled = wasEnabled;
+            var old = label.normal.textColor;
+            label.normal.textColor = enabled ? Ink : Muted;
+            GUI.Label(area, text, label);
+            label.normal.textColor = old;
+            return clicked;
+        }
+
+        private static Texture2D Pixel(Color color)
+        {
+            var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false) { hideFlags = HideFlags.HideAndDontSave };
+            texture.SetPixel(0, 0, color);
+            texture.Apply(false, true);
+            return texture;
+        }
+
         public static void Outline(Rect area)
         {
-            var color = new Color32(255, 216, 148, 255);
+            var color = Amber;
             Fill(new Rect(area.x - 2, area.y - 2, area.width + 4, 2), color);
             Fill(new Rect(area.x - 2, area.yMax, area.width + 4, 2), color);
             Fill(new Rect(area.x - 2, area.y, 2, area.height), color);

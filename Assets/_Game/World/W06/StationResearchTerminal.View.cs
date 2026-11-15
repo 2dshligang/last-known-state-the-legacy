@@ -10,14 +10,14 @@ namespace LKS.World
         private const float Height = 668;
         private static readonly string[] Sections = { "interpretation", "alternatives", "uncertainty", "follow-up" };
         private static readonly StableId Organics = new StableId("science.organics");
-        private static readonly Color Background = new Color32(14, 23, 29, 255);
-        private static readonly Color Surface = new Color32(24, 38, 48, 255);
-        private static readonly Color Control = new Color32(48, 67, 77, 255);
-        private static readonly Color Ink = new Color32(240, 247, 249, 255);
-        private static readonly Color Muted = new Color32(188, 211, 221, 255);
-        private static readonly Color Accent = new Color32(112, 225, 206, 255);
-        private static readonly Color Notice = new Color32(255, 203, 131, 255);
-        private GUIStyle title, heading, body, small, button, hitArea;
+        private static readonly Color Background = StationUi.Panel;
+        private static readonly Color Surface = StationUi.Surface;
+        private static readonly Color Control = StationUi.Control;
+        private static readonly Color Ink = StationUi.Ink;
+        private static readonly Color Muted = StationUi.Muted;
+        private static readonly Color Accent = StationUi.Accent;
+        private static readonly Color Notice = StationUi.Alert;
+        private GUIStyle title, heading, body, small, button;
 
         private void OnGUI()
         {
@@ -25,7 +25,8 @@ namespace LKS.World
             EnsureStyles();
             HandleKeys(Event.current);
             if (!IsOpen) return;
-            body.fontSize = reference == null ? 18 : StationUi.TextSize(18, 23);
+            body.fontSize = StationUi.TextSize(18, reference == null ? 20 : 23);
+            button.fontSize = StationUi.TextSize(17, 19);
             var original = GUI.matrix;
             Fill(new Rect(0, 0, Screen.width, Screen.height), new Color(0, 0, 0, .73f));
             float scale = Mathf.Min(1.5f, Screen.width / (Width + 28), Screen.height / (Height + 28));
@@ -33,8 +34,7 @@ namespace LKS.World
                 (Screen.height - Height * scale) / 2, 0), Quaternion.identity, new Vector3(scale, scale, 1));
             try
             {
-                Fill(new Rect(0, 0, Width, Height), Background);
-                Fill(new Rect(0, 0, Width, 3), Accent);
+                StationUi.Frame(new Rect(0, 0, Width, Height), Accent);
                 if (reference == null) DrawReport();
                 else DrawReference();
             }
@@ -44,8 +44,8 @@ namespace LKS.World
         private void DrawReport()
         {
             Write(new Rect(21, 14, 852, 53), "Dmitry's research report", title, Ink);
-            Write(new Rect(23, 70, 800, 25), Accepted ? "Accepted research" :
-                "Use the station evidence to finish the report.", body, Accepted ? Accent : Muted);
+            Write(new Rect(23, 70, 800, 25), Accepted ? "REPORT ACCEPTED  /  Queue the report to finish the mission" :
+                "RESEARCH LAB  /  Choose only what the evidence supports.", body, Accepted ? Accent : Muted);
             if (Button(new Rect(885, 26, 191, 37), "Return to station", 0))
             {
                 ExitToStation();
@@ -209,14 +209,8 @@ namespace LKS.World
 
         private bool Button(Rect rect, string label, int control, bool enabled = true)
         {
-            if (focus == control && enabled)
-                Fill(new Rect(rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 4), Notice);
-            Fill(rect, enabled ? Control : Background);
-            bool original = GUI.enabled;
-            GUI.enabled = enabled && original;
-            bool clicked = GUI.Button(rect, GUIContent.none, hitArea);
-            GUI.enabled = original;
-            Write(rect, label, button, enabled ? Ink : Muted);
+            bool clicked = StationUi.DrawButton(rect, label, button, enabled, focus == control,
+                reference == null && (control == 9 && !Accepted || control == 14 && Accepted));
             if (clicked) focus = control;
             return clicked;
         }
@@ -229,7 +223,6 @@ namespace LKS.World
             heading = new GUIStyle(body) { fontSize = 21, fontStyle = FontStyle.Bold };
             small = new GUIStyle(body) { fontSize = 16 };
             button = new GUIStyle(body) { alignment = TextAnchor.MiddleLeft, padding = new RectOffset(12, 8, 0, 0) };
-            hitArea = new GUIStyle(GUIStyle.none);
         }
 
         private static void Write(Rect rect, string text, GUIStyle style, Color color)
@@ -238,13 +231,6 @@ namespace LKS.World
             GUI.Label(rect, text, style);
         }
 
-        private static void Fill(Rect rect, Color color)
-        {
-            if (Event.current.type != EventType.Repaint) return;
-            var original = GUI.color;
-            GUI.color = color;
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = original;
-        }
+        private static void Fill(Rect rect, Color color) => StationUi.Fill(rect, color);
     }
 }

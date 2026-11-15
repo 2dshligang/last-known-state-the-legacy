@@ -79,6 +79,7 @@ namespace LKS.World
             currentSession = null;
             player = null;
             Playback = default;
+            inspectedRecord = null;
             projection?.Hide();
             lease?.Dispose();
         }
@@ -97,6 +98,7 @@ namespace LKS.World
         {
             if (!CanControl) return false;
             openedSession.Tick();
+            inspectedRecord = null;
             echo.Restart();
             Present(echo.Snapshot);
             return true;
@@ -118,6 +120,7 @@ namespace LKS.World
 
         private bool SeekFrame(decimal seconds)
         {
+            inspectedRecord = null;
             if (echo.Snapshot.Playing) echo.Stop();
             echo.Seek(seconds);
             Present(echo.Snapshot);

@@ -21,8 +21,10 @@ namespace LKS.World
         private GameObject photoCard;
         private string passage;
         private bool isFarewell;
+        private bool titlePending = true;
+        private int titleFocus;
         private float shotTime;
-        private GUIStyle title, body, hint, button;
+        private GUIStyle title, body, hint, button, primaryLabel, launchTitle;
 
         internal bool IsOpen => input != null;
         internal string Passage => passage;
@@ -78,7 +80,7 @@ namespace LKS.World
         private void Update()
         {
             Sync();
-            if (CanAct) shotTime += Time.unscaledDeltaTime;
+            if (CanAct && !titlePending) shotTime += Time.unscaledDeltaTime;
         }
 
         private bool CanAct => IsOpen && !player.IsPaused && player.HasApplicationFocus &&
@@ -86,6 +88,7 @@ namespace LKS.World
 
         internal bool Continue() => Act(skip: false);
         internal bool Skip() => Act(skip: true);
+        internal void DismissLaunchTitle() => titlePending = false;
 
         internal bool OpenGameMenu()
         {
@@ -98,6 +101,7 @@ namespace LKS.World
         private bool Act(bool skip)
         {
             if (!CanAct) return false;
+            titlePending = false;
             bool changed = skip ? session.Narrative.SkipOpening() : session.Narrative.AdvanceOpening();
             Sync();
             if (changed && !IsOpen && !player.HasWorldFocus) player.ResumePointer();
@@ -134,6 +138,11 @@ namespace LKS.World
         private void OnGUI()
         {
             if (!IsOpen || player.IsPaused || passage == null) return;
+            if (titlePending && bridge.HasGameMenu)
+            {
+                DrawLaunchMenu();
+                return;
+            }
             if (CanAct && Event.current.type == EventType.KeyDown)
             {
                 if (Event.current.keyCode is KeyCode.Return or KeyCode.KeypadEnter)
@@ -166,8 +175,9 @@ namespace LKS.World
             body ??= new GUIStyle(GUI.skin.label) { wordWrap = true };
             body.fontSize = StationUi.TextSize(23, 28);
             hint ??= new GUIStyle(GUI.skin.label) { fontSize = 16 };
-            button ??= new GUIStyle(GUI.skin.button) { fontSize = 19 };
-            Fill(new Rect(0, 0, Screen.width, Screen.height), new Color32(10, 15, 20, 255));
+            button ??= StationUi.ButtonStyle(19, wrap: true);
+            primaryLabel ??= new GUIStyle(hint) { fontSize = 19, alignment = TextAnchor.MiddleCenter };
+            Fill(new Rect(0, 0, Screen.width, Screen.height), StationUi.Panel);
             const float width = 940, height = 650;
             float scale = Mathf.Min(Screen.width / (width + 24), Screen.height / (height + 20));
             var previous = GUI.matrix;
@@ -180,6 +190,7 @@ namespace LKS.World
                 if (GUI.Button(new Rect(692, 0, 248, 28),
                     StationUi.LargeText ? "Large text  [T]" : "Standard text  [T]", button))
                     StationUi.LargeText = !StationUi.LargeText;
+                StationUi.Frame(new Rect(0, 30, 940, 384), StationUi.Amber);
                 DrawShot();
                 GUI.Label(new Rect(0, 424, width, 48), isFarewell ? "Farewell" : "Arrival at ASTERION", title);
                 StationTextCapture.Record(isFarewell ? "narrative.farewell" : "narrative.arrival", passage);
@@ -187,13 +198,89 @@ namespace LKS.World
                 GUI.enabled = wasEnabled && CanAct;
                 if (GUI.Button(new Rect(0, 598, 242, 43), bridge.Resolve(new StableId("narrative.action.skip")) + "  [Space]", button)) Skip();
                 else if (bridge.HasGameMenu && GUI.Button(new Rect(349, 598, 242, 43), "Game menu  [M]", button)) OpenGameMenu();
-                else if (GUI.Button(new Rect(682, 598, 258, 43),
-                    isFarewell ? bridge.Resolve(new StableId("narrative.action.continue")) + "  [Enter]" : "Enter station  [Enter]", button)) Continue();
+                else if (StationUi.DrawButton(new Rect(682, 598, 258, 43),
+                    isFarewell ? bridge.Resolve(new StableId("narrative.action.continue")) + "  [Enter]" : "Enter station  [Enter]", primaryLabel, primary: true)) Continue();
             }
             finally
             {
                 GUI.enabled = wasEnabled;
                 GUI.matrix = previous;
+            }
+        }
+
+        private void DrawLaunchMenu()
+        {
+            if (CanAct && Event.current.type == EventType.KeyDown)
+            {
+                if (Event.current.keyCode == KeyCode.Tab)
+                {
+                    titleFocus = (titleFocus + (Event.current.shift ? 3 : 1)) % 4;
+                    Event.current.Use();
+                }
+                else if (Event.current.keyCode is KeyCode.Return or KeyCode.KeypadEnter)
+                {
+                    Event.current.Use();
+                    LaunchAction(titleFocus);
+                    return;
+                }
+            }
+
+            const float width = 900, height = 510;
+            Fill(new Rect(0, 0, Screen.width, Screen.height), StationUi.Panel);
+            float scale = Mathf.Min(1.5f, Screen.width / (width + 24), Screen.height / (height + 24));
+            var previous = GUI.matrix;
+            GUI.matrix = Matrix4x4.TRS(new Vector3((Screen.width - width * scale) / 2,
+                (Screen.height - height * scale) / 2, 0), Quaternion.identity, new Vector3(scale, scale, 1));
+            try
+            {
+                launchTitle ??= new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 37,
+                    fontStyle = FontStyle.Bold,
+                    alignment = TextAnchor.MiddleCenter,
+                    normal = { textColor = StationUi.Ink }
+                };
+                primaryLabel ??= new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter };
+                primaryLabel.fontSize = StationUi.TextSize(20, 24);
+                StationUi.Frame(new Rect(0, 0, width, height), StationUi.Accent);
+                Fill(new Rect(24, 24, 377, 462), StationUi.Surface);
+                const string gameTitle = "LAST KNOWN STATE: THE LEGACY";
+                StationTextCapture.Record("menu.main", gameTitle);
+                GUI.Label(new Rect(32, 48, 361, 140), "LAST KNOWN STATE\nTHE LEGACY", launchTitle);
+                if (arrival != null)
+                    GUI.DrawTexture(new Rect(44, 223, 337, 191), arrival, ScaleMode.ScaleToFit, false);
+                var first = new Rect(431, 88, 423, 54);
+                if (StationUi.DrawButton(first, bridge.Resolve(new StableId("menu.new-game")), primaryLabel,
+                    CanAct, titleFocus == 0, primary: true)) LaunchAction(0);
+                else if (StationUi.DrawButton(new Rect(431, 156, 423, 54), "Continue", primaryLabel,
+                    CanAct, titleFocus == 1)) LaunchAction(1);
+                else if (StationUi.DrawButton(new Rect(431, 224, 423, 54), "Settings", primaryLabel,
+                    CanAct, titleFocus == 2)) LaunchAction(2);
+                else if (StationUi.DrawButton(new Rect(431, 292, 423, 54), "Quit game", primaryLabel,
+                    CanAct, titleFocus == 3)) LaunchAction(3);
+                GUI.Label(new Rect(431, 375, 423, 48), "Tab: move  |  Enter: select", primaryLabel);
+            }
+            finally { GUI.matrix = previous; }
+        }
+
+        private void LaunchAction(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    titlePending = false;
+                    break;
+                case 1:
+                    Close();
+                    if (bridge.ContinueFromLaunch()) DismissLaunchTitle();
+                    break;
+                case 2:
+                    Close();
+                    bridge.SettingsFromLaunch();
+                    break;
+                case 3:
+                    Application.Quit();
+                    break;
             }
         }
 

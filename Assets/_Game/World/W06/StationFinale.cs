@@ -6,7 +6,7 @@ namespace LKS.World
     [DisallowMultipleComponent]
     public sealed partial class StationFinale : MonoBehaviour, INarrativeView
     {
-        private enum Page { Closed, Photograph, Credits, Menu }
+        private enum Page { Closed, Photograph, Credits, Menu, Settings, ConfirmNew }
         private StationFirstPerson player;
         private StationInteraction station;
         private GameplaySession observed;
@@ -18,6 +18,7 @@ namespace LKS.World
         private Texture2D photograph;
         private bool showPhotograph;
         private string status;
+        private bool confirmedEmptySlot;
 
         internal bool IsOpen => lease != null;
         internal string FinalText { get; private set; }
@@ -123,6 +124,18 @@ namespace LKS.World
             if (Show(Page.Menu)) player.SetPaused(false);
         }
 
+        internal bool ContinueFromLaunch()
+        {
+            OpenMenu();
+            return Continue();
+        }
+
+        internal void SettingsFromLaunch()
+        {
+            OpenMenu();
+            if (CanControl) Show(Page.Settings);
+        }
+
         internal bool Credits()
         {
             if (!CanControl || page != Page.Photograph) return false;
@@ -136,10 +149,13 @@ namespace LKS.World
             if (!result.Succeeded)
             {
                 status = Resolve(result.MessageKey);
+                confirmedEmptySlot = result.MessageKey.value == "save.result.empty-slot";
+                if (confirmedEmptySlot) focus = 1;
                 return false;
             }
             ObserveSession();
-            if (Completed) Replay();
+            if (Completed && Replay()) status = Resolve(result.MessageKey);
+            else station.NotifyLoad(result);
             return true;
         }
 
@@ -148,6 +164,8 @@ namespace LKS.World
             if (!CanControl || (page != Page.Photograph && page != Page.Credits)) return false;
             return Show(Page.Menu);
         }
+
+        internal void CampaignSaved() => confirmedEmptySlot = false;
 
         internal bool SaveProgress()
         {
@@ -166,7 +184,7 @@ namespace LKS.World
                 lease = player.AcquireReadingFocus(Close);
             }
             page = next;
-            focus = 0;
+            focus = next == Page.Menu && confirmedEmptySlot ? 1 : 0;
             return true;
         }
 

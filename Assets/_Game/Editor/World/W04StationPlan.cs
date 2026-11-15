@@ -50,8 +50,8 @@ namespace LKS.Editor.World
             float outside = layout.ExteriorWidth;
             const float wall = .20f;
             var bayNames = new[] { "arrival", "power", "archive", "shelter", "laboratory", "exit" };
-            var titles = new[] { "01  ARRIVAL", "02  POWER", "03  ECHO ARCHIVE",
-                "04  SHELTER", "05  LABORATORY", "06  EXTERIOR LOOP" };
+            var titles = new[] { "01  ARRIVAL", "02  POWER", "03  ECHO ARCHIVE  >",
+                "04  SHELTER  >", "05  LABORATORY", "06  AIRLOCK  >" };
             for (int i = 0; i < bayNames.Length; i++)
             {
                 string id = "bay." + bayNames[i];
@@ -63,7 +63,7 @@ namespace LKS.Editor.World
                 Box(id + ".wall-right", P(width/2+wall/2, height/2, mid), P(wall, height, bay), "Shell");
                 Box(id + ".guide", P(0, .002f, mid), P(.055f, .004f, bay), "Ochre", false, castsShadows: false);
                 float signZ = i == 0 ? start + .18f : start - .14f;
-                Box(id + ".sign", P(0, 2.58f, signZ), P(2.21f, .29f, .07f), "Metal", false);
+                Box(id + ".sign", P(0, 2.58f, signZ), P(2.65f, .34f, .07f), "Metal", false);
                 Label(id + ".label", titles[i], P(0, 2.58f, signZ - .041f), Vector3.forward, .15f);
                 var practical = Practicals[i];
                 float lightZ = start + practical.Along * bay;
@@ -77,14 +77,14 @@ namespace LKS.Editor.World
             Opening("station.exterior-entry", end, width, height, 1.6f);
             // This heading is seen on the return route through the opposite face.
             Box("return.sign", P(0, 2.62f, end+.14f), P(2.4f,.29f,.07f), "Metal", false);
-            Label("return.label", "AIRLOCK  /  LAB", P(0,2.62f,end+.181f), Vector3.back, .15f);
+            Label("return.label", "AIRLOCK  /  TO LAB", P(0,2.62f,end+.181f), Vector3.back, .15f);
 
             float left = -width/2 + .36f;
             float right = width/2 - .36f;
             Fixture("arrival-console", "ARRIVAL CHECK", left, .55f*bay, 1.10f, Vector3.left, "quest.arrival");
             Fixture("power-console", "POWER CONTROL", left, 1.44f*bay, 1.10f, Vector3.left, "quest.safe-power");
             Fixture("power-recovery", "RESTORE SAFE POWER", right, 1.68f*bay, 1.10f, Vector3.right, "target.power-recovery");
-            Fixture("echo", "ECHO ARCHIVE", right, 2.54f*bay, 1.36f, Vector3.right, "quest.echo-evidence");
+            Fixture("echo", "ECHO  /  ARCHIVE", right, 2.54f*bay, 1.36f, Vector3.right, "quest.echo-evidence");
             Fixture("seedling", "SEEDLING CABINET", left, 3.62f*bay, 1.42f, Vector3.left,
                 StationShelterSet.SeedlingTarget.value);
             float cabinet = 3.62f * bay;
@@ -186,7 +186,7 @@ namespace LKS.Editor.World
                     P(0,1.49f,far.z+.632f), Vector3.forward, .069f);
                 Label("w12.setting", "ILLUSTRATIVE MARS  /  ASTERION FIELD LOOP",
                     P(0,2.13f,end+.16f), Vector3.back, .10f);
-                Label("w12.entry", "ILLUSTRATIVE MARS  /  FOLLOW THE FIELD LOOP",
+                Label("w12.entry", "A  <  FIELD LOOP  >  B",
                     P(0,2.40f,end-.115f), Vector3.forward, .10f);
                 for (int side = -1; side <= 1; side += 2)
                 {

@@ -5,22 +5,25 @@ namespace LKS.World
 {
     public sealed partial class StationEchoReview
     {
-        private const float PanelWidth = 1112;
-        private const float PanelHeight = 676;
-        private static readonly Color Panel = new Color32(14, 23, 29, 255);
-        private static readonly Color Surface = new Color32(24, 38, 48, 255);
-        private static readonly Color Control = new Color32(48, 67, 77, 255);
-        private static readonly Color Ink = new Color32(240, 248, 249, 255);
-        private static readonly Color Muted = new Color32(187, 207, 217, 255);
-        private static readonly Color Accent = new Color32(111, 227, 219, 255);
-        private static readonly Color Estimate = new Color32(255, 202, 122, 255);
+        private const float PanelWidth = 940;
+        private const float PanelHeight = 662;
+        private static readonly Color Panel = StationUi.Panel;
+        private static readonly Color Surface = StationUi.Surface;
+        private static readonly Color Control = StationUi.Control;
+        private static readonly Color Ink = StationUi.Ink;
+        private static readonly Color Muted = StationUi.Muted;
+        private static readonly Color Accent = StationUi.Accent;
+        private static readonly Color Estimate = StationUi.Amber;
         private static readonly Color Gap = new Color32(205, 197, 235, 255);
         private GUIStyle title, heading, label, centered, body, hitArea;
+        private EchoFrame inspectedRecord;
 
         private void OnGUI()
         {
             if (!CanControl) return;
             EnsureStyles();
+            body.fontSize = StationUi.TextSize(19, 22);
+            label.fontSize = StationUi.TextSize(16, 18);
             HandleKeyboard(Event.current);
             if (!IsOpen) return;
             float scale = Mathf.Min(1.5f, Screen.width / (PanelWidth + 28), Screen.height / (PanelHeight + 28));
@@ -38,94 +41,97 @@ namespace LKS.World
             int holdIndex = replayIndex + 1;
             int exitIndex = holdIndex + 1;
             int investigationIndex = exitIndex + 1;
-            Fill(new Rect(0, 0, PanelWidth, PanelHeight), Panel);
-            Fill(new Rect(0, 0, PanelWidth, 3), Accent);
-            Write(new Rect(24, 15, 784, 49), "ECHO reconstruction", title, Ink);
-            string date = StationEcho.Timeline[0].Evidence.RecordedAt?.UtcDateTime.ToString("d MMMM yyyy",
-                CultureInfo.InvariantCulture);
-            Write(new Rect(26, 66, 806, 27), "Fictional ASTERION incident" +
-                (date == null ? "" : "  /  " + date), body, Muted);
-            if (Button(new Rect(927, 27, 160, 42), "Exit replay", exitIndex))
+            StationUi.Frame(new Rect(0, 0, PanelWidth, PanelHeight), Accent);
+            Write(new Rect(24, 14, 650, 28), "ECHO ARCHIVE  /  PLAYBACK", label, Accent);
+            Write(new Rect(22, 45, 650, 52), "Review the incident", title, Ink);
+            if (Button(new Rect(742, 37, 173, 47), "Exit replay", exitIndex))
             {
                 Close();
                 return;
             }
-            if (Button(new Rect(688, 27, 222, 42), "Investigate incident", investigationIndex, CanInvestigate)
-                && OpenInvestigation()) return;
             if (Playback.Frame == null) return;
-            DrawProjection(Playback.Frame);
+            DrawProjection(inspectedRecord ?? Playback.Frame);
             DrawRecords();
-            DrawControls(replayIndex, holdIndex);
+            DrawControls(replayIndex, holdIndex, investigationIndex);
         }
 
         private void DrawProjection(EchoFrame frame)
         {
-            var preview = new Rect(24, 104, 673, 349);
+            var preview = new Rect(24, 108, 526, 295);
             Fill(preview, Surface);
-            if (ProjectionVisible && projection.Texture != null)
+            if (frame.Sequence != Playback.Frame.Sequence)
+                Write(preview, "Source note  /  Shares this timestamp with another record", centered, Muted);
+            else if (ProjectionVisible && projection.Texture != null)
                 GUI.DrawTexture(preview, projection.Texture, ScaleMode.ScaleToFit, false);
             else if (ProjectionVisible)
-                Write(new Rect(120, 240, 480, 50), "Projection unavailable", centered, Muted);
+                Write(preview, "Projection unavailable", centered, Muted);
             else
             {
-                Fill(new Rect(75, 276, 135, 2), Gap);
-                Fill(new Rect(512, 276, 135, 2), Gap);
-                Write(new Rect(218, 247, 288, 59), "Missing interval", centered, Gap);
-                Write(new Rect(121, 307, 506, 29), "No reconstruction is available for this part of the record.", body, Muted);
+                Write(new Rect(44, 189, 486, 45), "NO DATA  /  Missing interval", centered, Gap);
+                Write(new Rect(76, 248, 432, 62),
+                    "There is no station record for this part. It cannot tell us what happened.", body, Ink);
             }
+
             var tone = Tone(frame);
-            Fill(new Rect(24, 465, 673, 90), Surface);
-            Fill(new Rect(24, 465, 3, 90), tone);
-            Write(new Rect(39, 476, 642, 29), LabelOf(frame) + "  /  " + DateOf(frame), label, tone);
-            Write(new Rect(39, 513, 642, 35), CaptionOf(frame), heading, Ink);
+            Fill(new Rect(24, 413, 526, 112), Surface);
+            Fill(new Rect(24, 413, 4, 112), tone);
+            Write(new Rect(38, 419, 490, 25), MarkOf(frame) + "  " + LabelOf(frame), label, tone);
+            Write(new Rect(38, 445, 490, 25), DateOf(frame), label, Muted);
+            Write(new Rect(38, 471, 490, 51), CaptionOf(frame), body, Ink);
+            StationTextCapture.Record("echo.playback", LabelOf(frame) + " / " + DateOf(frame) + " / " + CaptionOf(frame));
         }
 
         private void DrawRecords()
         {
-            Fill(new Rect(711, 104, 377, 451), Surface);
-            Write(new Rect(725, 116, 345, 32), "Timeline records", heading, Ink);
+            Fill(new Rect(566, 108, 349, 417), Surface);
+            Write(new Rect(579, 116, 317, 30), "Jump to a record", heading, Ink);
             for (int i = 0; i < StationEcho.Timeline.Count; i++)
             {
                 EchoFrame record = StationEcho.Timeline[i];
                 var tone = Tone(record);
-                var rect = new Rect(725, 158 + i * 77, 348, 70);
-                if (i == keyboardFocus) Fill(rect, Estimate);
-                Fill(new Rect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4),
-                    Playback.Frame.Sequence == record.Sequence ? Control : Panel);
+                var rect = new Rect(580, 155 + i * 71, 320, 65);
+                bool selected = (inspectedRecord ?? Playback.Frame).Sequence == record.Sequence;
+                Fill(rect, selected ? Control : Panel);
+                if (i == keyboardFocus) StationUi.Outline(rect);
+                if (selected) Fill(new Rect(rect.x, rect.y, 4, rect.height), tone);
                 if (GUI.Button(rect, GUIContent.none, hitArea))
                 {
                     keyboardFocus = i;
-                    Scrub(record.ReplaySecond);
+                    InspectRecord(record);
                 }
-                Write(new Rect(rect.x + 12, rect.y + 8, 323, 25),
-                    Elapsed(record.ReplaySecond) + "  /  " + LabelOf(record), label, tone);
-                Write(new Rect(rect.x + 12, rect.y + 30, 321, 40), CaptionOf(record), label, Ink);
+                Write(new Rect(rect.x + 11, rect.y + 4, 302, 23),
+                    MarkOf(record) + "  " + Elapsed(record.ReplaySecond) + (selected ? "  /  Selected" : ""), label, tone);
+                Write(new Rect(rect.x + 11, rect.y + 30, 300, 30), LabelOf(record), label, Ink);
             }
         }
 
-        private void DrawControls(int replay, int hold)
+        private void DrawControls(int replay, int hold, int investigate)
         {
-            Write(new Rect(24, 567, 168, 28),
-                Elapsed(Playback.Seconds) + " / " + Elapsed(StationEcho.DurationSeconds), label, Ink);
+            string clock = Elapsed(Playback.Seconds) + " / " + Elapsed(StationEcho.DurationSeconds);
+            Write(new Rect(24, 532, 195, 26), clock, label, Ink);
+            Write(new Rect(743, 532, 173, 26), Playback.Playing ? "Playing" : "Paused", label, Muted);
             float position = (float)Playback.Seconds;
-            float changed = GUI.HorizontalSlider(new Rect(173, 577, 690, 18), position, 0, StationEcho.DurationSeconds);
+            float changed = GUI.HorizontalSlider(new Rect(224, 539, 510, 18), position, 0, StationEcho.DurationSeconds);
             if (Mathf.Abs(changed - position) > .001f) Scrub((decimal)changed);
-            var records = StationEcho.Timeline;
-            for (int i = 0; i < records.Count; i++)
-            {
-                int finish = i + 1 < records.Count ? records[i + 1].ReplaySecond : StationEcho.DurationSeconds;
-                int duration = finish - records[i].ReplaySecond;
-                if (duration == 0) continue;
-                const float units = 690f / StationEcho.DurationSeconds;
-                Fill(new Rect(173 + records[i].ReplaySecond * units, 599, duration * units - 2, 4),
-                    Tone(records[i]));
-            }
-            Write(new Rect(890, 568, 193, 27), Playback.Playing ? "Playing" : "Frame held", label, Muted);
-            if (Button(new Rect(24, 617, 204, 39), "Replay from start", replay)) Replay();
-            if (Button(new Rect(241, 617, 156, 39), "Hold frame", hold, Playback.Playing)) Hold();
-            Write(new Rect(419, 621, 666, 42),
-                "Left and Right scrub the replay. Tab and Enter select controls. Escape pauses.", label, Muted);
+            if (Button(new Rect(24, 573, 193, 43), "Replay from start", replay)) Replay();
+            if (Button(new Rect(225, 573, 134, 43), "Pause", hold, Playback.Playing)) Hold();
+            if (Button(new Rect(667, 573, 248, 43), "Investigate incident", investigate, CanInvestigate))
+                OpenInvestigation();
+            Write(new Rect(24, 624, 895, 30), "Left / Right: seek    |    Tab: focus    |    Enter: select    |    Esc: pause game", label, Muted);
         }
+
+        private void InspectRecord(EchoFrame record)
+        {
+            if (Scrub(record.ReplaySecond))
+                inspectedRecord = record.Sequence == Playback.Frame.Sequence ? null : record;
+        }
+
+        private static string MarkOf(EchoFrame frame) => frame.Evidence.Quality switch
+        {
+            EvidenceQuality.Recorded => "[LOG]",
+            EvidenceQuality.Estimated => "[MODEL]",
+            _ => "[GAP]"
+        };
 
         internal void HandleKeyboard(Event input)
         {
@@ -149,7 +155,7 @@ namespace LKS.World
                     break;
                 case KeyCode.Return:
                 case KeyCode.KeypadEnter:
-                    if (keyboardFocus < replay) Scrub(StationEcho.Timeline[keyboardFocus].ReplaySecond);
+                    if (keyboardFocus < replay) InspectRecord(StationEcho.Timeline[keyboardFocus]);
                     else if (keyboardFocus == replay) Replay();
                     else if (keyboardFocus == hold && Playback.Playing) Hold();
                     else if (keyboardFocus == exit) Close();
@@ -162,14 +168,8 @@ namespace LKS.World
 
         private bool Button(Rect rect, string text, int index, bool enabled = true)
         {
-            if (index == keyboardFocus)
-                Fill(new Rect(rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 4), Estimate);
-            Fill(rect, enabled ? Control : Surface);
-            bool old = GUI.enabled;
-            GUI.enabled = old && enabled;
-            bool clicked = GUI.Button(rect, GUIContent.none, hitArea);
-            GUI.enabled = old;
-            Write(rect, text, centered, enabled ? Ink : Muted);
+            bool clicked = StationUi.DrawButton(rect, text, centered, enabled, index == keyboardFocus,
+                index == StationEcho.Timeline.Count + 3);
             if (clicked) keyboardFocus = index;
             return clicked;
         }
@@ -200,13 +200,6 @@ namespace LKS.World
             GUI.Label(rect, text, style);
         }
 
-        private static void Fill(Rect rect, Color color)
-        {
-            if (Event.current.type != EventType.Repaint) return;
-            var old = GUI.color;
-            GUI.color = color;
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = old;
-        }
+        private static void Fill(Rect rect, Color color) => StationUi.Fill(rect, color);
     }
 }
