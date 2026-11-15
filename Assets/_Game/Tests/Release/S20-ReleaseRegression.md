@@ -1,6 +1,6 @@
 # S20 release regression
 
-Status: **hold for release**. S19 was accepted in [PR #41](https://github.com/2dshligang/last-known-state-the-legacy/pull/41) at main commit `8e9b24f025ced832cf072cc5857be136f06847ad`. The W19 scene integration, binding inventory and uninterrupted checkpoint route are still required before selecting a release candidate. Results below describe the required evidence for that candidate. The W18 and S19 results are earlier baselines.
+Status: **hold for release**. Accepted inputs are [S19 #41](https://github.com/2dshligang/last-known-state-the-legacy/pull/41) at `8e9b24f` and [W19 #50](https://github.com/2dshligang/last-known-state-the-legacy/pull/50) at `b96fac4`. Use the [W19 binding and checkpoint handoff](../../World/W19-Handoff.md) for the integration regression. The W20 configuration and O05 archive still need release evidence.
 
 ## Run on one candidate
 
@@ -37,5 +37,5 @@ The script prints a limited summary of check statuses and identifiers. Missing c
 
 - Block release for a failed or unverified required check, crash/hang, progression or save loss, misleading science, missing rights or sensitive data in the archive.
 - Document cosmetic findings with reproduction, screenshot, candidate ID and owner. W18 measured a first ECHO entrance frame up to 39.836 ms. Recheck it on this candidate and record whether interaction or readability is affected. [W18 measurement](https://github.com/2dshligang/last-known-state-the-legacy/blob/48bf3f5ed06f4ba781899914a792501a31eba65b/ArtSource/Developer1/W18/README.md)
-- Developer 1 supplies accepted W19 scene and checkpoint bindings, then W20 visual evidence for the exact archive. Maintain `Station.unity`, `quest.report`, `quest.ending` and the documented save slot unless the accepted integration records a replacement.
+- Developer 1 supplies W20 visual evidence for the exact archive. Keep the W19 `StationSceneEntry.Path` and `Resolve(Scene)` entry points, `quest.report`, `quest.ending` and the documented save slot unless the accepted integration records a replacement.
 - Developer 2 owns this matrix, evidence schema 1, save schema 2 (`campaign`) and source credits API 1. W21 owns visual/packaging discrepancies in its scope. O05 supplies the ZIP/hash, reviewed notices, clean-machine and offline download/extract/launch evidence and rollback link. Send both owners the evidence summary and exact missing checks. Until that evidence is collected, the release recommendation remains hold.
