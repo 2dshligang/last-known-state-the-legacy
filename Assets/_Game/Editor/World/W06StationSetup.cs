@@ -127,6 +127,12 @@ namespace LKS.Editor.World
                         nodes["fixture.seedling-status.label"].GetComponent<StationLabel>();
                     changed |= shelterBinding.ApplyModifiedPropertiesWithoutUndo();
                 }
+                var archiveReader = player.GetComponent<StationArchiveReader>();
+                if (archiveReader == null && anchors.Any(anchor => anchor.TargetId == StationArchiveReader.Target))
+                {
+                    archiveReader = player.gameObject.AddComponent<StationArchiveReader>();
+                    changed = true;
+                }
 
                 var binding = new SerializedObject(bridge);
                 binding.FindProperty("player").objectReferenceValue = player;
@@ -137,6 +143,7 @@ namespace LKS.Editor.World
                 binding.FindProperty("gate").objectReferenceValue = gate;
                 binding.FindProperty("powerConsole").objectReferenceValue = console;
                 binding.FindProperty("shelter").objectReferenceValue = shelter;
+                binding.FindProperty("archiveReader").objectReferenceValue = archiveReader;
                 changed |= binding.ApplyModifiedPropertiesWithoutUndo();
                 if (changed)
                 {

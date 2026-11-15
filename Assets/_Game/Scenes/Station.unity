@@ -3006,6 +3006,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6197830041814119030, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
       insertIndex: -1
       addedObject: {fileID: 337964008}
+    - targetCorrespondingSourceObject: {fileID: 6197830041814119030, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 337964009}
   m_SourcePrefab: {fileID: 100100000, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
 --- !u!1 &337964002 stripped
 GameObject:
@@ -3059,6 +3062,7 @@ MonoBehaviour:
   gate: {fileID: 11923204}
   powerConsole: {fileID: 337964007}
   shelter: {fileID: 337964008}
+  archiveReader: {fileID: 337964009}
 --- !u!114 &337964007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3091,6 +3095,18 @@ MonoBehaviour:
   closedStop: {fileID: 1783150628}
   shelterStatus: {fileID: 449339500}
   seedlingStatus: {fileID: 1203958744}
+--- !u!114 &337964009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337964002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3b8c19e64a63a24187d4e15c0108ecd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LKS.World.Interaction::LKS.World.StationArchiveReader
 --- !u!1 &353784103
 GameObject:
   m_ObjectHideFlags: 0

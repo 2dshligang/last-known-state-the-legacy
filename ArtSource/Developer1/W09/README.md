@@ -2,13 +2,16 @@
 
 ## Integration
 
+Open `Assets/_Game/Scenes/Station.unity` in Play Mode. Walk to bay 03,
+aim at the orange face below **ECHO ARCHIVE**, and press E. The saved
+scene already binds `StationArchiveReader` to the existing
+`quest.echo-evidence` anchor through the W06 raycast. To refresh the wiring,
+save open scenes and run **LKS > World > Install W09 Archive Terminal**.
+
 The reader uses S01 API 1.0 and the accepted S07 `StationArchive`
-created by `SessionBootstrap.RestartWithPower`. Use the W06 raycast and
-the existing `quest.echo-evidence` anchor to open the reader in Station
-after W08 is accepted. Attach `StationArchiveReader` to the first-person
-object and pass its `StationFirstPerson` and current-session delegate to
-`Open`. The reader can also be mounted on another terminal that supplies
-those same dependencies.
+created by `SessionBootstrap.RestartWithPower`. The scene adapter passes
+its `StationFirstPerson` and current-session delegate to `Open`. The reader
+can be reused by another terminal that supplies those dependencies.
 
 The list holds the W05 input focus lease. Each document also holds S07's
 archive lease. Closing the reader or replacing its session releases both.
@@ -36,12 +39,14 @@ closing the document.
 Play Mode tests open all four real records at zero audio volume. They
 verify keyboard selection and focus, exact list return, both pause sources,
 explicit and idempotent acknowledgment, unchanged quest progress, restored
-acknowledgment and release on disable or session replacement. The tests
-temporarily mount the reader on the player in the accepted Station scene.
-On the S15 base, 10 Play Mode and 69 Edit Mode tests passed.
+acknowledgment and release on disable or session replacement. They use the
+saved scene wiring, walk the character capsule to the terminal and submit
+through the real camera ray. The ray skips the player's own colliders,
+including on re-entry after pause, and still refuses a blocked terminal.
 
-A local Windows Player with a temporary mount rendered the list at
-1600 × 900 and every expanded record at 800 × 600 with audio volume at zero.
+The individual documents were captured at 800 × 600 with audio volume
+at zero. The integrated view was captured in Windows at the installed
+ECHO terminal.
 
 - [Record list and visible keyboard selection](W09-record-list.png)
 - [Archived NASA observation](archive.donki-sep.png)
@@ -49,7 +54,7 @@ A local Windows Player with a temporary mount rendered the list at
 - [Fictional research notes](archive.dmitry-notes.png)
 - [Fictional arrival record](archive.arrival.png)
 
-The production scene binding depends on the acceptance of
+The scene binding builds on accepted
 [W08 PR #25](https://github.com/2dshligang/last-known-state-the-legacy/pull/25).
-Developer 1 owns this binding and the W10 reconstruction view. Developer 2
-owns additional imported archive records and their validated content.
+Developer 1 owns the W10 reconstruction entry. Developer 2 owns additional
+imported archive records and their validated content.

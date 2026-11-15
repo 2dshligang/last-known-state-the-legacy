@@ -8,6 +8,8 @@ namespace LKS.World
     [DisallowMultipleComponent]
     public sealed partial class StationArchiveReader : MonoBehaviour
     {
+        public static readonly StableId Target = new StableId("quest.echo-evidence");
+
         private StationFirstPerson player;
         private Func<GameplaySession> currentSession;
         private GameplaySession openedSession;
@@ -27,11 +29,13 @@ namespace LKS.World
         private bool CanRead => isActiveAndEnabled && IsOpen && player.HasApplicationFocus &&
             !player.IsPaused && ReferenceEquals(openedSession, currentSession());
 
+        internal bool HasArchive(GameplaySession session) => isActiveAndEnabled && session?.Archive != null;
+
         public bool Open(StationFirstPerson input, Func<GameplaySession> session)
         {
             var active = session?.Invoke();
-            if (!isActiveAndEnabled || IsOpen || input == null || input.IsPaused || input.HasReadingFocus ||
-                active?.Archive == null) return false;
+            if (IsOpen || input == null || !input.isActiveAndEnabled || input.IsPaused || input.HasReadingFocus ||
+                !HasArchive(active)) return false;
             player = input;
             currentSession = session;
             openedSession = active;

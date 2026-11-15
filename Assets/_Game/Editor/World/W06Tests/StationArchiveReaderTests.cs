@@ -22,13 +22,14 @@ namespace LKS.Editor.World
         {
             yield return LoadStation();
             var player = Object.FindAnyObjectByType<StationFirstPerson>();
+            var bridge = player.GetComponent<StationInteraction>();
             var bootstrap = player.GetComponent<SessionBootstrap>();
-            var reader = player.gameObject.AddComponent<StationArchiveReader>();
+            var reader = player.GetComponent<StationArchiveReader>();
             float volume = AudioListener.volume;
             AudioListener.volume = 0;
             try
             {
-                Assert.That(reader.Open(player, () => bootstrap.Current));
+                OpenAtTerminal(bridge, reader);
                 Assert.That(reader.IsOpen && player.HasReadingFocus);
                 var entries = EnglishContentCatalog.Archive;
                 Press(reader, KeyCode.End);
@@ -79,7 +80,7 @@ namespace LKS.Editor.World
             var player = Object.FindAnyObjectByType<StationFirstPerson>();
             var bridge = player.GetComponent<StationInteraction>();
             var bootstrap = player.GetComponent<SessionBootstrap>();
-            var reader = player.gameObject.AddComponent<StationArchiveReader>();
+            var reader = player.GetComponent<StationArchiveReader>();
             var clock = new Clock();
             var stages = StationQuests.RequiredStages.Take(2).ToArray();
             var errors = bootstrap.RestartWithPower(bootstrap.Current.Science, Array.Empty<StableId>(),
@@ -87,7 +88,7 @@ namespace LKS.Editor.World
             Assert.That(errors, Is.Empty);
             var session = bridge.Session;
             Assert.That(reader.MarkAsRead(), Is.False);
-            Assert.That(reader.Open(player, () => bootstrap.Current));
+            OpenAtTerminal(bridge, reader);
             Assert.That(reader.OpenDocument(0, Vector2.zero));
             Assert.That(session.Archive.RequiredEntryAcknowledged, Is.False);
             player.SetPaused(true);
@@ -116,7 +117,7 @@ namespace LKS.Editor.World
             yield return null;
             clock.Advance(session, 1);
             Assert.That(session.Power.Capture().BatteryKwh, Is.GreaterThan(battery));
-            Assert.That(reader.Open(player, () => bootstrap.Current));
+            OpenAtTerminal(bridge, reader, verifyWall: true);
             Assert.That(reader.OpenDocument(0, Vector2.zero));
             Assert.That(reader.WasRead(reader.Document));
             Assert.That(bridge.Restore(session.Power.Capture(), stages, session.LifeSupport.Capture(),
@@ -124,7 +125,7 @@ namespace LKS.Editor.World
             Assert.That(reader.IsOpen || player.HasReadingFocus, Is.False);
             Assert.That(bridge.Session.Archive.Capture(), Is.EqualTo(new[] { Donki }));
             Assert.That(bridge.Session.CaptureQuestCheckpoint(), Is.EqualTo(stages));
-            Assert.That(reader.Open(player, () => bootstrap.Current));
+            OpenAtTerminal(bridge, reader);
             Assert.That(reader.OpenDocument(0, Vector2.zero));
             reader.enabled = false;
             Assert.That(reader.IsOpen || player.HasReadingFocus, Is.False);
@@ -136,6 +137,56 @@ namespace LKS.Editor.World
             yield return EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters(LoadSceneMode.Single));
             yield return null;
             Object.FindAnyObjectByType<StationFirstPerson>().SendMessage("OnApplicationFocus", true);
+        }
+
+        private static void OpenAtTerminal(StationInteraction bridge, StationArchiveReader reader, bool verifyWall = false)
+        {
+            Assert.That(reader, Is.Not.Null, "The archive reader must be installed in Station.unity.");
+            var anchor = Object.FindObjectsByType<StationInteractionAnchor>()
+                .Single(item => item.TargetId == StationArchiveReader.Target);
+            var motor = bridge.GetComponent<FirstPersonMotor>();
+            Vector3 approach = anchor.Approach.position;
+            if (Vector3.Distance(motor.transform.position, approach) > .1f)
+            {
+                Walk(motor, new Vector3(0, 0, approach.z));
+                Walk(motor, approach);
+            }
+            var camera = bridge.GetComponentInChildren<Camera>().transform;
+            camera.LookAt(anchor.transform.position);
+            Physics.SyncTransforms();
+            var ray = new Ray(camera.position, camera.forward);
+            if (verifyWall)
+            {
+                var wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                wall.transform.position = Vector3.Lerp(ray.origin, anchor.transform.position, .55f);
+                wall.transform.localScale = Vector3.one * .22f;
+                Physics.SyncTransforms();
+                Assert.That(bridge.FindAimedTarget(ray), Is.Null);
+                Assert.That(bridge.Submit(ray), Is.False);
+                wall.GetComponent<Collider>().enabled = false;
+                Object.Destroy(wall);
+                Physics.SyncTransforms();
+            }
+            Physics.Linecast(ray.origin, anchor.transform.position, out var hit, Physics.DefaultRaycastLayers,
+                QueryTriggerInteraction.Ignore);
+            Assert.That(bridge.FindAimedTarget(ray), Is.SameAs(anchor),
+                $"Eye {ray.origin:F3}; target {anchor.transform.position:F3}; blocker {hit.collider?.name ?? "none"}.");
+            Assert.That(bridge.Describe(anchor), Is.EqualTo("E  Open station archive\nECHO archive"));
+            Assert.That(bridge.Submit(ray));
+            Assert.That(reader.IsOpen);
+        }
+
+        private static void Walk(FirstPersonMotor motor, Vector3 target)
+        {
+            for (int step = 0; step < 160; step++)
+            {
+                Vector3 offset = target - motor.transform.position;
+                offset.y = 0;
+                if (offset.magnitude < .03f) return;
+                Vector3 local = motor.transform.InverseTransformDirection(offset);
+                motor.Move(Vector2.ClampMagnitude(new Vector2(local.x, local.z) / .27f, 1), .08f);
+            }
+            Assert.Fail($"Could not reach the archive approach at {target:F2} from {motor.transform.position:F2}.");
         }
 
         private static void Press(StationArchiveReader reader, KeyCode key, bool shift = false)

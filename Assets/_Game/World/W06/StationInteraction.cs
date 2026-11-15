@@ -21,7 +21,9 @@ namespace LKS.World
         [SerializeField] private StationExteriorGate gate;
         [SerializeField] private StationPowerConsole powerConsole;
         [SerializeField] private StationShelterSet shelter;
+        [SerializeField] private StationArchiveReader archiveReader;
 
+        private readonly RaycastHit[] obstructionHits = new RaycastHit[8];
         private EnglishContentCatalog text;
         private StationInteractionAnchor[] anchors;
         private GameplaySession observed;
@@ -111,8 +113,7 @@ namespace LKS.World
                 float along = Vector3.Dot(delta, ray.direction);
                 if (along <= 0 || delta.sqrMagnitude > nearestDistance * nearestDistance ||
                     (delta - along * ray.direction).sqrMagnitude > AimRadius * AimRadius ||
-                    Physics.Linecast(ray.origin, anchor.transform.position, Physics.DefaultRaycastLayers,
-                        QueryTriggerInteraction.Ignore))
+                    IsObstructed(ray.origin, delta))
                     continue;
                 nearest = anchor;
                 nearestDistance = delta.magnitude;
@@ -120,10 +121,31 @@ namespace LKS.World
             return nearest;
         }
 
+        private bool IsObstructed(Vector3 origin, Vector3 offset)
+        {
+            float distance = offset.magnitude;
+            Vector3 forward = offset / distance;
+            int count = Physics.RaycastNonAlloc(origin, forward, obstructionHits, distance,
+                Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+            // The view can graze the player's capsule. Other colliders must still block the ray.
+            Transform playerRoot = player.transform;
+            if (count == obstructionHits.Length)
+                return Physics.RaycastAll(origin, forward, distance, Physics.DefaultRaycastLayers,
+                    QueryTriggerInteraction.Ignore).Any(hit => !hit.collider.transform.IsChildOf(playerRoot));
+            for (int i = 0; i < count; i++)
+            {
+                if (!obstructionHits[i].collider.transform.IsChildOf(playerRoot)) return true;
+            }
+            return false;
+        }
+
         public string Describe(StationInteractionAnchor anchor)
         {
             if (shelter != null && StationShelterSet.Handles(anchor.TargetId))
                 return shelter.Describe(anchor.TargetId);
+            if (archiveReader != null && anchor.TargetId == StationArchiveReader.Target)
+                return archiveReader.HasArchive(Session) ? "E  Open station archive\nECHO archive" :
+                    "Open station archive / ECHO archive\nArchive is unavailable.";
             if (powerConsole != null && anchor.TargetId == StationPowerConsole.Target)
             {
                 string reason = powerConsole.OpenBlockReason;
@@ -163,6 +185,12 @@ namespace LKS.World
             if (anchor == null) return false;
             if (shelter != null && StationShelterSet.Handles(anchor.TargetId))
                 return shelter.Open(anchor.TargetId);
+            if (archiveReader != null && anchor.TargetId == StationArchiveReader.Target)
+            {
+                if (archiveReader.Open(player, () => Session)) return true;
+                Show("Archive is unavailable.");
+                return false;
+            }
             if (powerConsole != null && anchor.TargetId == StationPowerConsole.Target)
             {
                 if (powerConsole.Open()) return true;
