@@ -92,7 +92,9 @@ namespace LKS.Editor.World
                 bool changed = false;
                 foreach (var node in plan)
                     changed |= ApplyNode(node, owned[node.Id], owned, palette, labelMaterial);
-                if (WriteManifest(manifest, layout, plan, owned) || changed)
+                changed |= WriteManifest(manifest, layout, plan, owned);
+                changed |= W15AVisualSetup.RefreshInstalled(manifest);
+                if (changed)
                     EditorSceneManager.MarkSceneDirty(scene);
 
                 if (!existing || scene.isDirty)

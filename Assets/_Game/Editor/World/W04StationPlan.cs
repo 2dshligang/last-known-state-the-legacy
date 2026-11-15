@@ -77,7 +77,7 @@ namespace LKS.Editor.World
             Shelter();
             Fixture("analysis", "SAMPLE ANALYSIS", left, 4.33f*bay, 1.10f, Vector3.left, "quest.analysis");
             Fixture("report", "RESEARCH REPORT", right, 4.49f*bay, 1.10f, Vector3.right, "quest.report");
-            Fixture("photo", "DAD'S PHOTO", left, 4.79f*bay, 1.10f, Vector3.left, "quest.ending");
+            Fixture("photo", "SURFACE OVERLOOK", -outside/2+.58f, end+1.13f, 1.14f, Vector3.left, "quest.ending");
 
             Box("exterior.ground", P(0,-.15f,end+depth/2), P(outside+.4f,.30f,depth+.4f), "Dust");
             Box("exterior.back-wall", P(0,1.55f,end+depth+.10f), P(outside+.4f,3.1f,.2f), "Dust");

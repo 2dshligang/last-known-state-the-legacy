@@ -12,6 +12,7 @@ namespace LKS.World
         private const float AimRadius = .22f;
         private const float RepeatDelay = .28f;
         private static readonly StableId[] RequiredScience = { new StableId("donki.2017-09-04t23-52-00-sep-001") };
+        private static readonly StableId CampaignSlot = new StableId("campaign");
 
         [SerializeField] private StationFirstPerson player;
         [SerializeField] private Camera view;
@@ -22,12 +23,15 @@ namespace LKS.World
         [SerializeField] private StationPowerConsole powerConsole;
         [SerializeField] private StationShelterSet shelter;
         [SerializeField] private StationArchiveReader archiveReader;
+        private StationResearchTerminal reportTerminal;
+        private StationFinale finale;
 
         private readonly RaycastHit[] obstructionHits = new RaycastHit[8];
         private EnglishContentCatalog text;
         private StationInteractionAnchor[] anchors;
         private GameplaySession observed;
         private StationLaboratory laboratory;
+        private StationOpening opening;
         private string feedback = "";
         private double feedbackUntil;
         private double nextUse;
@@ -37,6 +41,8 @@ namespace LKS.World
         public string StartError { get; private set; }
         public string Feedback => Time.unscaledTimeAsDouble < feedbackUntil ? feedback : "";
         public bool HasDoorPower => Session?.Power?.EssentialSupportSupplied == true;
+        internal StationSaves CampaignStorage { get; set; }
+        private StationSaves Campaign => CampaignStorage ??= StationSaves.ForPlayer(science, RequiredScience);
 
         private void Awake()
         {
@@ -49,21 +55,44 @@ namespace LKS.World
                 laboratory = gameObject.AddComponent<StationLaboratory>();
                 laboratory.Bind(player, this, text);
             }
+            var photoAnchor = anchors.FirstOrDefault(anchor => anchor.TargetId == StationEnding.Photograph);
+            var photoStand = station.Entries.FirstOrDefault(entry => entry.id.value == "fixture.photo");
+            opening = gameObject.AddComponent<StationOpening>();
+            opening.Bind(player, this, photoAnchor, photoStand?.node?.GetComponent<Renderer>()?.sharedMaterial);
             string[] missing = StationQuests.ValidateReachability(ids).ToArray();
             if (missing.Length != 0) StartError = "Some station controls are unavailable.";
+            if (ids.Contains(StationResearchTerminal.Target))
+                reportTerminal = gameObject.AddComponent<StationResearchTerminal>();
+            if (photoAnchor != null)
+            {
+                finale = gameObject.AddComponent<StationFinale>();
+                finale.Bind(player, this, opening.Photograph);
+            }
         }
 
         private void OnEnable()
         {
             player.InteractPressed += OnInteractionPressed;
             player.RestartRequested += NewRun;
+            if (finale != null) player.GameMenuRequested += finale.OpenMenu;
         }
 
         private void OnDisable()
         {
             player.InteractPressed -= OnInteractionPressed;
             player.RestartRequested -= NewRun;
+            opening?.Close();
+            reportTerminal?.Close();
+            if (finale != null)
+            {
+                player.GameMenuRequested -= finale.OpenMenu;
+                finale.Close();
+            }
         }
+
+        internal bool HasGameMenu => finale != null;
+        internal void OpenGameMenu() => finale?.OpenMenu();
+        internal void SyncOpening() => opening?.Sync();
 
         private void Start()
         {
@@ -87,25 +116,44 @@ namespace LKS.World
         public bool Restore(PowerCheckpoint power, IEnumerable<StableId> quests,
             LifeSupportCheckpoint lifeSupport, LogisticsCheckpoint logistics,
             IEnumerable<StableId> archive, EchoInvestigationCheckpoint investigation, SampleCheckpoint samples,
-            ResearchDraft research)
+            ResearchDraft research, OpeningProgress? openingCheckpoint = null)
         {
+            var restoredQuests = quests?.ToArray();
             var errors = bootstrap.RestartWithPower(science, RequiredScience,
                 () => Array.Empty<IInteractable>(), _ => ResultCode.EvidenceInsufficient,
-                powerCheckpoint: power, questCheckpoint: quests, lifeSupportCheckpoint: lifeSupport,
+                powerCheckpoint: power, questCheckpoint: restoredQuests, lifeSupportCheckpoint: lifeSupport,
                 logisticsCheckpoint: logistics, archiveCheckpoint: archive,
-                investigationCheckpoint: investigation, sampleCheckpoint: samples, researchCheckpoint: research);
+                investigationCheckpoint: investigation, sampleCheckpoint: samples, researchCheckpoint: research,
+                openingCheckpoint: openingCheckpoint ?? (restoredQuests?.Length > 0
+                    ? OpeningProgress.Complete : OpeningProgress.Farewell));
             if (errors.Count != 0)
             {
                 StartError = errors[0];
                 return false;
             }
+            ResetSessionPresentation();
+            return true;
+        }
+
+        internal CommandResult SaveCampaign() => Campaign.Save(CampaignSlot, Session);
+
+        internal CommandResult LoadCampaign()
+        {
+            var result = Campaign.Load(CampaignSlot, bootstrap, () => Array.Empty<IInteractable>(),
+                _ => ResultCode.EvidenceInsufficient);
+            if (result.Succeeded) ResetSessionPresentation();
+            return result;
+        }
+
+        private void ResetSessionPresentation()
+        {
             StartError = null;
             observed = Session;
             nextUse = 0;
             feedback = "";
             player.RestartAtSpawn();
+            SyncOpening();
             gate.Present(HasDoorPower, player.transform.position);
-            return true;
         }
 
         public StationInteractionAnchor FindAimedTarget(Ray ray)
@@ -188,6 +236,9 @@ namespace LKS.World
 
         public string Describe(StationInteractionAnchor anchor)
         {
+            if (reportTerminal != null && anchor.TargetId == StationResearchTerminal.Target)
+                return "E  Open research report\nReport terminal";
+            if (finale != null && anchor.TargetId == StationEnding.Photograph) return finale.Prompt();
             if (TrySample(anchor.TargetId, out var sample)) return DescribeSample(sample);
             if (laboratory != null && anchor.TargetId == StationLaboratory.Target)
                 return laboratory.BlockReason ?? "E  Open sample analyzer\nLaboratory";
@@ -233,6 +284,14 @@ namespace LKS.World
                 Time.unscaledTimeAsDouble < nextUse) return false;
             var anchor = FindAimedTarget(ray);
             if (anchor == null) return false;
+            if (reportTerminal != null && anchor.TargetId == StationResearchTerminal.Target)
+                return reportTerminal.Open(player, () => Session, SaveCampaign);
+            if (finale != null && anchor.TargetId == StationEnding.Photograph)
+            {
+                bool completed = finale.Inspect(out string message);
+                if (!string.IsNullOrEmpty(message)) Show(message);
+                return completed;
+            }
             if (TrySample(anchor.TargetId, out var sample)) return SubmitSample(sample);
             if (laboratory != null && anchor.TargetId == StationLaboratory.Target)
             {

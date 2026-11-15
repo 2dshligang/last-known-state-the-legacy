@@ -155,7 +155,8 @@ namespace LKS.Editor.World
                 yield return null;
                 var reopened = FindPlayer();
                 Assert.That(player == null);
-                Assert.That(reopened.IsPaused || reopened.HasReadingFocus, Is.False);
+                Assert.That(reopened.IsPaused, Is.False);
+                Assert.That(reopened.HasReadingFocus, Is.True, "Reload starts the opening.");
                 Assert.That(Time.timeScale, Is.EqualTo(1));
                 Assert.That(presses, Is.Zero);
             }
@@ -168,6 +169,8 @@ namespace LKS.Editor.World
         private static IEnumerator LoadStation()
         {
             yield return EditorSceneManager.LoadSceneAsyncInPlayMode(Path, new LoadSceneParameters(LoadSceneMode.Single));
+            yield return null;
+            Object.FindAnyObjectByType<SessionBootstrap>().Current.Narrative.SkipOpening();
             yield return null;
         }
 
