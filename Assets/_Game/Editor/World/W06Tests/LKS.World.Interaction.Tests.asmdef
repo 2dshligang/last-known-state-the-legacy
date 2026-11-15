@@ -1,5 +1,5 @@
 {
   "name": "LKS.World.Interaction.Tests",
-  "references": ["LKS.Contracts", "LKS.Data", "LKS.Quests", "LKS.Systems", "LKS.World.Interaction", "LKS.World.Station", "LKS.World.FirstPerson"],
+  "references": ["LKS.Contracts", "LKS.Quests", "LKS.Systems", "LKS.World.Interaction", "LKS.World.Station", "LKS.World.FirstPerson"],
   "optionalUnityReferences": ["TestAssemblies"]
 }
