@@ -94,8 +94,8 @@ namespace LKS.Editor.World
             sun.Facing = new Vector3(.30f,-.87f,-.39f);
             var far = LoopFar(layout);
             Box("exterior.sample-box", P(0,.46f,far.z+.69f), P(1.05f,.92f,.43f), "Metal");
-            Box("exterior.sample-sign", P(0,1.24f,far.z+.69f), P(1.7f,.27f,.1f), "Metal");
-            Label("exterior.sample-label", "C  /  DUST CHECK", P(0,1.24f,far.z+.632f), Vector3.forward, .14f);
+            Box("exterior.sample-sign", P(0,1.53f,far.z+.69f), P(1.7f,.55f,.1f), "Metal");
+            Label("exterior.sample-label", "C  /  DUST CHECK", P(0,1.68f,far.z+.632f), Vector3.forward, .102f);
             Anchor("sampling", "quest.sampling", P(0,.76f,far.z+.46f), far);
             ExteriorSites();
             New("station.spawn", Kind.Point, layout.Spawn);
@@ -164,8 +164,8 @@ namespace LKS.Editor.World
                     edge, z, Vector3.left, "sample.iron-rich-rock");
 
                 Box("w12.dust.tray", P(0,.96f,far.z+.69f), P(.64f,.07f,.30f), "Ochre", false);
-                Label("w12.dust.note", "Fiction: Boot dust reached this tray.\nLeave it. Prepare a clean blank in the lab.",
-                    P(0,1.51f,far.z+.632f), Vector3.forward, .092f);
+                Label("w12.dust.note", "Fiction: Boot dust reached this tray.\nLeave it. Prepare a clean\nblank in the lab.",
+                    P(0,1.49f,far.z+.632f), Vector3.forward, .069f);
                 Label("w12.setting", "ILLUSTRATIVE MARS  /  ASTERION FIELD LOOP",
                     P(0,2.13f,end+.16f), Vector3.back, .10f);
                 Label("w12.entry", "ILLUSTRATIVE MARS  /  FOLLOW THE FIELD LOOP",
