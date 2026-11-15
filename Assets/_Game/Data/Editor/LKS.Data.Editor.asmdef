@@ -1,5 +1,5 @@
 {
   "name": "LKS.Data.Editor",
-  "references": ["LKS.Data", "LKS.Contracts"],
+  "references": ["LKS.Data", "LKS.Contracts", "LKS.Science.Editor"],
   "includePlatforms": ["Editor"]
 }

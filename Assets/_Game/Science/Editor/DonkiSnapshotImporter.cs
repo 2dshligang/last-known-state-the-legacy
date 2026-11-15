@@ -24,21 +24,12 @@ namespace LKS
 
         public static void Import(string automationRoot, string assetPath)
         {
-            var source = ReadApprovedSource(automationRoot);
-            VerifyChecksum(automationRoot, RawPath, RawHash);
-            VerifyChecksum(automationRoot, TransformPath, TransformHash);
-            VerifyChecksum(automationRoot, NormalizedPath, NormalizedHash);
-
-            string normalized = File.ReadAllText(Path.Combine(automationRoot, NormalizedPath));
-            var records = ParseNormalized(normalized, source.units);
             var catalog = AssetDatabase.LoadAssetAtPath<StationScienceCatalog>(assetPath);
             if (catalog == null && (File.Exists(assetPath) || File.Exists(assetPath + ".meta")))
                 throw new InvalidDataException("The catalog path is occupied.");
 
-            var candidate = ScriptableObject.CreateInstance<StationScienceCatalog>();
-            candidate.name = catalog == null ? Path.GetFileNameWithoutExtension(assetPath) : catalog.name;
-            candidate.ReplaceSnapshot(source.attribution, source.license, "donki-sep-v1",
-                RawHash, NormalizedHash, TransformHash, records);
+            var candidate = ReadApprovedCatalog(automationRoot,
+                catalog == null ? Path.GetFileNameWithoutExtension(assetPath) : catalog.name);
             if (catalog == null)
             {
                 AssetDatabase.CreateAsset(candidate, assetPath);
@@ -55,6 +46,36 @@ namespace LKS
                 AssetDatabase.SaveAssetIfDirty(catalog);
             }
             finally { UnityEngine.Object.DestroyImmediate(candidate); }
+        }
+
+        public static void VerifyRuntimeCatalog(string automationRoot, StationScienceCatalog catalog)
+        {
+            if (catalog == null)
+                throw new InvalidDataException("Station's runtime DONKI catalog is missing.");
+
+            var expected = ReadApprovedCatalog(automationRoot, catalog.name);
+            try
+            {
+                if (EditorJsonUtility.ToJson(catalog) != EditorJsonUtility.ToJson(expected))
+                    throw new InvalidDataException("Station's runtime DONKI catalog differs from the approved snapshot.");
+            }
+            finally { UnityEngine.Object.DestroyImmediate(expected); }
+        }
+
+        private static StationScienceCatalog ReadApprovedCatalog(string root, string catalogName)
+        {
+            var source = ReadApprovedSource(root);
+            VerifyChecksum(root, RawPath, RawHash);
+            VerifyChecksum(root, TransformPath, TransformHash);
+            VerifyChecksum(root, NormalizedPath, NormalizedHash);
+
+            string normalized = File.ReadAllText(Path.Combine(root, NormalizedPath));
+            var records = ParseNormalized(normalized, source.units);
+            var catalog = ScriptableObject.CreateInstance<StationScienceCatalog>();
+            catalog.name = catalogName;
+            catalog.ReplaceSnapshot(source.attribution, source.license, "donki-sep-v1",
+                RawHash, NormalizedHash, TransformHash, records);
+            return catalog;
         }
 
         private static Source ReadApprovedSource(string root)
