@@ -28,7 +28,18 @@ try {
     $log = Join-Path $scratch.FullName 'Unity.log'
     $xml = Join-Path $scratch.FullName 'results.xml'
     $missing = Join-Path $scratch.FullName 'missing.xml'
+    $player = Join-Path $scratch.FullName 'Fixture.exe'
+    $playerData = Join-Path $scratch.FullName 'Fixture_Data'
     Set-Content -LiteralPath $log -Value 'Unity fixture completed.'
+    Set-Content -LiteralPath $player -Value 'Player fixture'
+    New-Item -ItemType Directory -Path $playerData | Out-Null
+    Invoke-Fixture 'Player without station build confirmation' {
+        Assert-LksUnityResult -Mode Build -ExitCode 0 -LogPath $log -PlayerPath $player
+    } 'did not confirm that the station build'
+    Add-Content -LiteralPath $log -Value 'W14_STATION_BUILD_PASS Fixture.exe'
+    Invoke-Fixture 'Confirmed station player' {
+        Assert-LksUnityResult -Mode Build -ExitCode 0 -LogPath $log -PlayerPath $player
+    }
     Set-Content -LiteralPath $xml -Value '<test-run result="Passed" total="1" passed="1" failed="0" skipped="0" inconclusive="0" />'
     Invoke-Fixture 'Passing test run' { Assert-LksUnityResult EditMode 0 $log $xml }
     Invoke-Fixture 'Missing results' { Assert-LksUnityResult EditMode 0 $log $missing } 'Test results are missing'
@@ -51,6 +62,6 @@ try {
     }
     throw 'Skipped job did not block the gate.'
 } finally {
-    Remove-Item -LiteralPath $log, $xml -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $log, $xml, $player, $playerData -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $scratch.FullName
 }
