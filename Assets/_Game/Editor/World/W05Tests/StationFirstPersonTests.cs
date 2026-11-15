@@ -35,13 +35,27 @@ namespace LKS.Editor.World
                 new Vector3(-side,0,far),new Vector3(side,0,far),new Vector3(side,0,near),
                 new Vector3(0,0,near),new Vector3(0,0,layout.BayLength*4.49f) };
             foreach (var stop in stops) Walk(motor, stop);
+            foreach (var stop in stops.Reverse()) Walk(motor, stop);
             var anchors = Object.FindObjectsByType<StationInteractionAnchor>(FindObjectsSortMode.None);
             foreach (var station in anchors.Where(anchor => anchor.TargetId.value != "quest.sampling"))
             {
                 Vector3 approach = station.Approach.position;
-                Walk(motor, new Vector3(0,0,approach.z));
+                bool outside = approach.z > end;
+                float lane = outside ? Mathf.Sign(approach.x) * side : 0;
+                if (outside)
+                {
+                    Walk(motor, new Vector3(0,0,near));
+                    Walk(motor, new Vector3(lane,0,near));
+                }
+                var junction = new Vector3(lane,0,approach.z);
+                Walk(motor, junction);
                 Walk(motor, approach);
-                Walk(motor, new Vector3(0,0,approach.z));
+                Walk(motor, junction);
+                if (outside)
+                {
+                    Walk(motor, new Vector3(lane,0,near));
+                    Walk(motor, new Vector3(0,0,near));
+                }
             }
             Walk(motor, new Vector3(0,0,end+2));
             for (int index = 0; index < 70; index++) motor.Move(Vector2.right, .5f);

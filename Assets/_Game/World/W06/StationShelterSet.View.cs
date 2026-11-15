@@ -81,8 +81,8 @@ namespace LKS.World
             if (Control(new Rect(292, 377, 246, 42), "Request shutter closure",
                 reading.Phase == ShelterPhase.Ready && reading.ActuatorPowered))
                 RequestShelter();
-            if (GUI.Button(new Rect(554, 377, 306, 42), "Open NASA DONKI record", button))
-                Application.OpenURL(observation.Source.AbsoluteUri);
+            if (GUI.Button(new Rect(554, 377, 306, 42), "Open NASA DONKI catalog", button))
+                Application.OpenURL("https://ccmc.gsfc.nasa.gov/DONKI/events/");
             Write(new Rect(25, 432, 834, 31), "The drill and its timing are a simplified station model.", body, Muted);
         }
 

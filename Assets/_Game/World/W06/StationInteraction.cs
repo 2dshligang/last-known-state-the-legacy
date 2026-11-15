@@ -139,8 +139,50 @@ namespace LKS.World
             return false;
         }
 
+        private static readonly StableId Sampling = new StableId("quest.sampling");
+        private bool CanSample => Session?.Quests?.Snapshot[Sampling] == QuestStatus.Available;
+
+        private bool TrySample(StableId id, out SampleReading sample)
+        {
+            sample = null;
+            return Session?.Samples?.Readings.TryGetValue(id, out sample) == true;
+        }
+
+        private string DescribeSample(SampleReading sample)
+        {
+            string label = sample.Definition.Id.value switch
+            {
+                "sample.layered-mudstone" => "Layered outcrop",
+                "sample.iron-rich-rock" => "Rust-colored comparison rock",
+                _ => "Laboratory blank"
+            };
+            if (sample.Phase >= SamplePhase.Collected) return label + " / Already collected";
+            if (!CanSample) return label + " / Confirm the ECHO investigation first.";
+            string action = sample.Phase == SamplePhase.Unseen ? "Record context" :
+                sample.Definition.Id == StationSamples.Blank ? "Prepare empty control" : "Collect specimen";
+            return "E  " + action + "\n" + label;
+        }
+
+        private bool SubmitSample(SampleReading sample)
+        {
+            if (!CanSample)
+            {
+                Show(DescribeSample(sample));
+                return false;
+            }
+
+            var service = Session.Samples;
+            var result = sample.Phase == SamplePhase.Unseen
+                ? service.RecordContext(sample.Definition.Id)
+                : service.Collect(sample.Definition.Id);
+            nextUse = Time.unscaledTimeAsDouble + RepeatDelay;
+            Show(Resolve(result.MessageKey));
+            return result.Code == ResultCode.Applied;
+        }
+
         public string Describe(StationInteractionAnchor anchor)
         {
+            if (TrySample(anchor.TargetId, out var sample)) return DescribeSample(sample);
             if (shelter != null && StationShelterSet.Handles(anchor.TargetId))
                 return shelter.Describe(anchor.TargetId);
             if (archiveReader != null && anchor.TargetId == StationArchiveReader.Target)
@@ -183,6 +225,7 @@ namespace LKS.World
                 Time.unscaledTimeAsDouble < nextUse) return false;
             var anchor = FindAimedTarget(ray);
             if (anchor == null) return false;
+            if (TrySample(anchor.TargetId, out var sample)) return SubmitSample(sample);
             if (shelter != null && StationShelterSet.Handles(anchor.TargetId))
                 return shelter.Open(anchor.TargetId);
             if (archiveReader != null && anchor.TargetId == StationArchiveReader.Target)
@@ -225,7 +268,7 @@ namespace LKS.World
                 return target.value switch
                 {
                     "quest.echo-evidence" => "Confirm the ECHO evidence before completing this step.",
-                    "quest.sampling" => "Record and collect all required specimens.",
+                    "quest.sampling" => "Collect both rocks and prepare the empty control in the lab.",
                     "quest.analysis" => "Review the lab results with a valid blank control.",
                     "quest.report" => "An accepted research report is required.",
                     "quest.ending" => "Finish the research before viewing the photograph.",
@@ -294,8 +337,11 @@ namespace LKS.World
                     Vector3 offset = view.transform.InverseTransformPoint(objective.Approach.position);
                     string direction = offset.z < -.5f ? "Behind you" :
                         offset.x < -.7f ? "Left" : offset.x > .7f ? "Right" : "Ahead";
-                    Draw(new Rect(width / 2 - 200, 15, 400, 32),
-                        "NEXT   " + Name(objective.TargetId) + "   /   " + direction, heading);
+                    string label = "NEXT   " + Name(objective.TargetId) + "   /   " + direction;
+                    float panelWidth = Mathf.Min(400, width - 32);
+                    float panelHeight = Mathf.Max(32,
+                        Mathf.Ceil(heading.CalcHeight(new GUIContent(label), panelWidth - 16)) + 8);
+                    Draw(new Rect((width - panelWidth) / 2, 15, panelWidth, panelHeight), label, heading);
                 }
                 var aimed = FindAimedTarget(new Ray(view.transform.position, view.transform.forward));
                 string prompt = aimed == null ? "" : Describe(aimed);

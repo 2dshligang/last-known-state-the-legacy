@@ -61,7 +61,7 @@ namespace LKS.Editor.World
             Opening("station.exterior-entry", end, width, height, 1.6f);
             // This heading is seen on the return route through the opposite face.
             Box("return.sign", P(0, 2.62f, end+.14f), P(2.4f,.29f,.07f), "Metal", false);
-            Label("return.label", "RETURN  /  LAB", P(0,2.62f,end+.181f), Vector3.back, .15f);
+            Label("return.label", "AIRLOCK  /  LAB", P(0,2.62f,end+.181f), Vector3.back, .15f);
 
             float left = -width/2 + .36f;
             float right = width/2 - .36f;
@@ -94,9 +94,10 @@ namespace LKS.Editor.World
             sun.Facing = new Vector3(.30f,-.87f,-.39f);
             var far = LoopFar(layout);
             Box("exterior.sample-box", P(0,.46f,far.z+.69f), P(1.05f,.92f,.43f), "Metal");
-            Box("exterior.sample-sign", P(0,1.24f,far.z+.69f), P(1.7f,.27f,.1f), "Metal");
-            Label("exterior.sample-label", "SAMPLE PICKUP", P(0,1.24f,far.z+.632f), Vector3.forward, .14f);
+            Box("exterior.sample-sign", P(0,1.53f,far.z+.69f), P(1.7f,.55f,.1f), "Metal");
+            Label("exterior.sample-label", "C  /  DUST CHECK", P(0,1.68f,far.z+.632f), Vector3.forward, .102f);
             Anchor("sampling", "quest.sampling", P(0,.76f,far.z+.46f), far);
+            ExteriorSites();
             New("station.spawn", Kind.Point, layout.Spawn);
             var camera = New("station.preview-camera", Kind.Camera, layout.Spawn + P(0,1.62f,0));
             camera.Facing = P(0,-.015f,1);
@@ -141,6 +142,58 @@ namespace LKS.Editor.World
                 SideLabel(id, text, x - facing.x*.25f, top+.19f, z, facing);
                 if (target != null)
                     Anchor(id, target, P(x,top-.14f,z)-facing*.28f, P(x,0,z)-facing*1.13f);
+            }
+
+            void ExteriorSites()
+            {
+                float edge = outside * .21f;
+                float z = end + depth * .50f;
+                for (int layer = 0; layer < 5; layer++)
+                    Box("w12.bed." + layer, P(-edge + .52f, .67f + layer * .09f, z + layer * .045f),
+                        P(1.24f - layer * .10f, .087f, 1.22f), layer % 2 == 0 ? "Dust" : "Ochre", false);
+
+                Box("w12.rust.base", P(edge - .48f,.80f,z), P(1.1f,.35f,1.35f), "Dust", false);
+                Box("w12.rust.face", P(edge - .45f,.98f,z+.14f), P(.89f,.31f,.82f), "Ochre", false);
+                Box("w12.rust.rind", P(edge - .15f,1.13f,z+.18f), P(.30f,.13f,.55f), "Metal", false);
+
+                FieldBoard("bedding", "A  /  LAYERED OUTCROP",
+                    "Fiction: Thin bands stack like pages.\nRecord where the rock came from.",
+                    -edge, z, Vector3.right, "sample.layered-mudstone");
+                FieldBoard("alteration", "B  /  COMPARISON ROCK",
+                    "Fiction: The rusty outer coat differs\nfrom the fresh broken face.",
+                    edge, z, Vector3.left, "sample.iron-rich-rock");
+
+                Box("w12.dust.tray", P(0,.96f,far.z+.69f), P(.64f,.07f,.30f), "Ochre", false);
+                Label("w12.dust.note", "Fiction: Boot dust reached this tray.\nLeave it. Prepare a clean\nblank in the lab.",
+                    P(0,1.49f,far.z+.632f), Vector3.forward, .069f);
+                Label("w12.setting", "ILLUSTRATIVE MARS  /  ASTERION FIELD LOOP",
+                    P(0,2.13f,end+.16f), Vector3.back, .10f);
+                Label("w12.entry", "ILLUSTRATIVE MARS  /  FOLLOW THE FIELD LOOP",
+                    P(0,2.40f,end-.115f), Vector3.forward, .10f);
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    float x = side * LoopSide(layout);
+                    string suffix = side < 0 ? ".left" : ".right";
+                    Box("w12.route.near" + suffix,
+                        P(x/2,.005f,LoopNear(layout).z), P(Mathf.Abs(x),.008f,.055f), "Ochre", false);
+                    Box("w12.route.far" + suffix,
+                        P(x/2,.005f,far.z), P(Mathf.Abs(x),.008f,.055f), "Ochre", false);
+                }
+
+                float blankZ = 4.55f * bay;
+                Fixture("w12-blank", "EMPTY CONTROL", left, blankZ, .84f, Vector3.left, "sample.procedural-blank");
+                Label("w12.blank.note", "An empty tray checks for stray material.",
+                    P(left+.31f,1.30f,blankZ), Vector3.left, .067f);
+            }
+
+            void FieldBoard(string id, string title, string note, float x, float z, Vector3 facing, string target)
+            {
+                string prefix = "w12." + id;
+                Box(prefix + ".post", P(x,.88f,z), P(.11f,1.76f,.12f), "Metal", false);
+                Box(prefix + ".board", P(x,1.52f,z), P(.10f,.49f,1.94f), "Metal", false);
+                Label(prefix + ".title", title, P(x,1.67f,z)-facing*.056f, facing, .10f);
+                Label(prefix + ".note", note, P(x,1.48f,z)-facing*.056f, facing, .075f);
+                Anchor(prefix, target, P(x,1.67f,z)-facing*.09f, P(x,0,z)-facing*1.27f);
             }
 
             void Shelter()

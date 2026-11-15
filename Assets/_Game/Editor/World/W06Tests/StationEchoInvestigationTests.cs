@@ -180,6 +180,84 @@ namespace LKS.Editor.World
             }
         }
 
+        [UnityTest]
+        public IEnumerator SamplingUsesSceneAnchorsInEveryOrderAndSurvivesDiskRestore()
+        {
+            yield return LoadStation();
+            var player = Object.FindAnyObjectByType<StationFirstPerson>();
+            var bridge = player.GetComponent<StationInteraction>();
+            yield return CompleteArrivalAndPower(bridge);
+            var reader = player.GetComponent<StationArchiveReader>();
+            var review = player.GetComponent<StationEchoReview>();
+            var panel = player.GetComponent<StationEchoInvestigation>();
+            OpenArchiveAndAcknowledge(bridge, reader);
+            Assert.That(reader.OpenReplay());
+            OpenInvestigation(review, panel);
+            foreach (var clue in new[] { Timing, Decision, Outage })
+            {
+                Collect(panel, clue);
+                Assert.That(panel.ToggleOrder(clue));
+            }
+            Assert.That(panel.SubmitOrder() && panel.ConfirmQuest());
+            Press(panel, KeyCode.Tab, shift: true);
+            Press(panel, KeyCode.Return);
+            Assert.That(player.HasWorldFocus);
+
+            var specimens = new[] { new StableId("sample.layered-mudstone"),
+                new StableId("sample.iron-rich-rock"), StationSamples.Blank };
+            var folder = Path.Combine(Application.temporaryCachePath, "lks-w12-" + Guid.NewGuid().ToString("N"));
+            var slot = new StableId("w12-sampling");
+            var partial = new StableId("w12-partial");
+            var saves = new StationSaves(folder, (StationScienceCatalog)bridge.Session.Science,
+                new[] { new StableId("donki.2017-09-04t23-52-00-sep-001") });
+            bool Load(StableId key) => saves.Load(key, player.GetComponent<SessionBootstrap>(),
+                () => Array.Empty<IInteractable>(), _ => ResultCode.EvidenceInsufficient).Succeeded;
+            try
+            {
+                Assert.That(saves.Save(slot, bridge.Session).Succeeded);
+                for (int first = 0; first < specimens.Length; first++)
+                for (int second = 0; second < specimens.Length; second++)
+                {
+                    if (second == first) continue;
+                    Assert.That(Load(slot));
+                    yield return null;
+                    foreach (int i in new[] { first, second, 3 - first - second })
+                    {
+                        var id = specimens[i];
+                        var anchor = StationInteractionTests.Anchor(id);
+                        var ray = StationInteractionTests.AimAt(anchor);
+                        Assert.That(bridge.Submit(ray), Is.True, id.value);
+                        Assert.That(bridge.Session.Samples.Readings[id].Phase, Is.EqualTo(SamplePhase.ContextRecorded));
+                        yield return new WaitForSecondsRealtime(.31f);
+                        Assert.That(bridge.Submit(ray), Is.True, id.value);
+                        yield return new WaitForSecondsRealtime(.31f);
+                        Assert.That(bridge.Submit(ray), Is.False, id.value);
+                        Assert.That(bridge.Feedback, Is.EqualTo("Sample already collected."));
+                        if (first == 0 && second == 1 && i == first)
+                        {
+                            Assert.That(saves.Save(partial, bridge.Session).Succeeded && Load(partial));
+                            yield return null;
+                            Assert.That(bridge.Session.Samples.Readings[id].Phase, Is.EqualTo(SamplePhase.Collected));
+                            Assert.That(bridge.Session.Samples.Readings[specimens[second]].Phase, Is.EqualTo(SamplePhase.Unseen));
+                        }
+                        yield return new WaitForSecondsRealtime(.31f);
+                    }
+                    Assert.That(bridge.Session.Samples.AllCollected);
+                    var pickup = StationInteractionTests.Anchor(StationQuests.RequiredStages[3]);
+                    Assert.That(bridge.Submit(StationInteractionTests.AimAt(pickup)));
+                    Assert.That(bridge.Session.Quests.Snapshot[StationQuests.RequiredStages[3]], Is.EqualTo(QuestStatus.Completed));
+                }
+            }
+            finally
+            {
+                if (Directory.Exists(folder))
+                {
+                    foreach (string file in Directory.GetFiles(folder)) File.Delete(file);
+                    Directory.Delete(folder);
+                }
+            }
+        }
+
         private static IEnumerator LoadStation()
         {
             yield return EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters(LoadSceneMode.Single));
