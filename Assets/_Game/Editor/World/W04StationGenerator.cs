@@ -6,6 +6,7 @@ using LKS.World;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
@@ -189,6 +190,8 @@ namespace LKS.Editor.World
                 case W04StationPlan.Kind.Box:
                     var renderer = Required<MeshRenderer>(item);
                     changed |= Assign(renderer.sharedMaterial, palette[node.Material], value => renderer.sharedMaterial = value);
+                    if (!node.CastsShadows)
+                        changed |= Assign(renderer.shadowCastingMode, ShadowCastingMode.Off, value => renderer.shadowCastingMode = value);
                     if (node.Collides && !Required<BoxCollider>(item).enabled)
                         throw new InvalidOperationException("Generated collider is disabled: " + node.Id);
                     break;

@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using Object = UnityEngine.Object;
 
 namespace LKS.World
@@ -18,6 +19,7 @@ namespace LKS.World
         private readonly GameObject set;
         private readonly Camera camera;
         private readonly Material material;
+        private readonly Mesh cube;
         private readonly MaterialPropertyBlock properties = new MaterialPropertyBlock();
         private readonly Renderer console, controller, backup;
         private readonly GameObject estimate;
@@ -31,10 +33,13 @@ namespace LKS.World
         {
             var shader = Resources.Load<Shader>("W10Echo/Projection");
             if (shader == null) throw new InvalidOperationException("The W10 ECHO projection shader is missing.");
+            cube = Resources.GetBuiltinResource<Mesh>("Cube.fbx");
+            if (cube == null) throw new InvalidOperationException("The ECHO projection cube is missing.");
             material = new Material(shader) { name = "ECHO projection material" };
             root = new GameObject("ECHO replay projection");
             root.transform.SetParent(owner, false);
             root.transform.position = Vector3.down * 2048;
+            root.SetActive(false);
             set = Group("Instrument silhouettes", root.transform);
             Box("Projection deck", set.transform, new Vector3(0,-.10f,0), new Vector3(9,.14f,5), Dark);
             for (int i = -4; i <= 4; i++)
@@ -69,6 +74,10 @@ namespace LKS.World
             camera.nearClipPlane = .1f;
             camera.farClipPlane = 30;
             camera.allowHDR = false;
+            var pipeline = view.AddComponent<UniversalAdditionalCameraData>();
+            pipeline.renderShadows = false;
+            pipeline.requiresDepthOption = CameraOverrideOption.Off;
+            pipeline.requiresColorOption = CameraOverrideOption.Off;
             Hide();
         }
 
@@ -79,7 +88,11 @@ namespace LKS.World
                 Hide();
                 return;
             }
-            if (root.activeSelf && presentedCue == frame.VisualCue) return;
+            if (root.activeSelf && presentedCue == frame.VisualCue)
+            {
+                RefreshTextureIfLost();
+                return;
+            }
             presentedCue = frame.VisualCue;
             string cue = frame.VisualCue.value;
             Paint(console, cue == "cue.echo-console" ? Recorded : Outline);
@@ -87,19 +100,43 @@ namespace LKS.World
             Paint(backup, cue == "cue.echo-outage" ? Outline : Dark);
             estimate.SetActive(frame.Evidence.Quality == EvidenceQuality.Estimated);
             root.SetActive(true);
-            camera.enabled = Texture != null;
+            RequestRender();
         }
 
         internal void Hide()
         {
             presentedCue = default;
-            camera.enabled = false;
+            CancelRender();
             if (!root.activeSelf) return;
             estimate.SetActive(false);
             Paint(console, Outline);
             Paint(controller, Outline);
             Paint(backup, Dark);
             root.SetActive(false);
+        }
+
+        internal void RefreshTextureIfLost()
+        {
+            if (root.activeSelf && Texture != null && !Texture.IsCreated())
+                RequestRender();
+        }
+
+        private void RequestRender()
+        {
+            if (Texture == null || camera.enabled) return;
+            RenderPipelineManager.endCameraRendering += OnCameraRendered;
+            camera.enabled = true;
+        }
+
+        private void OnCameraRendered(ScriptableRenderContext context, Camera rendered)
+        {
+            if (rendered == camera) CancelRender();
+        }
+
+        private void CancelRender()
+        {
+            RenderPipelineManager.endCameraRendering -= OnCameraRendered;
+            camera.enabled = false;
         }
 
         private Renderer Instrument(string name, float x, float height)
@@ -122,16 +159,11 @@ namespace LKS.World
 
         private Renderer Box(string name, Transform parent, Vector3 position, Vector3 size, Color color)
         {
-            var item = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            item.name = name;
-            item.layer = ProjectionLayer;
-            item.transform.SetParent(parent, false);
+            var item = Group(name, parent);
+            item.AddComponent<MeshFilter>().sharedMesh = cube;
             item.transform.localPosition = position;
             item.transform.localScale = size;
-            var collider = item.GetComponent<Collider>();
-            collider.enabled = false;
-            Object.Destroy(collider);
-            var renderer = item.GetComponent<Renderer>();
+            var renderer = item.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = material;
             renderer.shadowCastingMode = ShadowCastingMode.Off;
             renderer.receiveShadows = false;
@@ -147,6 +179,7 @@ namespace LKS.World
 
         public void Dispose()
         {
+            CancelRender();
             camera.targetTexture = null;
             Object.Destroy(root);
             if (Texture != null)
