@@ -179,7 +179,7 @@ namespace LKS.Editor.World
             Assert.That(reader.IsOpen);
         }
 
-        private static void Walk(FirstPersonMotor motor, Vector3 target)
+        internal static void Walk(FirstPersonMotor motor, Vector3 target)
         {
             for (int step = 0; step < 160; step++)
             {
@@ -189,7 +189,7 @@ namespace LKS.Editor.World
                 Vector3 local = motor.transform.InverseTransformDirection(offset);
                 motor.Move(Vector2.ClampMagnitude(new Vector2(local.x, local.z) / .27f, 1), .08f);
             }
-            Assert.Fail($"Could not reach the archive approach at {target:F2} from {motor.transform.position:F2}.");
+            Assert.Fail($"Could not reach {target:F2} from {motor.transform.position:F2}.");
         }
 
         private static void Press(StationArchiveReader reader, KeyCode key, bool shift = false)

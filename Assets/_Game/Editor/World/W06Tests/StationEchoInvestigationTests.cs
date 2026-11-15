@@ -362,7 +362,7 @@ namespace LKS.Editor.World
             Object.FindAnyObjectByType<StationFirstPerson>().SendMessage("OnApplicationFocus", true);
         }
 
-        private static IEnumerator CompleteArrivalAndPower(StationInteraction bridge)
+        internal static IEnumerator CompleteArrivalAndPower(StationInteraction bridge)
         {
             var arrival = StationInteractionTests.Anchor(StationQuests.RequiredStages[0]);
             Assert.That(bridge.Submit(StationInteractionTests.AimAt(arrival)));
@@ -377,14 +377,14 @@ namespace LKS.Editor.World
             Assert.That(bridge.Session.CaptureQuestCheckpoint().Count, Is.EqualTo(2));
         }
 
-        private static void OpenArchiveAndAcknowledge(StationInteraction bridge, StationArchiveReader reader)
+        internal static void OpenArchiveAndAcknowledge(StationInteraction bridge, StationArchiveReader reader)
         {
             StationArchiveReaderTests.OpenAtTerminal(bridge, reader);
             Assert.That(reader.OpenDocument(0, Vector2.zero) && reader.MarkAsRead() && reader.ReturnToList());
             Assert.That(bridge.Session.Archive.Capture(), Is.EqualTo(new[] { RequiredArchive }));
         }
 
-        private static void OpenInvestigation(StationEchoReview review, StationEchoInvestigation panel)
+        internal static void OpenInvestigation(StationEchoReview review, StationEchoInvestigation panel)
         {
             Assert.That(panel, Is.Not.Null, "The saved scene must bind the ECHO investigation.");
             review.HandleKeyboard(new Event { type = EventType.KeyDown, keyCode = KeyCode.Tab,

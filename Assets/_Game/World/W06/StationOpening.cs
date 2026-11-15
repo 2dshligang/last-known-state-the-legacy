@@ -87,12 +87,20 @@ namespace LKS.World
         internal bool Continue() => Act(skip: false);
         internal bool Skip() => Act(skip: true);
 
+        internal bool OpenGameMenu()
+        {
+            if (!CanAct || !bridge.HasGameMenu) return false;
+            Close();
+            bridge.OpenGameMenu();
+            return true;
+        }
+
         private bool Act(bool skip)
         {
             if (!CanAct) return false;
             bool changed = skip ? session.Narrative.SkipOpening() : session.Narrative.AdvanceOpening();
             Sync();
-            if (changed && !IsOpen) player.ResumePointer();
+            if (changed && !IsOpen && !player.HasWorldFocus) player.ResumePointer();
             return changed;
         }
 
@@ -140,6 +148,12 @@ namespace LKS.World
                     Skip();
                     return;
                 }
+                if (Event.current.keyCode == KeyCode.M && bridge.HasGameMenu)
+                {
+                    Event.current.Use();
+                    OpenGameMenu();
+                    return;
+                }
             }
 
             title ??= new GUIStyle(GUI.skin.label) { fontSize = 30, fontStyle = FontStyle.Bold };
@@ -161,6 +175,7 @@ namespace LKS.World
                 GUI.Label(new Rect(0, 474, width, 112), passage, body);
                 GUI.enabled = wasEnabled && CanAct;
                 if (GUI.Button(new Rect(0, 598, 242, 43), "Skip opening  [Space]", button)) Skip();
+                else if (bridge.HasGameMenu && GUI.Button(new Rect(349, 598, 242, 43), "Game menu  [M]", button)) OpenGameMenu();
                 else if (GUI.Button(new Rect(682, 598, 258, 43),
                     isFarewell ? "Continue  [Enter]" : "Enter station  [Enter]", button)) Continue();
             }
