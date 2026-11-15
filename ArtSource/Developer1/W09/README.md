@@ -46,8 +46,12 @@ including on re-entry after pause, and still refuses a blocked terminal.
 
 The individual documents were captured at 800 × 600 with audio volume
 at zero. The integrated view was captured in Windows at the installed
-ECHO terminal.
+ECHO terminal at 1600 × 900 and 800 × 600, also with audio volume at zero.
+The integrated build passed 12 Play Mode and 69 Edit Mode tests in Unity
+6000.6.9f1. A repeat install left the scene unchanged.
 
+- [Archive opened at the installed terminal](W09-station-terminal-wide.png)
+- [Archive entry acknowledged in the installed scene](W09-station-acknowledged.png)
 - [Record list and visible keyboard selection](W09-record-list.png)
 - [Archived NASA observation](archive.donki-sep.png)
 - [Simplified power model](archive.power-model.png)
