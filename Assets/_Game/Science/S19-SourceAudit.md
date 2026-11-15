@@ -1,6 +1,8 @@
-# S19 source-use inventory on the W15 baseline
+# S19 source-use and license inventory
 
-Scope: accepted `aec279f`. This inventory covers the current science references and known source-use boundaries. Release asset coverage and credits integration await the accepted S18 route and W18 Windows build. The current [S18 route PR](https://github.com/2dshligang/last-known-state-the-legacy/pull/40) has no skipped gameplay tests.
+Scope: Windows x64 player built explicitly from `Station.unity` on Unity 6000.6.9f1 and accepted W18 (`1650abb`), with [S18 route coverage](https://github.com/2dshligang/last-known-state-the-legacy/pull/40). The regular Unity scene list and the Station release builder serve different entry points. This inventory follows the Station player.
+
+Accepted [W18 measurements and build evidence](https://github.com/2dshligang/last-known-state-the-legacy/pull/47) identify the player scene and render baseline.
 
 ## English bibliography and visible use
 
@@ -19,8 +21,27 @@ The NTRS and CSA references supply citations and original explanatory text. Thei
 
 `node tools/verify.mjs` in `Automation` verified one locked download, nine records and five generated assets. The raw snapshot, derived JSON and transform SHA-256 all match `Assets/_Game/Data/StationScienceCatalog.asset`. Transform version: `donki-sep-v1`. The 2017 UTC timestamps are historical; instrument energy thresholds describe channels. Mars surface dose is absent. The normalized snapshot contains eight observed events and one labeled model output.
 
-The current station references one specific event for archive/shelter gameplay. The other eight entries, including the model output, are present in the source snapshot without an identified player-facing card or decision on this baseline. Exclude them from the count of sources actively used in gameplay. The remaining challenge Resources are inventoried in `Automation/sources/challenge-resources.json`. Listing a resource does not establish that the game shipped or used it.
+The current station references one specific event for archive/shelter gameplay. The other eight entries, including the model output, remain in the catalog for provenance and have no player-facing card or decision. Count only the selected event as gameplay evidence. The unused challenge links are inventoried in `Automation/sources/challenge-resources.json`. No challenge videos, paper figures, logos or external audio are used.
+
+## Windows media and software
+
+- The detailed Unity BuildReport lists 27 file-backed project media assets. Two are the W15A Poly Haven normal maps by Rob Tuytel and Dimitrios Savva, with [provider CC0 terms](https://polyhaven.com/license), approved raw and imported SHA-256, asset URLs and attribution in `ArtSource/Developer1/W15A/sources.json`. All three W14 images and 22 meshes are team originals. The checked-in media manifest points to the authorship evidence.
+- Twelve additional imported originals were outside the Station package: the eight W01 meshes, three W02 inspection textures and W03 `EchoHousing.fbx`. Kenney was never downloaded, the larger Poly Haven variants were rejected and NASA 3D Resources was reference-only. W18 screenshots and raw performance captures are repository QA evidence.
+- The player uses Unity's built-in primitive geometry, UI sprite, splash resource and `LegacyRuntime.ttf`; W17 counted 40 authored TextMesh objects and zero TMP text objects in the Station scene. No project font, audio clip or video was packed. An AudioListener is present.
+- Detailed packed package paths identify Collections 6.6.0, Input System 1.20.1, Profiling Core 1.0.3, Render Pipelines Core, Universal and Universal Config 17.6.0, Shader Graph 17.6.0, and uGUI 2.6.0. Package license bytes, versions and provider evidence are pinned in `Data/Editor/StationMediaInventory.json`. Unity credits include the [Unity Software Terms](https://unity.com/legal/terms-of-service/software) and the [Unity Companion License](https://unity.com/legal/licenses/unity-companion-license). Burst 2.0.0 is [built into Unity 6.6](https://unity.com/releases/editor/whats-new/6000.6.0f1). The player also carries Unity-supplied engine and Mono libraries; the report preserves the shipped binary names for notices review. The coordinator must verify applicable third-party notices for the final distributed artifact.
+
+## Verification
+
+Run the executable check for the exact candidate with hydrated Git LFS assets. Set `LKS_S19_OUTPUT` to a clean directory outside Assets, then run Unity with the following arguments:
+
+```text
+-batchmode -force-d3d11 -noaudio -buildTarget Win64 -projectPath <project> -quit -executeMethod LKS.StationMediaAudit.BuildAndVerify -logFile <log>
+```
+
+A successful command emits `S19_MEDIA_AUDIT_PASS` and writes `packed-assets.tsv`, `build-files.tsv` and `media-use.tsv`. The gate checks imported media coverage and the actual packed media, imported external SHA-256 and rights, packed package licenses and the serialized DONKI catalog against the approved raw, transform and normalized files. Run Edit Mode `LKS.Tests.StationSourceAuditTests` for the unmanifested image, missing rights, stale transform and relabeled observation. Run `node tools/verify.mjs` from the Automation directory as well. Keep a candidate with unresolved source rights out of release.
+
+On the audited baseline, the clean Windows build emitted `S19_MEDIA_AUDIT_PASS`. Unity Edit Mode passed 89 tests with zero failures or skips. The Automation verifier checked 89 files, one locked download, five generated assets and nine science records. All 20 Automation Node tests passed.
 
 ## Release handoff
 
-Developer 1 supplies the accepted W18 build commit and content changes, including the final scene list, Resources, fonts and any replacement assets. Developer 2 compares the actual Windows player dependency set against manifests and rights evidence, verifies pinned package licenses, runs the unmanifested file, missing license, stale transform and false-measurement fixtures, and gives Developer 1 the final credits data. Unknown rights block use in the release inventory. The present baseline does not establish full asset coverage or release approval.
+Developer 1 owns the credits presentation. In the finale's credits view, enumerate `LKS.StationSourceCredits.All` (API version 1), using each entry's stable `Id`, English `Attribution` and optional HTTPS `SourceUrl`. Resolve links only when the player chooses to open them, and keep all attribution readable offline. Scroll or paginate the list and preserve the existing ending screen. Run the W17 small-window and rendered-text checks with the expanded credits. The coordinator attaches applicable Unity and dependency notices and reruns the inventory for the exact release archive, including any content added after W18.

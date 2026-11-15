@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "original": [
+    {
+      "evidence": "ArtSource/Developer1/W01/README.md",
+      "paths": [
+        "Assets/_Game/Art/W01/equipment-rack.obj",
+        "Assets/_Game/Art/W01/floor-4m.obj",
+        "Assets/_Game/Art/W01/lab-bench.obj",
+        "Assets/_Game/Art/W01/rock-angular.obj",
+        "Assets/_Game/Art/W01/rock-layered.obj",
+        "Assets/_Game/Art/W01/rock-rounded.obj",
+        "Assets/_Game/Art/W01/solar-panel.obj",
+        "Assets/_Game/Art/W01/wall-straight-4m.fbx"
+      ]
+    },
+    {
+      "evidence": "ArtSource/Developer1/W02/README.md",
+      "paths": [
+        "Assets/_Game/Art/W02/Textures/PanelBaseColor.png",
+        "Assets/_Game/Art/W02/Textures/PanelMetallicSmoothness.png",
+        "Assets/_Game/Art/W02/Textures/PanelNormal.png"
+      ]
+    },
+    {
+      "evidence": "ArtSource/Developer1/W03/README.md",
+      "paths": [
+        "Assets/_Game/Art/W03/Models/AirlockFrame.fbx",
+        "Assets/_Game/Art/W03/Models/AirlockLeaf.fbx",
+        "Assets/_Game/Art/W03/Models/EchoHousing.fbx"
+      ]
+    },
+    {
+      "evidence": "Assets/_Game/World/W14-Handoff.md",
+      "paths": [
+        "Assets/_Game/Art/W14/Resources/W14/Arrival.png",
+        "Assets/_Game/Art/W14/Resources/W14/DmitryPhoto.png",
+        "Assets/_Game/Art/W14/Resources/W14/Farewell.png"
+      ]
+    },
+    {
+      "evidence": "ArtSource/Developer1/W15A/sources.json",
+      "paths": [
+        "Assets/_Game/Art/W15A/Original/Deck.fbx",
+        "Assets/_Game/Art/W15A/Original/EchoStack.fbx",
+        "Assets/_Game/Art/W15A/Original/EntranceTerminal.fbx",
+        "Assets/_Game/Art/W15A/Original/FieldCrate.fbx",
+        "Assets/_Game/Art/W15A/Original/Island.fbx",
+        "Assets/_Game/Art/W15A/Original/LabBench.fbx",
+        "Assets/_Game/Art/W15A/Original/LabBlank.fbx",
+        "Assets/_Game/Art/W15A/Original/Overlook.fbx",
+        "Assets/_Game/Art/W15A/Original/Portal.fbx",
+        "Assets/_Game/Art/W15A/Original/PowerStack.fbx",
+        "Assets/_Game/Art/W15A/Original/Recovery.fbx",
+        "Assets/_Game/Art/W15A/Original/Regolith.fbx",
+        "Assets/_Game/Art/W15A/Original/ReportDesk.fbx",
+        "Assets/_Game/Art/W15A/Original/Ridge.fbx",
+        "Assets/_Game/Art/W15A/Original/SeedlingRack.fbx",
+        "Assets/_Game/Art/W15A/Original/ShelterHeader.fbx",
+        "Assets/_Game/Art/W15A/Original/TerrainBed.fbx",
+        "Assets/_Game/Art/W15A/Original/WallA.fbx",
+        "Assets/_Game/Art/W15A/Original/WallB.fbx",
+        "Assets/_Game/Art/W15A/Original/WallC.fbx"
+      ]
+    }
+  ],
+  "packages": [
+    {
+      "id": "com.unity.burst",
+      "version": "2.0.0",
+      "licenseSha256": "",
+      "evidence": "https://unity.com/releases/editor/whats-new/6000.6.0f1"
+    },
+    {
+      "id": "com.unity.collections",
+      "version": "6.6.0",
+      "licenseSha256": "4947f647c031b0fec440237f8136386a606dd998089bb1df67316ee693f568f5",
+      "evidence": "https://unity.com/legal/licenses/unity-companion-license"
+    },
+    {
+      "id": "com.unity.inputsystem",
+      "version": "1.20.1",
+      "licenseSha256": "419718e59cd6c1f9c3ed80bd004394504bed368c23ad8665cce1792a33c8a02c",
+      "evidence": "https://unity.com/legal/licenses/unity-companion-license"
+    },
+    {
+      "id": "com.unity.profiling.core",
+      "version": "1.0.3",
+      "licenseSha256": "33197414e7362ae534aeeab9ab6a9dfe0b5ca74b04f304805f592bcf667a5a99",
+      "evidence": "https://unity.com/legal/licenses/unity-companion-license"
+    },
+    {
+      "id": "com.unity.render-pipelines.core",
+      "version": "17.6.0",
+      "licenseSha256": "39691adc5fdaf614d951f53637e22501baf46fcc535a69ab8a21ebaa8b9e9cb4",
+      "evidence": "https://unity.com/legal/licenses/unity-companion-license"
+    },
+    {
+      "id": "com.unity.render-pipelines.universal",
+      "version": "17.6.0",
+      "licenseSha256": "4be520a425e06c8de56fa8aee1ce957cfe610406456278172a2d18b7c388c2cf",
+      "evidence": "https://unity.com/legal/licenses/unity-companion-license"
+    },
+    {
+      "id": "com.unity.render-pipelines.universal-config",
+      "version": "17.6.0",
+      "licenseSha256": "fa2dcbc8ff967f49342c6c61854909ba4bbcc70b27f07d25538b8eaf7be5be3c",
+      "evidence": "https://unity.com/legal/licenses/unity-companion-license"
+    },
+    {
+      "id": "com.unity.shadergraph",
+      "version": "17.6.0",
+      "licenseSha256": "364b0c08b7fe15b70c4777dccb26fc21d02ae831c2f707dbe29879ac15ece353",
+      "evidence": "https://unity.com/legal/licenses/unity-companion-license"
+    },
+    {
+      "id": "com.unity.ugui",
+      "version": "2.6.0",
+      "licenseSha256": "3f8833f9736c0b5db5076663ba5abb0a33606712fa9128456ac834fc9d43fdd6",
+      "evidence": "https://unity.com/legal/licenses/unity-companion-license"
+    }
+  ]
+}
