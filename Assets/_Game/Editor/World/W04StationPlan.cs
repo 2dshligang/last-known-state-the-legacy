@@ -19,6 +19,7 @@ namespace LKS.Editor.World
             public string Text;
             public StableId Target;
             public bool Collides;
+            public bool CastsShadows;
             public Color LightColor;
         }
 
@@ -56,11 +57,11 @@ namespace LKS.Editor.World
                 string id = "bay." + bayNames[i];
                 float start = i * bay;
                 float mid = start + bay / 2;
-                Box(id + ".floor", P(0, -.10f, mid), P(width + 2 * wall, .20f, bay), "Floor");
+                Box(id + ".floor", P(0, -.10f, mid), P(width + 2 * wall, .20f, bay), "Floor", castsShadows: false);
                 Box(id + ".ceiling", P(0, height + .10f, mid), P(width + 2 * wall, .20f, bay), "Metal");
                 Box(id + ".wall-left", P(-width/2-wall/2, height/2, mid), P(wall, height, bay), "Shell");
                 Box(id + ".wall-right", P(width/2+wall/2, height/2, mid), P(wall, height, bay), "Shell");
-                Box(id + ".guide", P(0, .002f, mid), P(.055f, .004f, bay), "Ochre", false);
+                Box(id + ".guide", P(0, .002f, mid), P(.055f, .004f, bay), "Ochre", false, castsShadows: false);
                 float signZ = i == 0 ? start + .18f : start - .14f;
                 Box(id + ".sign", P(0, 2.58f, signZ), P(2.21f, .29f, .07f), "Metal", false);
                 Label(id + ".label", titles[i], P(0, 2.58f, signZ - .041f), Vector3.forward, .15f);
@@ -102,8 +103,8 @@ namespace LKS.Editor.World
             Box("exterior.front-left", P(-width/2-shoulder/2,1.55f,end-.10f), P(shoulder,3.1f,.2f), "Dust");
             Box("exterior.front-right", P(width/2+shoulder/2,1.55f,end-.10f), P(shoulder,3.1f,.2f), "Dust");
             Box("exterior.sample-island", P(0,.31f,end+depth/2), P(outside*.42f,.62f,depth*.37f), "Dust");
-            Box("exterior.guide-left", P(-LoopSide(layout),.003f,end+depth/2), P(.055f,.006f,depth-3), "Ochre", false);
-            Box("exterior.guide-right", P(LoopSide(layout),.003f,end+depth/2), P(.055f,.006f,depth-3), "Ochre", false);
+            Box("exterior.guide-left", P(-LoopSide(layout),.003f,end+depth/2), P(.055f,.006f,depth-3), "Ochre", false, castsShadows: false);
+            Box("exterior.guide-right", P(LoopSide(layout),.003f,end+depth/2), P(.055f,.006f,depth-3), "Ochre", false, castsShadows: false);
             var sun = New("exterior.sun", Kind.DirectionalLight, P(0, 6, end + depth/2));
             sun.Size = P(1.38f, 0, 0);
             sun.Facing = P(-.76f, -.60f, .25f);
@@ -125,12 +126,13 @@ namespace LKS.Editor.World
                 nodes.Add(node);
                 return node;
             }
-            void Box(string id, Vector3 position, Vector3 size, string material, bool collides = true)
+            void Box(string id, Vector3 position, Vector3 size, string material, bool collides = true, bool castsShadows = true)
             {
                 var node = New(id, Kind.Box, position);
                 node.Size = size;
                 node.Material = material;
                 node.Collides = collides;
+                node.CastsShadows = castsShadows;
             }
             void Opening(string id, float z, float span, float top, float clear)
             {
@@ -191,9 +193,9 @@ namespace LKS.Editor.World
                     float x = side * LoopSide(layout);
                     string suffix = side < 0 ? ".left" : ".right";
                     Box("w12.route.near" + suffix,
-                        P(x/2,.005f,LoopNear(layout).z), P(Mathf.Abs(x),.008f,.055f), "Ochre", false);
+                        P(x/2,.005f,LoopNear(layout).z), P(Mathf.Abs(x),.008f,.055f), "Ochre", false, castsShadows: false);
                     Box("w12.route.far" + suffix,
-                        P(x/2,.005f,far.z), P(Mathf.Abs(x),.008f,.055f), "Ochre", false);
+                        P(x/2,.005f,far.z), P(Mathf.Abs(x),.008f,.055f), "Ochre", false, castsShadows: false);
                 }
 
                 float blankZ = 4.55f * bay;
@@ -231,7 +233,7 @@ namespace LKS.Editor.World
                 New("shelter.side-approach", Kind.Point, P(0,0,sideEntry));
                 New("shelter.interior", Kind.Point, P(chamber,0,sideEntry));
                 Box("fixture.shelter-bench", P(width/2-.25f,.26f,start+1.73f), P(.42f,.52f,1.24f), "Metal");
-                Box("shelter.side-route-mark", P(chamber-.37f,.004f,sideEntry), P(1.62f,.008f,.07f), "Ochre", false);
+                Box("shelter.side-route-mark", P(chamber-.37f,.004f,sideEntry), P(1.62f,.008f,.07f), "Ochre", false, castsShadows: false);
                 SideLabel("shelter", "SHELTER", front-.23f, 1.86f, console, Vector3.right, .12f);
                 SideLabel("shelter-status", "TRAINING READY", front-.19f, 1.51f, console, Vector3.right, .078f);
                 Box("shelter.control-face", P(front-.151f,1.21f,console), P(.04f,.24f,.39f), "Ochre", false);
