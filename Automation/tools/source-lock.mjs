@@ -1,8 +1,30 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { approvedUrl, assert, safePath } from './lib.mjs';
+import { approvedUrl, assert, noLinks, safePath, sha256 } from './lib.mjs';
 
-export function validateLock(lock, root) {
+// Preserve the exact DONKI record accepted before terms evidence was required.
+const acceptedDonkiRecord = '768eddcfbdb3531b7864239f5926b108461faa88261bcaba277fad084ad41cba';
+
+async function verifyTerms(root, entry) {
+    const url = new URL(entry.licenseUrl);
+    approvedUrl(url.href, [url.hostname]);
+    const fields = Object.keys(entry).sort().map(key => [key, entry[key]]);
+    if (entry.id === 'nasa-donki-sep-2017' && sha256(JSON.stringify(fields)) === acceptedDonkiRecord) return;
+
+    const evidence = entry.termsEvidence;
+    assert(evidence?.path === 'sources/terms/' + entry.id + '.txt' &&
+        /^[a-f0-9]{64}$/.test(evidence?.sha256 ?? ''), 'Missing pinned terms evidence: ' + entry.id);
+    const target = safePath(root, evidence.path);
+    await noLinks(root, target);
+    const info = await fs.stat(target);
+    assert(info.isFile() && info.size > 0 && info.size <= 256 * 1024, 'Invalid terms evidence file: ' + entry.id);
+    const bytes = await fs.readFile(target);
+    assert(sha256(bytes) === evidence.sha256, 'Terms evidence SHA-256 mismatch: ' + entry.id);
+    const [reference, ...excerpt] = bytes.toString('utf8').split(/\r?\n/);
+    assert(reference === url.href && excerpt.join('\n').trim(), 'Terms evidence must contain the rights URL and an excerpt: ' + entry.id);
+}
+
+export async function validateLock(lock, root) {
     assert(lock?.schemaVersion === 1 && Array.isArray(lock.allowedHosts) &&
         Array.isArray(lock.entries) && lock.entries.length > 0, 'Missing source lock');
     const ids = new Set(), paths = new Set();
@@ -24,6 +46,7 @@ export function validateLock(lock, root) {
             entry.maxBytes > 0 && Number.isSafeInteger(entry.bytes) && entry.bytes > 0 &&
             entry.bytes <= entry.maxBytes, 'Invalid source size or checksum pin');
     }
+    for (const entry of lock.entries) await verifyTerms(root, entry);
     return lock;
 }
 

@@ -16,8 +16,13 @@ The science source identity remains `nasa-donki-sep-2017`.
    payload stay under ignored work/quarantine, never under Assets or sources/raw.
 3. The coordinator and the relevant asset/data owner review the provider,
    terms, rights scope, content, and hash. If approved, submit a reviewed lock
-   diff with the exact size and digest plus provenance, including terms evidence
-   and any dataset query, dates, instruments, units and transform version.
+   diff with the exact size and digest plus provenance and any dataset query,
+   dates, instruments, units and transform version. Set `licenseUrl` to the
+   canonical HTTPS rights page. Save its URL on line one of
+   `sources/terms/<id>.txt`, followed by a short excerpt that reviewers can
+   compare against the provider's terms. Set `termsEvidence.path` and
+   `termsEvidence.sha256` in the lock entry to pin those exact bytes.
+   Only the exact previously accepted DONKI lock entry is exempt.
    Never flip a quarantine receipt into an approval.
 4. Run `node tools/fetch-locked.mjs` from Automation and then
    `npm test` and `npm run verify`. The approved fetch validates the entire
