@@ -145,10 +145,14 @@ namespace LKS.World
             ApplySessionPause();
         }
 
-        public IDisposable AcquireReadingFocus(Action onRevoked = null)
+        public IDisposable AcquireReadingFocus(Action onRevoked = null) => AcquirePanelFocus(onRevoked, true);
+
+        public IDisposable AcquireLivePanelFocus(Action onRevoked) => AcquirePanelFocus(onRevoked, false);
+
+        private IDisposable AcquirePanelFocus(Action onRevoked, bool pausesSimulation)
         {
             if (!isActiveAndEnabled) throw new InvalidOperationException("Player input is disabled.");
-            var lease = new ReadingFocus(this, onRevoked);
+            var lease = new ReadingFocus(this, onRevoked, pausesSimulation);
             readers.Add(lease);
             UpdateCapture();
             ApplySessionPause();
@@ -201,7 +205,8 @@ namespace LKS.World
             var current = sessionBootstrap != null ? sessionBootstrap.Current : null;
             if (!ReferenceEquals(pausedSession, current)) pausedSession = null;
             if (current == null) return;
-            bool shouldPause = isActiveAndEnabled && (paused || HasReadingFocus || !HasWorldFocus);
+            bool blocked = HasReadingFocus ? !focused || readers.Exists(reader => reader.PausesSimulation) : !HasWorldFocus;
+            bool shouldPause = isActiveAndEnabled && (paused || blocked);
             if (shouldPause == ReferenceEquals(pausedSession, current)) return;
             current.SetPowerReadingPaused(shouldPause);
             pausedSession = shouldPause ? current : null;
@@ -265,10 +270,13 @@ namespace LKS.World
             private StationFirstPerson owner;
             private Action revoked;
 
-            internal ReadingFocus(StationFirstPerson owner, Action revoked)
+            internal bool PausesSimulation { get; }
+
+            internal ReadingFocus(StationFirstPerson owner, Action revoked, bool pausesSimulation)
             {
                 this.owner = owner;
                 this.revoked = revoked;
+                PausesSimulation = pausesSimulation;
             }
 
             public void Dispose()
