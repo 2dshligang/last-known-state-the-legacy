@@ -8,12 +8,15 @@ quality, and captions from `StationEcho.Timeline` and the existing English
 catalog. `EchoInvestigation.ControlReadingFreshness` supplies the timing-rule
 result. The historical NASA training record remains a separate archive item.
 
-After [W10 PR #27](https://github.com/2dshligang/last-known-state-the-legacy/pull/27)
-is accepted, attach `StationEchoInvestigation` to the station player or
-terminal controller. Close the active replay view before invoking
-`Open(player, currentSession)` from its investigation action. This transfers
-the W05 interaction focus to the comparison. Active panels release focus
-on exit, disable, or replacement of the game session.
+The saved Station scene connects [W10 PR #32](https://github.com/2dshligang/last-known-state-the-legacy/pull/32)
+to [S09 PR #16](https://github.com/2dshligang/last-known-state-the-legacy/pull/16).
+After confirming arrival and life support, walk to **ECHO ARCHIVE** in bay
+03 and press E. Open **Solar particle observation**, select **Mark as read**,
+and return to the archive list. Select **Open ECHO replay**, then
+**Investigate incident**. The replay closes its projection and transfers
+reading focus to the comparison. **Exit investigation** restores first-person
+control. To refresh the scene wiring, save open scenes and run
+**LKS > World > Install W11 ECHO Investigation**.
 
 | Stable ID or key | Presentation use |
 | --- | --- |
@@ -37,15 +40,24 @@ W12 after the integrated W11 route is accepted.
 ## Verification
 
 Run `StationEchoInvestigationTests` in the interaction Play Mode suite.
-The test temporarily mounts the panel in the accepted station scene. It
-checks the unread archive gate, missing clues, both incorrect orderings,
-retained selection across source cards, accepted order, repeat submission,
-and the exact transition to sample collection. A second test checks pause,
-focus loss, replacement, and restoration of the confirmed order.
+The tests load the saved Station scene, confirm arrival and power through
+the station controls, and open the archive and replay from the terminal.
+They cover the unread archive gate, missing clues, both incorrect orderings,
+source-card return, accepted order, repeated submission, and the transition
+to sample collection. The S16 disk round trip restores the confirmed order,
+collected clues and completed ECHO step. Pause and focus loss block input.
 
-The local Windows Player used a temporary mount and actual S07/S09
-commands with audio volume at zero. The following frames were inspected.
+Unity 6000.6.9f1 passed all 16 Play Mode and 81 Edit Mode tests. A second
+installer run left the scene unchanged, and all existing object IDs were
+preserved. The standard Windows x64 station build and all 17 Automation
+tests passed.
 
+The muted Windows x64 capture opened the installed archive, replay and
+investigation after completing arrival and life support. Both runs unlocked
+sampling and restored first-person control. A temporary capture script drove
+the installed controls and is outside this branch.
+
+- [Investigation action in the replay at 1600 × 900](W11-replay-action.png)
 - [Rejected sequence at 1600 × 900](W11-order-rejected.png)
 - [Sensor source card at 800 × 600](W11-source-card.png)
 - [Confirmed explanation at 800 × 600](W11-order-confirmed.png)
