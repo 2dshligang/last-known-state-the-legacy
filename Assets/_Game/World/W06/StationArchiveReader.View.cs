@@ -42,8 +42,13 @@ namespace LKS.World
 
         private void DrawList()
         {
-            Write(new Rect(27, 18, 725, 53), "Station archive", title, Ink);
-            if (Button(new Rect(786, 26, 151, 39), "Close archive", closeFocused))
+            Write(new Rect(27, 18, 520, 53), "Station archive", title, Ink);
+            if (HasReplay && Button(new Rect(573, 26, 197, 39), "Open ECHO replay", listFocus == ListFocus.Replay))
+            {
+                OpenReplay();
+                return;
+            }
+            if (Button(new Rect(786, 26, 151, 39), "Close archive", listFocus == ListFocus.Exit))
             {
                 Close();
                 return;
@@ -61,7 +66,7 @@ namespace LKS.World
                 {
                     var entry = entries[i];
                     var row = new Rect(5, i * RowHeight + 4, rowWidth - 10, RowHeight - 8);
-                    bool focused = !closeFocused && i == listIndex;
+                    bool focused = listFocus == ListFocus.Records && i == listIndex;
                     if (focused) Fill(row, Focus);
                     Fill(new Rect(row.x + 2, row.y + 2, row.width - 4, row.height - 4), Panel);
                     if (GUI.Button(row, GUIContent.none, hitArea)) clicked = i;
@@ -74,7 +79,7 @@ namespace LKS.World
             }
             finally { GUI.EndScrollView(); }
             if (clicked >= 0) OpenDocument(clicked, listPosition);
-            Write(new Rect(29, 532, 907, 50), "Up and Down select a record. Enter opens it. Tab moves between the list and Close archive.", small, Muted);
+            Write(new Rect(29, 532, 907, 50), "Up and Down select a record. Tab moves between actions. Enter opens the outlined item.", small, Muted);
         }
 
         private void DrawDocument(ArchiveEntry entry)
@@ -135,7 +140,12 @@ namespace LKS.World
             if (!CanRead || input.type != EventType.KeyDown) return;
             if (input.keyCode == KeyCode.Tab)
             {
-                if (Document == null) closeFocused = !closeFocused;
+                if (Document == null)
+                {
+                    int step = input.shift ? 2 : 1;
+                    do { listFocus = (ListFocus)(((int)listFocus + step) % 3); }
+                    while (listFocus == ListFocus.Replay && !HasReplay);
+                }
                 else documentFocus = (documentFocus + (input.shift ? 3 : 1)) % 4;
                 input.Use();
                 return;
@@ -145,7 +155,8 @@ namespace LKS.World
                 input.Use();
                 if (Document == null)
                 {
-                    if (closeFocused) Close();
+                    if (listFocus == ListFocus.Exit) Close();
+                    else if (listFocus == ListFocus.Replay) OpenReplay();
                     else OpenDocument(listIndex, listPosition);
                 }
                 else if (documentFocus == 0) ReturnToList();
@@ -174,7 +185,7 @@ namespace LKS.World
             if (!next.HasValue) return;
             input.Use();
             listIndex = Mathf.Clamp(next.Value, 0, last);
-            closeFocused = false;
+            listFocus = ListFocus.Records;
             float top = listIndex * RowHeight;
             listPosition.y = Mathf.Clamp(listPosition.y, Mathf.Max(0, top + RowHeight - ListHeight), top);
         }

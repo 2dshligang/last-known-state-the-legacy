@@ -139,7 +139,7 @@ namespace LKS.Editor.World
             Object.FindAnyObjectByType<StationFirstPerson>().SendMessage("OnApplicationFocus", true);
         }
 
-        private static void OpenAtTerminal(StationInteraction bridge, StationArchiveReader reader, bool verifyWall = false)
+        internal static void OpenAtTerminal(StationInteraction bridge, StationArchiveReader reader, bool verifyWall = false)
         {
             Assert.That(reader, Is.Not.Null, "The archive reader must be installed in Station.unity.");
             var anchor = Object.FindObjectsByType<StationInteractionAnchor>()

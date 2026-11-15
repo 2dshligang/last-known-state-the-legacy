@@ -24,11 +24,14 @@ namespace LKS.World
         private bool CanControl => isActiveAndEnabled && IsOpen && !player.IsPaused &&
             player.HasApplicationFocus && ReferenceEquals(openedSession, currentSession());
 
+        internal bool HasReplay(GameplaySession session) => isActiveAndEnabled && !IsOpen &&
+            session?.Echo != null && session.Archive != null;
+
         public bool Open(StationFirstPerson input, Func<GameplaySession> session)
         {
             var active = session?.Invoke();
-            if (!isActiveAndEnabled || IsOpen || input == null || input.IsPaused || input.HasReadingFocus ||
-                active?.Echo == null) return false;
+            if (input == null || !input.isActiveAndEnabled || input.IsPaused || input.HasReadingFocus ||
+                !HasReplay(active)) return false;
             projection ??= new EchoProjection(transform);
             currentSession = session;
             openedSession = active;

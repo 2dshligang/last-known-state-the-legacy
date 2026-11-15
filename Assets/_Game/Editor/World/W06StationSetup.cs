@@ -133,6 +133,18 @@ namespace LKS.Editor.World
                     archiveReader = player.gameObject.AddComponent<StationArchiveReader>();
                     changed = true;
                 }
+                if (archiveReader != null)
+                {
+                    var replay = player.GetComponent<StationEchoReview>();
+                    if (replay == null)
+                    {
+                        replay = player.gameObject.AddComponent<StationEchoReview>();
+                        changed = true;
+                    }
+                    var archiveBinding = new SerializedObject(archiveReader);
+                    archiveBinding.FindProperty("reconstruction").objectReferenceValue = replay;
+                    changed |= archiveBinding.ApplyModifiedPropertiesWithoutUndo();
+                }
 
                 var binding = new SerializedObject(bridge);
                 binding.FindProperty("player").objectReferenceValue = player;

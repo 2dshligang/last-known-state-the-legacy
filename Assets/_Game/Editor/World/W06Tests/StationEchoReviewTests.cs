@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections;
+using System.IO;
 using System.Linq;
 using LKS.World;
 using NUnit.Framework;
@@ -14,6 +16,7 @@ namespace LKS.Editor.World
     public sealed class StationEchoReviewTests
     {
         private const string ScenePath = "Assets/_Game/Scenes/Station.unity";
+        private static readonly StableId RequiredArchive = new StableId("archive.donki-sep");
 
         [UnityTest]
         public IEnumerator EveryReplayUsesTheSameBoundedProjectionWithoutChangingEvidenceOrCollision()
@@ -21,14 +24,15 @@ namespace LKS.Editor.World
             yield return LoadStation();
             var player = Object.FindAnyObjectByType<StationFirstPerson>();
             var interaction = player.GetComponent<StationInteraction>();
-            var review = player.gameObject.AddComponent<StationEchoReview>();
+            var reader = player.GetComponent<StationArchiveReader>();
+            var review = player.GetComponent<StationEchoReview>();
             var session = interaction.Session;
             int colliders = Object.FindObjectsByType<Collider>().Length;
             int projected = 0;
 
             for (int i = 0; i < 5; i++)
             {
-                Assert.That(review.Open(player, () => interaction.Session));
+                OpenReview(interaction, reader, review);
                 Assert.That(player.HasReadingFocus && review.ProjectionVisible);
                 Assert.That(review.Playback.Seconds, Is.Zero);
                 if (i == 0) projected = review.ProjectedObjectCount;
@@ -70,43 +74,76 @@ namespace LKS.Editor.World
         }
 
         [UnityTest]
-        public IEnumerator GlobalPauseFreezesReplayAndCheckpointReplacementStartsWithCleanPresentation()
+        public IEnumerator GlobalPauseFreezesReplayAndDiskReloadStartsWithCleanPresentation()
         {
             yield return LoadStation();
             var player = Object.FindAnyObjectByType<StationFirstPerson>();
             var interaction = player.GetComponent<StationInteraction>();
-            var review = player.gameObject.AddComponent<StationEchoReview>();
+            var reader = player.GetComponent<StationArchiveReader>();
+            var review = player.GetComponent<StationEchoReview>();
             var session = interaction.Session;
-            Assert.That(review.Open(player, () => interaction.Session));
-            Assert.That(review.Replay());
-            float deadline = Time.realtimeSinceStartup + 3;
-            while (review.Playback.Seconds == 0m && Time.realtimeSinceStartup < deadline)
-                yield return null;
-            Assert.That(review.Playback.Seconds, Is.Positive);
-            player.SetPaused(true);
+            var folder = Path.Combine(Application.temporaryCachePath, "lks-w10-" + Guid.NewGuid().ToString("N"));
+            var slot = new StableId("echo-replay");
+            var saves = new StationSaves(folder, (StationScienceCatalog)session.Science,
+                new[] { new StableId("donki.2017-09-04t23-52-00-sep-001") });
             try
             {
+                StationArchiveReaderTests.OpenAtTerminal(interaction, reader);
+                Assert.That(reader.OpenDocument(0, Vector2.zero) && reader.MarkAsRead());
+                Assert.That(reader.OpenReplay(), Is.False);
+                Assert.That(reader.Document, Is.Not.Null);
+                reader.Close();
+                Assert.That(saves.Save(slot, session).Succeeded);
+
+                OpenReview(interaction, reader, review);
+                Assert.That(review.Replay());
+                float deadline = Time.realtimeSinceStartup + 3;
+                while (review.Playback.Seconds == 0m && Time.realtimeSinceStartup < deadline)
+                    yield return null;
+                Assert.That(review.Playback.Seconds, Is.Positive);
+                player.SetPaused(true);
                 yield return null;
                 decimal frozen = session.Echo.Snapshot.Seconds;
                 yield return new WaitForSecondsRealtime(.15f);
                 Assert.That(session.Echo.Snapshot.Seconds, Is.EqualTo(frozen));
                 Assert.That(review.Scrub(14), Is.False);
+                player.SetPaused(false);
+                Assert.That(player.HasReadingFocus, Is.True);
+                Assert.That(review.Hold());
+                Assert.That(review.Playback.Playing, Is.False);
+
+                var bootstrap = player.GetComponent<SessionBootstrap>();
+                var load = saves.Load(slot, bootstrap, () => Array.Empty<IInteractable>(), _ => ResultCode.EvidenceInsufficient);
+                Assert.That(load.Succeeded);
+                yield return null;
+                Assert.That(review.IsOpen || player.HasReadingFocus || review.ProjectionVisible, Is.False);
+                Assert.That(interaction.Session.Archive.Capture(), Is.EqualTo(new[] { RequiredArchive }));
+                OpenReview(interaction, reader, review);
+                Assert.That(review.Playback.Seconds, Is.Zero);
+                Assert.That(review.Playback.Frame.Evidence.Id.value, Is.EqualTo("echo.stale-input"));
+                Assert.That(review.Playback.Playing, Is.False);
+                review.enabled = false;
+                Assert.That(player.HasReadingFocus || review.ProjectionVisible, Is.False);
             }
-            finally { player.SetPaused(false); }
-            Assert.That(player.HasReadingFocus, Is.True);
-            Assert.That(review.Hold());
-            Assert.That(review.Playback.Playing, Is.False);
-            var saved = session;
-            Assert.That(interaction.Restore(saved.Power.Capture(), saved.CaptureQuestCheckpoint(),
-                saved.LifeSupport.Capture(), saved.Logistics.Capture(), saved.Archive.Capture(),
-                saved.Investigation.Capture(), saved.Samples.Capture(), saved.Research.CaptureAccepted()));
-            Assert.That(review.IsOpen || player.HasReadingFocus || review.ProjectionVisible, Is.False);
-            Assert.That(review.Open(player, () => interaction.Session));
-            Assert.That(review.Playback.Seconds, Is.Zero);
-            Assert.That(review.Playback.Frame.Evidence.Id.value, Is.EqualTo("echo.stale-input"));
-            Assert.That(review.Playback.Playing, Is.False);
-            review.enabled = false;
-            Assert.That(player.HasReadingFocus || review.ProjectionVisible, Is.False);
+            finally
+            {
+                player.SetPaused(false);
+                if (Directory.Exists(folder))
+                {
+                    foreach (string file in Directory.GetFiles(folder)) File.Delete(file);
+                    Directory.Delete(folder);
+                }
+            }
+        }
+
+        private static void OpenReview(StationInteraction interaction, StationArchiveReader reader, StationEchoReview review)
+        {
+            Assert.That(review, Is.Not.Null, "The saved scene must bind the ECHO reconstruction.");
+            StationArchiveReaderTests.OpenAtTerminal(interaction, reader);
+            reader.HandleKeyboard(new Event { type = EventType.KeyDown, keyCode = KeyCode.Tab });
+            reader.HandleKeyboard(new Event { type = EventType.KeyDown, keyCode = KeyCode.Return });
+            Assert.That(reader.IsOpen, Is.False);
+            Assert.That(review.IsOpen, Is.True);
         }
 
         private static IEnumerator LoadStation()

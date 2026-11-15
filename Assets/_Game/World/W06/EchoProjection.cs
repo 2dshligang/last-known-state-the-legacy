@@ -94,6 +94,11 @@ namespace LKS.World
         {
             presentedCue = default;
             camera.enabled = false;
+            if (!root.activeSelf) return;
+            estimate.SetActive(false);
+            Paint(console, Outline);
+            Paint(controller, Outline);
+            Paint(backup, Dark);
             root.SetActive(false);
         }
 
