@@ -151,7 +151,8 @@ namespace LKS
             (typeof(Texture).IsAssignableFrom(type) || type == typeof(Mesh) || type == typeof(Font) ||
              type == typeof(Sprite) || type == typeof(AudioClip) || type == typeof(UnityEngine.Video.VideoClip));
 
-        [Serializable] private sealed class MediaInventory
+        [Serializable]
+        private sealed class MediaInventory
         {
             public int version;
             public OriginalGroup[] original;
@@ -160,7 +161,8 @@ namespace LKS
         [Serializable] private sealed class OriginalGroup { public string evidence; public string[] paths; }
         [Serializable] private sealed class PackageRow { public string id, version, evidence, licenseSha256; }
         [Serializable] private sealed class WorldInventory { public ExternalRow[] external; }
-        [Serializable] private sealed class ExternalRow
+        [Serializable]
+        private sealed class ExternalRow
         {
             public string status, unityPath, author, sourceUrl, license, licenseUrl, redistribution, importedSourceSha256;
         }
