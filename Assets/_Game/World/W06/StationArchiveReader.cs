@@ -9,6 +9,9 @@ namespace LKS.World
     public sealed partial class StationArchiveReader : MonoBehaviour
     {
         public static readonly StableId Target = new StableId("quest.echo-evidence");
+        private enum ListFocus { Records, Replay, Exit }
+
+        [SerializeField] private StationEchoReview reconstruction;
 
         private StationFirstPerson player;
         private Func<GameplaySession> currentSession;
@@ -17,7 +20,7 @@ namespace LKS.World
         private IDisposable inputLease, archiveLease;
         private Vector2 listPosition, documentPosition;
         private int listIndex, documentFocus;
-        private bool closeFocused;
+        private ListFocus listFocus;
         private StableId[] acknowledged = Array.Empty<StableId>();
 
         internal ArchiveEntry Document { get; private set; }
@@ -28,6 +31,7 @@ namespace LKS.World
         internal int SelectedIndex => listIndex;
         private bool CanRead => isActiveAndEnabled && IsOpen && player.HasApplicationFocus &&
             !player.IsPaused && ReferenceEquals(openedSession, currentSession());
+        private bool HasReplay => reconstruction != null && reconstruction.HasReplay(openedSession);
 
         internal bool HasArchive(GameplaySession session) => isActiveAndEnabled && session?.Archive != null;
 
@@ -43,7 +47,7 @@ namespace LKS.World
             acknowledged = archive.Capture().ToArray();
             listIndex = 0;
             listPosition = Vector2.zero;
-            closeFocused = false;
+            listFocus = ListFocus.Records;
             inputLease = player.AcquireReadingFocus(Close);
             return true;
         }
@@ -84,8 +88,27 @@ namespace LKS.World
         {
             if (!CanRead || Document == null) return false;
             CloseDocument();
-            closeFocused = false;
+            listFocus = ListFocus.Records;
             return true;
+        }
+
+        internal bool OpenReplay()
+        {
+            if (!CanRead || Document != null || !HasReplay) return false;
+            var input = player;
+            var session = currentSession;
+            int selected = listIndex;
+            Vector2 position = listPosition;
+            Close();
+            if (reconstruction.Open(input, session)) return true;
+
+            if (Open(input, session))
+            {
+                listIndex = selected;
+                listPosition = position;
+                listFocus = ListFocus.Replay;
+            }
+            return false;
         }
 
         private void CloseDocument()
