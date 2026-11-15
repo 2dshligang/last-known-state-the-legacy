@@ -32,7 +32,7 @@ namespace LKS.Tests
         [Test]
         public void FullWorldUiRequiresReportAndEndingBindings()
         {
-            Assert.Ignore("Blocked on accepted W14 and W15. Bind the report, report transmission and ending presentation in Station.unity, then drive the real UI for these steps.");
+            Assert.Ignore("Blocked on accepted W15. Bind the report, report transmission and ending presentation in Station.unity, then drive the real UI for these steps.");
         }
 
         private static IEnumerator PlayRoute(bool transmit)
