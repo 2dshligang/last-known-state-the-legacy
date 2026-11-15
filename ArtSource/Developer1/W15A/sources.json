@@ -1,0 +1,200 @@
+{
+  "external": [
+    {
+      "asset": "metal_plate",
+      "author": "Rob Tuytel",
+      "sourceUrl": "https://polyhaven.com/a/metal_plate",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "apiTermsUrl": "https://polyhaven.com/our-api",
+      "accessed": "2026-11-15",
+      "status": "approved-imported",
+      "filename": "metal_plate_nor_gl_1k.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate/metal_plate_nor_gl_1k.jpg",
+      "finalUrl": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate/metal_plate_nor_gl_1k.jpg",
+      "size": 770307,
+      "providerMd5": "d379e66130ad6ccff217ac9b13de935d",
+      "originalSha256": "994f851a84d52b51e97906021a1b7070ee6eac9a789fef041132268de47d8e6b",
+      "redistribution": "CC0 permits sharing, adapting and redistributing in the Windows game. Attribution is voluntary and retained here.",
+      "originalFormat": "Provider-exported 1024×1024 OpenGL JPEG. No archive or extraction.",
+      "importedSourceSha256": "994f851a84d52b51e97906021a1b7070ee6eac9a789fef041132268de47d8e6b",
+      "unityPath": "Assets/_Game/Art/W15A/External/metal_plate_nor_gl_1k.jpg",
+      "unityGuid": "232a6450d29d891409006515a357f986",
+      "transform": "Unity TextureImporter NormalMap, default max size 1024, reuses URP Lit UVs offline.",
+      "material": "Assets/_Game/Art/W04/Floor.mat"
+    },
+    {
+      "asset": "rough_concrete",
+      "author": "Dimitrios Savva",
+      "sourceUrl": "https://polyhaven.com/a/rough_concrete",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "apiTermsUrl": "https://polyhaven.com/our-api",
+      "accessed": "2026-11-15",
+      "status": "approved-imported",
+      "filename": "rough_concrete_nor_gl_1k.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rough_concrete/rough_concrete_nor_gl_1k.jpg",
+      "finalUrl": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rough_concrete/rough_concrete_nor_gl_1k.jpg",
+      "size": 1447537,
+      "providerMd5": "61f785d44cdbf0b9f3bc68e471177358",
+      "originalSha256": "54c85854ad5cafb16840df91a605c857bdf3d07fa79f11921c8327fccf6423ae",
+      "redistribution": "CC0 permits sharing, adapting and redistributing in the Windows game. Attribution is voluntary and retained here.",
+      "originalFormat": "Provider-exported 1024×1024 OpenGL JPEG. No archive or extraction.",
+      "importedSourceSha256": "54c85854ad5cafb16840df91a605c857bdf3d07fa79f11921c8327fccf6423ae",
+      "unityPath": "Assets/_Game/Art/W15A/External/rough_concrete_nor_gl_1k.jpg",
+      "unityGuid": "f5afb13faeefcf541867db8ca4de5b6d",
+      "transform": "Unity TextureImporter NormalMap, default max size 1024, reuses URP Lit UVs offline.",
+      "material": "Assets/_Game/Art/W04/Dust.mat"
+    }
+  ],
+  "considered": [
+    {
+      "asset": "Poly Haven PNG 1K normal-map variants",
+      "status": "rejected",
+      "reason": "Official metadata exceeded the bounded 2 MB per-texture download limit. Used the reviewed JPEG variants."
+    },
+    {
+      "asset": "Kenney Space Kit",
+      "status": "rejected",
+      "sourceUrl": "https://kenney.nl/assets/space-kit",
+      "license": "CC0",
+      "reason": "W01 received a redirect/HTML at its archived path. W15A reviewed the official page and selected surfaces with a better style fit; the pack was not fetched for this pass."
+    },
+    {
+      "asset": "NASA 3D Resources",
+      "status": "reference-only",
+      "sourceUrl": "https://science.nasa.gov/3d-resources/",
+      "reason": "Catalog items have individual rights and credit requirements. No NASA art or insignia was imported."
+    }
+  ],
+  "original": {
+    "status": "procedural-original",
+    "author": "Developer 1",
+    "editableSource": "ArtSource/Developer1/W15A/AsterionVisualKit.blend",
+    "generator": "ArtSource/Developer1/W15A/build_visual_kit.py",
+    "generatorVersion": "Blender 5.3.0 / 02f0899d78e3",
+    "export": "Meters, FBX_SCALE_UNITS, -Z forward / Y up, baked axes, mesh only, normals and meter-based UV, no animation; Unity bakes axis conversion and imports without colliders.",
+    "assets": [
+      {
+        "file": "Deck.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/Deck.fbx",
+        "unityGuid": "5bdafd5df8c5ded4e98e3101f0d2dbc7",
+        "sha256": "8e3ae9ae765de4981be2db47fb6a424a4ddc0a87b3ffdd56df8042a97cf9cca9"
+      },
+      {
+        "file": "EchoStack.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/EchoStack.fbx",
+        "unityGuid": "d97a8a42258b6e14b948631b32c2caee",
+        "sha256": "80f1f9ecd830ecf4a080449ce6a0de98bdbfd33f3beecca5b18648b649d6396d"
+      },
+      {
+        "file": "EntranceTerminal.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/EntranceTerminal.fbx",
+        "unityGuid": "f8428260e1ebab240a9cc0aa042e39d7",
+        "sha256": "97507f1e682921c9a9a41ff9ef2fb4007b81246e283dd4b119690b775eb9acc8"
+      },
+      {
+        "file": "FieldCrate.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/FieldCrate.fbx",
+        "unityGuid": "d1d220aeb811e294c8235f431a681afa",
+        "sha256": "81ede44ad2600eea77be31b84ac789c869f850da6da88f048f438645769af9cd"
+      },
+      {
+        "file": "Island.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/Island.fbx",
+        "unityGuid": "333a3ea1240767540b610dba252925e5",
+        "sha256": "247211e20ed87728cb140fbbc85241893c6d55377c39b4ebf125ada397a8f77b"
+      },
+      {
+        "file": "LabBench.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/LabBench.fbx",
+        "unityGuid": "73dec551644692447b5b6eee520345c0",
+        "sha256": "70f48a795495cde9a46566afa4b531226b8ef1ee6300bd4e918ae7734790db74"
+      },
+      {
+        "file": "LabBlank.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/LabBlank.fbx",
+        "unityGuid": "313dd404a2b546841b978c83c4946d73",
+        "sha256": "752bddd7fa592eab305f0c8aeff4c74ef8a95f21d65de048dd2110aa513defbb"
+      },
+      {
+        "file": "Overlook.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/Overlook.fbx",
+        "unityGuid": "713a5836ca065354585850313b28e6f5",
+        "sha256": "42a34476f3641e42bca412cbc6991c880dbdaaa563c6b219cb1cdc14577ad4bd"
+      },
+      {
+        "file": "Portal.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/Portal.fbx",
+        "unityGuid": "f299af5a6e6fdf84087cd7879fc81aba",
+        "sha256": "98b99fa865748489600bc5084766359db006ee882161911bc1951551d7e4fd78"
+      },
+      {
+        "file": "PowerStack.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/PowerStack.fbx",
+        "unityGuid": "9d4d2d2811abdac48a58887aabacc159",
+        "sha256": "9b80689e00322278818cbb960ce76f5ff8d24724f4b00fe5c1e385de6a4839d4"
+      },
+      {
+        "file": "Recovery.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/Recovery.fbx",
+        "unityGuid": "72bdbc2cc000c5b4b978fefb430c5b8a",
+        "sha256": "ea384f8af49b57c343db12a503623b151f204aa9a1b4cc32f43498aa6897093c"
+      },
+      {
+        "file": "Regolith.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/Regolith.fbx",
+        "unityGuid": "c486039d38ecbd34c9321afca12b9213",
+        "sha256": "16c245aa53ddbdddec971b7e5dd5e297b835874f45be68c33cbeca4f776caf9e"
+      },
+      {
+        "file": "ReportDesk.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/ReportDesk.fbx",
+        "unityGuid": "78e97bf68940b84428617c6aae313a41",
+        "sha256": "2a2d9d96a632cfe0523bbe765dfe0ffaa06718e614738408fc16b8ef4aaf2933"
+      },
+      {
+        "file": "Ridge.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/Ridge.fbx",
+        "unityGuid": "a600ba6cbad56654d92145673ba9d7cc",
+        "sha256": "eecc188f790bbf43542858d3c59313e3c3cd3a90deb721a6d24f2f372e11299b"
+      },
+      {
+        "file": "SeedlingRack.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/SeedlingRack.fbx",
+        "unityGuid": "89e8397cab10d4044b8c295cc9d8cc26",
+        "sha256": "3c7e7e10615c3bbb060eb94646da7e1ccec23acb212af110f83c47544c29c4fd"
+      },
+      {
+        "file": "ShelterHeader.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/ShelterHeader.fbx",
+        "unityGuid": "b00eff569e41b1f438355961fd295adf",
+        "sha256": "230c346086462a0e12a34929f7da2a3821904b60b7fdfe9e8e952d6bf969fa82"
+      },
+      {
+        "file": "TerrainBed.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/TerrainBed.fbx",
+        "unityGuid": "7539db12cd8ef4f4fb07dbb193cee981",
+        "sha256": "60b9ce7c63f1cfc6b741af18733376fd3a04c7c6b2c0275f22a2d34a97035606"
+      },
+      {
+        "file": "WallA.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/WallA.fbx",
+        "unityGuid": "01b38def9d73d464098cec450eb3638a",
+        "sha256": "fb34ad0587a9d7184d317cbc3bb9c95fcc4e56686a951758195f72b634ec9f58"
+      },
+      {
+        "file": "WallB.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/WallB.fbx",
+        "unityGuid": "441b3194d94bd694d96813fab0adc413",
+        "sha256": "2b1757a58da0687d2dd848ee4451e8359b9821e33fbd7e240b5e4feb6495b80f"
+      },
+      {
+        "file": "WallC.fbx",
+        "unityPath": "Assets/_Game/Art/W15A/Original/WallC.fbx",
+        "unityGuid": "29286f1a2bbceb7419070e2eb8fc88cd",
+        "sha256": "d3eb14686808b5b89a6e05aeda652a0a90b07a92b2352e5b7faaf1a04b09774a"
+      }
+    ]
+  }
+}
