@@ -57,9 +57,19 @@ verify five repeated entries, reverse seek across the gap, global pause,
 cleanup, unchanged colliders and quest state, and fresh replay after S16
 disk reload from an isolated temporary slot.
 
-The recorded log, modeled estimate and missing interval were rendered in a
-Windows Player with audio volume at zero. The capture fixture temporarily
-mounted the view in the accepted scene and is outside this branch.
+Unity 6000.6.9f1 passed all 14 Play Mode and 81 Edit Mode tests. Running the
+W10 installer a second time left the scene byte-for-byte identical. The
+standard Windows x64 station build succeeded.
+
+The muted Windows x64 capture opened the archive using the station camera
+ray, selected **Open ECHO replay**, and verified that **Exit replay** returned
+player input. The capture fixture is outside this branch.
+
+- [Station archive action at 1600 × 900](W10-station-archive-action.png)
+- [Model estimate from the terminal at 1600 × 900](W10-station-replay.png)
+- [Missing interval from the terminal at 800 × 600](W10-station-gap.png)
+
+Standalone viewer captures from before terminal integration
 
 - [Recorded station log at 1600 × 900](W10-recorded-log.png)
 - [Model estimate at 800 × 600](W10-model-estimate.png)
