@@ -10,16 +10,20 @@ namespace LKS.World
         private static readonly Color Muted = new Color32(183, 205, 212, 255);
         private static readonly Color Accent = new Color32(119, 230, 209, 255);
         private static readonly Color Notice = new Color32(255, 199, 129, 255);
+        private readonly StationKeyboardFocus keyboard = new();
         private GUIStyle title, body, heading, button;
 
         private void OnGUI()
         {
             if (!CanControl) return;
             EnsureStyles();
+            if (keyboard.Handle(Event.current)) return;
+            keyboard.Begin();
+            body.fontSize = StationUi.TextSize(18, 20);
             var previous = GUI.matrix;
             Fill(new Rect(0, 0, Screen.width, Screen.height), new Color(0, 0, 0, .7f));
             const float width = 884;
-            const float height = 541;
+            const float height = 566;
             float scale = Mathf.Min(1.5f, Screen.width / (width + 28), Screen.height / (height + 28));
             GUI.matrix = Matrix4x4.TRS(new Vector3((Screen.width - width * scale) / 2,
                 (Screen.height - height * scale) / 2, 0), Quaternion.identity, new Vector3(scale, scale, 1));
@@ -29,15 +33,13 @@ namespace LKS.World
                 Fill(new Rect(0, 0, width, 3), Accent);
                 bool shelter = page == ShelterTarget;
                 Write(new Rect(24, 17, 630, 42), shelter ? "Shelter control" : "Seedling cabinet", title, Ink);
-                if (GUI.Button(new Rect(716, 23, 144, 38), "Close panel", button))
-                {
-                    Close();
+                if (keyboard.Button(new Rect(716, 23, 144, 38), "Close panel", "close", button, Close))
                     return;
-                }
                 if (shelter) DrawShelter();
                 else DrawSeedlings();
                 if (!string.IsNullOrEmpty(Feedback))
-                    Write(new Rect(25, 487, 834, 33), Feedback, heading, feedbackSucceeded ? Accent : Notice);
+                    Write(new Rect(25, 487, 834, 38), Feedback, heading, feedbackSucceeded ? Accent : Notice);
+                Write(new Rect(25, 534, 834, 24), "Tab moves between controls. Enter selects.", body, Muted);
             }
             finally { GUI.matrix = previous; }
         }
@@ -64,61 +66,50 @@ namespace LKS.World
             {
                 ShelterPhase.Waiting => "Close the panel briefly to let the training briefing arrive.",
                 ShelterPhase.Ready when !reading.ActuatorPowered =>
-                    "Power the actuator. If power is limited, turn off an optional load in the power bay.",
+                    "Power the shutter motor. If power is limited, turn off optional equipment in the power bay.",
                 ShelterPhase.Ready => "Request the shutter, then close the panel to let it move.",
                 ShelterPhase.Moving => "Close the panel to let the shutter move. Use the marked side passage.",
-                ShelterPhase.Interrupted => "Restore actuator power here. After it is supplied, close the panel to resume.",
-                _ => "The shutter stays closed without power. Release the actuator load and use the marked side passage."
+                ShelterPhase.Interrupted => "Restore power to the motor here, then close the panel to resume.",
+                _ => "The shutter stays closed without power. Release motor power and use the marked side passage."
             };
-            string actuator = reading.ActuatorPowered ? "Actuator supplied" : "Actuator has no power";
+            string actuator = reading.ActuatorPowered ? "Motor supplied" : "Motor has no power";
             Write(new Rect(25, 307, 824, 49), actuator + ". " + guidance, body, Muted);
             bool latched = reading.Phase == ShelterPhase.Sheltered;
             bool actuatorRequested = readingSession.Power.Snapshot.Loads.Any(load =>
                 load.Id == StationPower.ShelterActuator && load.Requested);
-            if (Control(new Rect(24, 377, 253, 42), latched ? "Release actuator power" : "Power shelter actuator",
-                latched ? actuatorRequested : !reading.ActuatorPowered))
-                SetActuatorPower(!latched);
-            if (Control(new Rect(292, 377, 246, 42), "Request shutter closure",
-                reading.Phase == ShelterPhase.Ready && reading.ActuatorPowered))
-                RequestShelter();
-            if (GUI.Button(new Rect(554, 377, 306, 42), "Open NASA DONKI catalog", button))
-                Application.OpenURL("https://ccmc.gsfc.nasa.gov/DONKI/events/");
+            keyboard.Button(new Rect(24, 377, 253, 42), latched ? "Release motor power" : "Power shelter motor",
+                "motor", button, () => SetActuatorPower(!latched), latched ? actuatorRequested : !reading.ActuatorPowered);
+            keyboard.Button(new Rect(292, 377, 246, 42), "Request shutter closure", "shutter", button,
+                () => RequestShelter(), reading.Phase == ShelterPhase.Ready && reading.ActuatorPowered);
+            keyboard.Button(new Rect(554, 377, 306, 42), "Open NASA DONKI catalog", "source", button,
+                () => Application.OpenURL("https://ccmc.gsfc.nasa.gov/DONKI/events/"));
             Write(new Rect(25, 432, 834, 31), "The drill and its timing are a simplified station model.", body, Muted);
         }
 
         private void DrawSeedlings()
         {
-            Write(new Rect(25, 69, 834, 45), "The starter seedlings came with Alexei's expedition. The cabinet preserves them for a future growing plan.",
+            Write(new Rect(25, 69, 834, 52), "Alexei brought these seedlings. Keep them alive for a future growing plan.",
                 body, Muted);
             Card(new Rect(24, 126, 408, 177), "Preserve seedlings",
-                "Keep the starter seedlings ready for future growing. The lab pauses while this plan is selected.");
+                "Keep the seedlings alive. The lab pauses while this plan is active.");
             Card(new Rect(452, 126, 408, 177), "Run the laboratory",
-                "Use power to analyze samples now. Seedling care is deferred until you switch back.");
-            if (GUI.Button(new Rect(41, 242, 374, 42), "Preserve seedlings", button))
-                Choose(FoodSchedule.PreserveSeedlings);
-            if (GUI.Button(new Rect(469, 242, 374, 42), "Run the laboratory", button))
-                Choose(FoodSchedule.RunLab);
+                "Use power to analyze samples. Seedling care waits until you switch back.");
+            keyboard.Button(new Rect(41, 251, 374, 42), "Preserve seedlings", "preserve", button,
+                () => Choose(FoodSchedule.PreserveSeedlings));
+            keyboard.Button(new Rect(469, 251, 374, 42), "Run the laboratory", "lab", button,
+                () => Choose(FoodSchedule.RunLab));
             Write(new Rect(25, 322, 834, 45), FoodStatus, heading, Accent);
             Write(new Rect(25, 374, 834, 45), StationLogistics.FoodExplanation, body, Muted);
-            Write(new Rect(25, 428, 834, 46),
-                "If a choice is rejected, restore safe power or turn off an optional load in the power bay, then try again.",
+            Write(new Rect(25, 428, 834, 55),
+                "If power is limited, turn off optional equipment in the power bay and try again.",
                 body, Muted);
-        }
-
-        private bool Control(Rect rect, string caption, bool enabled)
-        {
-            bool previous = GUI.enabled;
-            GUI.enabled = previous && enabled;
-            bool selected = GUI.Button(rect, caption, button);
-            GUI.enabled = previous;
-            return selected;
         }
 
         private void Card(Rect rect, string caption, string message)
         {
             Fill(rect, new Color32(26, 39, 46, 255));
             Write(new Rect(rect.x + 15, rect.y + 9, rect.width - 30, 32), caption, heading, Ink);
-            Write(new Rect(rect.x + 15, rect.y + 44, rect.width - 30, 65), message, body, Ink);
+            Write(new Rect(rect.x + 15, rect.y + 44, rect.width - 30, 76), message, body, Ink);
         }
 
         private void EnsureStyles()

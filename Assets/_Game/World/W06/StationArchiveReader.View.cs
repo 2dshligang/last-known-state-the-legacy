@@ -23,6 +23,7 @@ namespace LKS.World
         {
             if (!CanRead) return;
             EnsureStyles();
+            body.fontSize = StationUi.TextSize(23, 27);
             HandleKeyboard(Event.current);
             if (!IsOpen) return;
             var previous = GUI.matrix;
@@ -90,7 +91,9 @@ namespace LKS.World
                 Close();
                 return;
             }
-            Write(new Rect(29, 75, 898, 28), CategoryOf(entry), body, Accent);
+            string category = CategoryOf(entry);
+            StationTextCapture.Record("science.label", category);
+            Write(new Rect(29, 73, 898, 31), category, heading, Accent);
             Write(new Rect(29, 105, 909, 24), DateOf(entry) + "    /    " + SourcesOf(entry), small, Muted);
 
             var area = new Rect(26, 146, 914, DocumentHeight);
@@ -98,6 +101,7 @@ namespace LKS.World
             const float textWidth = 844;
             float contents = 20;
             string summary = SummaryOf(entry);
+            StationTextCapture.Record("archive.entry", summary);
             float summaryHeight = TextHeight(summary, body, textWidth);
             contents += 42 + summaryHeight + 22;
             string detail = Expanded ? DetailOf(entry) : null;
@@ -112,6 +116,7 @@ namespace LKS.World
                 Write(new Rect(24, 60, textWidth, summaryHeight), summary, body, Ink);
                 if (detail != null)
                 {
+                    StationTextCapture.Record("archive.detail", detail);
                     float detailStart = 81 + summaryHeight;
                     Fill(new Rect(24, detailStart, textWidth, 1), Control);
                     Write(new Rect(24, detailStart + 16, textWidth, 34), "Supporting evidence", heading, Accent);

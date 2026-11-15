@@ -148,6 +148,12 @@ namespace LKS.World
                     Skip();
                     return;
                 }
+                if (Event.current.keyCode == KeyCode.T)
+                {
+                    Event.current.Use();
+                    StationUi.LargeText = !StationUi.LargeText;
+                    return;
+                }
                 if (Event.current.keyCode == KeyCode.M && bridge.HasGameMenu)
                 {
                     Event.current.Use();
@@ -157,7 +163,8 @@ namespace LKS.World
             }
 
             title ??= new GUIStyle(GUI.skin.label) { fontSize = 30, fontStyle = FontStyle.Bold };
-            body ??= new GUIStyle(GUI.skin.label) { fontSize = 23, wordWrap = true };
+            body ??= new GUIStyle(GUI.skin.label) { wordWrap = true };
+            body.fontSize = StationUi.TextSize(23, 28);
             hint ??= new GUIStyle(GUI.skin.label) { fontSize = 16 };
             button ??= new GUIStyle(GUI.skin.button) { fontSize = 19 };
             Fill(new Rect(0, 0, Screen.width, Screen.height), new Color32(10, 15, 20, 255));
@@ -170,14 +177,18 @@ namespace LKS.World
             try
             {
                 GUI.Label(new Rect(0, 0, width, 27), isFarewell ? "01  /  EARTH" : "02  /  MARS", hint);
+                if (GUI.Button(new Rect(692, 0, 248, 28),
+                    StationUi.LargeText ? "Large text  [T]" : "Standard text  [T]", button))
+                    StationUi.LargeText = !StationUi.LargeText;
                 DrawShot();
                 GUI.Label(new Rect(0, 424, width, 48), isFarewell ? "Farewell" : "Arrival at ASTERION", title);
-                GUI.Label(new Rect(0, 474, width, 112), passage, body);
+                StationTextCapture.Record(isFarewell ? "narrative.farewell" : "narrative.arrival", passage);
+                GUI.Label(new Rect(0, 474, width, 116), passage, body);
                 GUI.enabled = wasEnabled && CanAct;
-                if (GUI.Button(new Rect(0, 598, 242, 43), "Skip opening  [Space]", button)) Skip();
+                if (GUI.Button(new Rect(0, 598, 242, 43), bridge.Resolve(new StableId("narrative.action.skip")) + "  [Space]", button)) Skip();
                 else if (bridge.HasGameMenu && GUI.Button(new Rect(349, 598, 242, 43), "Game menu  [M]", button)) OpenGameMenu();
                 else if (GUI.Button(new Rect(682, 598, 258, 43),
-                    isFarewell ? "Continue  [Enter]" : "Enter station  [Enter]", button)) Continue();
+                    isFarewell ? bridge.Resolve(new StableId("narrative.action.continue")) + "  [Enter]" : "Enter station  [Enter]", button)) Continue();
             }
             finally
             {

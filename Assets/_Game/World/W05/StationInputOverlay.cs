@@ -1,16 +1,19 @@
 using System;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace LKS.World
 {
-    // Temporary graybox views for testing input ownership before terminal UI is authored.
     [RequireComponent(typeof(StationFirstPerson))]
     internal sealed class StationInputOverlay : MonoBehaviour
     {
+        private static readonly Color Panel = new Color32(16, 25, 32, 248);
+        private readonly StationKeyboardFocus focus = new();
         private StationFirstPerson player;
         private IDisposable reading;
         private string view;
+        private bool wasPaused;
         private GUIStyle body, title, button, hint;
         private void OnEnable() => player = GetComponent<StationFirstPerson>();
         private void OnDisable() => CloseReading();
@@ -18,26 +21,39 @@ namespace LKS.World
         private void OnGUI()
         {
             EnsureStyles();
-            float scale = Mathf.Clamp(Mathf.Min(Screen.width / 1000f, Screen.height / 620f), .6f, 1.65f);
+            float scale = StationUi.HudScale(Mathf.Clamp(Mathf.Min(Screen.width / 1000f,
+                Screen.height / 620f), .6f, 1.65f), 520, 520);
             var previous = GUI.matrix;
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1));
             float width = Screen.width / scale;
             float height = Screen.height / scale;
             try
             {
+                if (player.IsPaused != wasPaused)
+                {
+                    wasPaused = player.IsPaused;
+                    focus.Reset();
+                }
                 if (player.IsPaused) DrawPause(width, height);
                 else if (view != null) DrawReading(width, height);
                 else if (player.HasReadingFocus) return;
                 else if (!player.HasWorldFocus)
                 {
-                    var rect = new Rect(width/2-180, height/2-24, 360, 48);
-                    if (GUI.Button(rect, "Click to resume", button)) player.ResumePointer();
+                    var rect = new Rect(width / 2 - 180, height / 2 - 24, 360, 48);
+                    var input = Event.current;
+                    if (input.type == EventType.KeyDown && input.keyCode is KeyCode.Return or KeyCode.KeypadEnter)
+                    {
+                        input.Use();
+                        player.ResumePointer();
+                    }
+                    else if (GUI.Button(rect, "Resume  [Enter]", button)) player.ResumePointer();
                 }
                 else
                 {
-                    GUI.Label(new Rect(width/2-12, height/2-16, 24, 32), "+", title);
-                    GUI.Box(new Rect(14, height-51, 400, 38), GUIContent.none);
-                    GUI.Label(new Rect(27,height-48,375,33),
+                    GUI.Label(new Rect(width / 2 - 12, height / 2 - 16, 24, 32), "+", title);
+                    var controls = new Rect(14, height - 51, 400, 38);
+                    StationUi.Fill(controls, Panel);
+                    GUI.Label(new Rect(27, height - 48, 375, 33),
                         "WASD / ARROWS  Move   E  Interact   ESC  Pause", hint);
                 }
             }
@@ -46,25 +62,40 @@ namespace LKS.World
 
         private void DrawPause(float width, float height)
         {
-            float x = width/2-202;
-            float y = height/2-206;
-            GUI.Box(new Rect(x,y,404,412), GUIContent.none);
-            GUI.Label(new Rect(x+19,y+15,366,36),"PAUSED",title);
-            GUI.Label(new Rect(x+35,y+66,334,26), $"Mouse sensitivity  {player.Sensitivity:F2}", body);
-            player.Sensitivity = GUI.HorizontalSlider(new Rect(x+36,y+95,330,22),player.Sensitivity,.035f,.4f);
-            player.InvertY = GUI.Toggle(new Rect(x+35,y+125,334,27),player.InvertY,"Invert vertical look",body);
-            if (GUI.Button(new Rect(x+35,y+175,334,34), player.HasReadingFocus ? "Return to reading" : "Resume", button))
-                player.SetPaused(false);
-            if (!player.HasReadingFocus && GUI.Button(new Rect(x+35,y+219,334,38),
-                    player.HasGameMenu ? "Game menu" : "Terminal preview",button))
+            var input = Event.current;
+            if (focus.Handle(input)) return;
+            if (focus.IsSelected("sensitivity") && input.type == EventType.KeyDown &&
+                input.keyCode is KeyCode.LeftArrow or KeyCode.RightArrow)
             {
-                if (player.HasGameMenu) player.RequestGameMenu();
-                else OpenReading("TERMINAL");
+                player.Sensitivity = Mathf.Clamp(player.Sensitivity +
+                    (input.keyCode == KeyCode.LeftArrow ? -.015f : .015f), .035f, .4f);
+                input.Use();
             }
-            if (GUI.Button(new Rect(x+35,y+283,334,37),"Restart station",button))
-                player.RequestRestart();
-            if (GUI.Button(new Rect(x+35,y+333,334,37),"Reload station",button))
-                ReloadStation();
+            focus.Begin();
+            float x = width / 2 - 224;
+            float y = height / 2 - 215;
+            StationUi.Fill(new Rect(x, y, 448, 430), Panel);
+            GUI.Label(new Rect(x + 19, y + 13, 410, 35), "Paused", title);
+            GUI.Label(new Rect(x + 34, y + 62, 380, 28), $"Mouse sensitivity  {player.Sensitivity.ToString("F2", CultureInfo.InvariantCulture)}", body);
+            var slider = new Rect(x + 35, y + 93, 378, 21);
+            player.Sensitivity = GUI.HorizontalSlider(slider, player.Sensitivity, .035f, .4f);
+            focus.Register(slider, "sensitivity", null);
+            focus.Button(new Rect(x + 34, y + 126, 380, 35),
+                player.InvertY ? "Invert vertical look: On" : "Invert vertical look: Off",
+                "invert", button, () => player.InvertY = !player.InvertY);
+            focus.Button(new Rect(x + 34, y + 168, 380, 35),
+                StationUi.LargeText ? "Text size: Large" : "Text size: Standard", "text", button,
+                () => StationUi.LargeText = !StationUi.LargeText);
+            if (focus.Button(new Rect(x + 34, y + 226, 380, 36),
+                player.HasReadingFocus ? "Return to reading" : "Resume", "resume", button,
+                () => player.SetPaused(false))) return;
+            if (!player.HasReadingFocus && player.HasGameMenu &&
+                focus.Button(new Rect(x + 34, y + 269, 380, 36), "Game menu", "menu", button,
+                    player.RequestGameMenu)) return;
+            if (focus.Button(new Rect(x + 34, y + 312, 380, 36), "Restart station", "restart", button,
+                player.RequestRestart)) return;
+            GUI.Label(new Rect(x + 34, y + 367, 380, 43),
+                "Tab moves between controls. Enter selects.\nLeft and Right adjust the sensitivity slider.", hint);
         }
 
         internal AsyncOperation ReloadStation()
@@ -80,15 +111,11 @@ namespace LKS.World
 
         private void DrawReading(float width, float height)
         {
-            float x = width/2-219;
-            float y = height/2-129;
-            GUI.Box(new Rect(x,y,438,258), GUIContent.none);
-            GUI.Label(new Rect(x+20,y+18,398,44),view,title);
-            string message = view == "TERMINAL"
-                ? "Station terminal preview. You can read this window without moving the camera."
-                : "Archive preview. Mission records will appear here when the archive is connected.";
-            GUI.Label(new Rect(x+30,y+88,378,80),message,body);
-            if (GUI.Button(new Rect(x+70,y+184,298,40),"Close",button)) CloseReading();
+            float x = width / 2 - 219;
+            float y = height / 2 - 129;
+            StationUi.Fill(new Rect(x, y, 438, 258), Panel);
+            GUI.Label(new Rect(x + 20, y + 18, 398, 44), view, title);
+            if (GUI.Button(new Rect(x + 70, y + 184, 298, 40), "Close", button)) CloseReading();
         }
 
         internal void OpenReading(string name)
@@ -109,9 +136,10 @@ namespace LKS.World
         private void EnsureStyles()
         {
             if (body != null) return;
-            body = new GUIStyle(GUI.skin.label) { fontSize = 17, wordWrap = true };
-            title = new GUIStyle(body) { fontSize = 25, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
-            button = new GUIStyle(GUI.skin.button) { fontSize = 16 };
+            body = new GUIStyle(GUI.skin.label)
+                { fontSize = 18, wordWrap = true, normal = { textColor = Color.white } };
+            title = new GUIStyle(body) { fontSize = 27, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+            button = new GUIStyle(GUI.skin.button) { fontSize = 18 };
             hint = new GUIStyle(body) { fontSize = 15, alignment = TextAnchor.MiddleLeft };
         }
     }

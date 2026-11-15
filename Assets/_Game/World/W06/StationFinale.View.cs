@@ -17,6 +17,9 @@ namespace LKS.World
         {
             if (!CanControl) return;
             EnsureStyles();
+            title.fontSize = StationUi.TextSize(33, 39);
+            line.fontSize = StationUi.TextSize(20, 24);
+            detail.fontSize = StationUi.TextSize(17, 20);
             HandleKeyboard(Event.current);
             if (!IsOpen) return;
             var previous = GUI.matrix;
@@ -45,6 +48,7 @@ namespace LKS.World
                 Fill(new Rect(315, 25, 270, 326), Ink);
                 GUI.DrawTexture(new Rect(324, 34, 252, 308), DisplayedPhotograph, ScaleMode.ScaleToFit, false);
             }
+            StationTextCapture.Record("ending.final", FinalText);
             Write(new Rect(80, 370, 740, 60), FinalText, title, Ink);
             if (Button(new Rect(232, 472, 213, 42), "View credits", 0)) Credits();
             if (Button(new Rect(455, 472, 213, 42), "Skip to menu", 1)) SkipToMenu();
@@ -53,28 +57,37 @@ namespace LKS.World
         private void DrawCredits()
         {
             Write(new Rect(45, 86, 810, 71), "LAST KNOWN STATE: THE LEGACY", title, Ink);
-            Write(new Rect(112, 204, 676, 82), "Development and illustration\nThe Last Known State team", line, Ink);
-            Write(new Rect(112, 318, 676, 72), "Scientific references are listed in the station archive and research report.", detail, Muted);
+            string team = station.Resolve(new StableId("credits.team"));
+            string sources = station.Resolve(new StableId("credits.sources"));
+            StationTextCapture.Record("credits.team", team);
+            StationTextCapture.Record("credits.sources", sources);
+            Write(new Rect(112, 204, 676, 82), team, line, Ink);
+            Write(new Rect(112, 318, 676, 72), sources, detail, Muted);
             if (Button(new Rect(300, 462, 300, 44), "Return to menu", 0)) SkipToMenu();
         }
 
         private void DrawMenu()
         {
-            Write(new Rect(45, 62, 810, 66), "LAST KNOWN STATE: THE LEGACY", title, Ink);
-            if (Button(new Rect(275, 164, 350, 44), "Continue saved game", 0)) Continue();
-            if (Button(new Rect(275, 222, 350, 44), "New game", 1)) station.NewRun();
+            const string gameTitle = "LAST KNOWN STATE: THE LEGACY";
+            StationTextCapture.Record("menu.main", gameTitle);
+            Write(new Rect(45, 62, 810, 66), gameTitle, title, Ink);
+            if (Button(new Rect(275, 164, 350, 44), station.Resolve(new StableId("menu.continue")) + " saved game", 0)) Continue();
+            if (Button(new Rect(275, 222, 350, 44), station.Resolve(new StableId("menu.new-game")), 1)) station.NewRun();
             if (Button(new Rect(275, 280, 350, 44), "Replay ending", 2, Completed)) Replay();
             bool openingPending = observed?.Narrative?.CaptureOpening() is OpeningProgress.Farewell or OpeningProgress.Arrival;
             if (Button(new Rect(275, 338, 350, 44), openingPending ? "Return to opening" : "Return to station", 3))
                 ReturnToStation();
             if (Button(new Rect(275, 396, 350, 44), "Save progress", 4)) SaveProgress();
-            Write(new Rect(70, 480, 760, 32), "Tab moves between controls. Enter selects.", detail, Muted);
+            if (Button(new Rect(275, 452, 350, 40),
+                StationUi.LargeText ? "Text size: Large" : "Text size: Standard", 5))
+                ToggleTextSize();
+            Write(new Rect(70, 502, 760, 26), "Tab moves between controls. Enter selects.", detail, Muted);
         }
 
         internal void HandleKeyboard(Event input)
         {
             if (!CanControl || input.type != EventType.KeyDown) return;
-            int count = page == Page.Menu ? 5 : page == Page.Photograph ? 2 : 1;
+            int count = page == Page.Menu ? 6 : page == Page.Photograph ? 2 : 1;
             if (input.keyCode == KeyCode.Tab)
             {
                 int step = input.shift ? -1 : 1;
@@ -94,12 +107,15 @@ namespace LKS.World
                         case 2: Replay(); break;
                         case 3: ReturnToStation(); break;
                         case 4: SaveProgress(); break;
+                        case 5: ToggleTextSize(); break;
                     }
                 }
             }
             else return;
             input.Use();
         }
+
+        private static void ToggleTextSize() => StationUi.LargeText = !StationUi.LargeText;
 
         private bool Button(Rect rect, string label, int index, bool enabled = true)
         {
