@@ -35,7 +35,7 @@ namespace LKS.World
         private string feedback = "";
         private double feedbackUntil;
         private double nextUse;
-        private GUIStyle panel, line, heading;
+        private GUIStyle line, heading;
 
         public GameplaySession Session => bootstrap.Current;
         public string StartError { get; private set; }
@@ -331,7 +331,7 @@ namespace LKS.World
             feedbackUntil = Time.unscaledTimeAsDouble + 3.5;
         }
 
-        private string Resolve(StableId key) => text.Resolve(key, Debug.isDebugBuild || Application.isEditor);
+        internal string Resolve(StableId key) => text.Resolve(key, Debug.isDebugBuild || Application.isEditor);
 
         private string Unavailable(StableId target, StableId reason)
         {
@@ -391,19 +391,19 @@ namespace LKS.World
         private void OnGUI()
         {
             if (!player.HasWorldFocus || player.IsPaused) return;
-            if (panel == null)
+            if (line == null)
             {
-                panel = new GUIStyle(GUI.skin.box);
                 line = new GUIStyle(GUI.skin.label) { fontSize = 17, wordWrap = true, alignment = TextAnchor.MiddleCenter };
                 heading = new GUIStyle(line) { fontStyle = FontStyle.Bold };
             }
-            float scale = Mathf.Clamp(Screen.height / 640f, .65f, 1.5f);
+            float scale = StationUi.HudScale(Mathf.Clamp(Screen.height / 640f, .65f, 1.5f), 520, 500);
             var previous = GUI.matrix;
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1));
             try
             {
                 float width = Screen.width / scale;
                 float height = Screen.height / scale;
+                float feedbackTop = 15;
                 var objective = Objective();
                 if (objective != null)
                 {
@@ -411,26 +411,43 @@ namespace LKS.World
                     string direction = offset.z < -.5f ? "Behind you" :
                         offset.x < -.7f ? "Left" : offset.x > .7f ? "Right" : "Ahead";
                     string label = "NEXT   " + Name(objective.TargetId) + "   /   " + direction;
+                    StationTextCapture.Record("quest.objective", label);
                     float panelWidth = Mathf.Min(400, width - 32);
                     float panelHeight = Mathf.Max(32,
                         Mathf.Ceil(heading.CalcHeight(new GUIContent(label), panelWidth - 16)) + 8);
-                    Draw(new Rect((width - panelWidth) / 2, 15, panelWidth, panelHeight), label, heading);
+                    Draw(new Rect((width - panelWidth) / 2, feedbackTop, panelWidth, panelHeight), label, heading);
+                    feedbackTop += panelHeight + 8;
                 }
                 var aimed = FindAimedTarget(new Ray(view.transform.position, view.transform.forward));
                 string prompt = aimed == null ? "" : Describe(aimed);
                 if (aimed == null && !gate.IsOpen && gate.IsFacing(view.transform))
                     prompt = "Exit through the exterior airlock\nRestore air and water at the power recovery control.";
-                if (prompt.Length > 0) Draw(new Rect(width / 2 - 230, height / 2 + 30, 460, 62), prompt, line);
                 var result = StartError ?? Feedback;
+                if (prompt.Length > 0 && prompt != result)
+                {
+                    StationTextCapture.Record("interaction.prompt", prompt);
+                    DrawMessage(width, height - 63, prompt, line, bottomAligned: true);
+                }
                 if (!string.IsNullOrEmpty(result))
-                    Draw(new Rect(width / 2 - 230, height - 116, 460, 42), result, heading);
+                {
+                    StationTextCapture.Record("interaction.error", result);
+                    DrawMessage(width, feedbackTop, result, heading);
+                }
             }
             finally { GUI.matrix = previous; }
         }
 
-        private void Draw(Rect area, string label, GUIStyle style)
+        private static void DrawMessage(float width, float edge, string label, GUIStyle style, bool bottomAligned = false)
         {
-            GUI.Box(area, GUIContent.none, panel);
+            float panelWidth = Mathf.Min(460, width - 32);
+            float panelHeight = Mathf.Max(36, Mathf.Ceil(style.CalcHeight(new GUIContent(label), panelWidth - 16)) + 12);
+            float top = bottomAligned ? edge - panelHeight : edge;
+            Draw(new Rect((width - panelWidth) / 2, top, panelWidth, panelHeight), label, style);
+        }
+
+        private static void Draw(Rect area, string label, GUIStyle style)
+        {
+            StationUi.Fill(area, new Color32(16, 25, 32, 248));
             GUI.Label(new Rect(area.x + 8, area.y, area.width - 16, area.height), label, style);
         }
     }

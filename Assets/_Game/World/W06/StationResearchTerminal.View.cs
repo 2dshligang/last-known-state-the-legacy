@@ -25,6 +25,7 @@ namespace LKS.World
             EnsureStyles();
             HandleKeys(Event.current);
             if (!IsOpen) return;
+            body.fontSize = reference == null ? 18 : StationUi.TextSize(18, 23);
             var original = GUI.matrix;
             Fill(new Rect(0, 0, Screen.width, Screen.height), new Color(0, 0, 0, .73f));
             float scale = Mathf.Min(1.5f, Screen.width / (Width + 28), Screen.height / (Height + 28));
@@ -74,6 +75,7 @@ namespace LKS.World
                 SubmitReport();
             string result = Feedback ?? (CanSubmit ? "" : Accepted ?
                 "The research report is complete." : "Finish reviewing the laboratory results first.");
+            StationTextCapture.Record("report.feedback", result);
             Write(new Rect(266, 575, 441, 64), result, body, Feedback == null || FeedbackSucceeded ? Muted : Notice);
             DrawEvidenceAndTransmission();
             Write(new Rect(23, 645, 1055, 20),
@@ -123,7 +125,9 @@ namespace LKS.World
                 Write(new Rect(38, 240, 1010, 64), Resolve(result.StationResult.InterpretationKey), body, Muted);
             Fill(new Rect(22, 340, 1054, 213), Surface);
             Write(new Rect(38, 354, 1015, 41), "Science reference", heading, Ink);
-            Write(new Rect(38, 407, 1010, 66), Resolve(result?.ReferenceContextKey ?? sample.ContextKey), body, Muted);
+            string referenceText = Resolve(result?.ReferenceContextKey ?? sample.ContextKey);
+            StationTextCapture.Record("science.reference", referenceText);
+            Write(new Rect(38, 407, 1010, 66), referenceText, body, Muted);
             Write(new Rect(38, 489, 1010, 39),
                 (result?.ReferenceSource ?? sample.Reference).AbsoluteUri, small, Accent);
             Write(new Rect(23, 637, 1053, 28),
