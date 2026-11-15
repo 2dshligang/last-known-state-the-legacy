@@ -144,6 +144,15 @@ namespace LKS.Editor.World
                     var archiveBinding = new SerializedObject(archiveReader);
                     archiveBinding.FindProperty("reconstruction").objectReferenceValue = replay;
                     changed |= archiveBinding.ApplyModifiedPropertiesWithoutUndo();
+                    var investigation = player.GetComponent<StationEchoInvestigation>();
+                    if (investigation == null)
+                    {
+                        investigation = player.gameObject.AddComponent<StationEchoInvestigation>();
+                        changed = true;
+                    }
+                    var replayBinding = new SerializedObject(replay);
+                    replayBinding.FindProperty("investigation").objectReferenceValue = investigation;
+                    changed |= replayBinding.ApplyModifiedPropertiesWithoutUndo();
                 }
 
                 var binding = new SerializedObject(bridge);

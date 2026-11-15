@@ -8,6 +8,7 @@ namespace LKS.World
     public sealed partial class StationEchoReview : MonoBehaviour
     {
         private static readonly StableId TimelineSubject = new StableId("echo.asterion");
+        [SerializeField] private StationEchoInvestigation investigation;
         private StationFirstPerson player;
         private GameplaySession openedSession;
         private Func<GameplaySession> currentSession;
@@ -26,6 +27,22 @@ namespace LKS.World
 
         internal bool HasReplay(GameplaySession session) => isActiveAndEnabled && !IsOpen &&
             session?.Echo != null && session.Archive != null;
+
+        private bool CanInvestigate => CanControl && investigation != null && investigation.HasInvestigation(openedSession);
+
+        internal bool OpenInvestigation()
+        {
+            if (!CanInvestigate) return false;
+            var input = player;
+            var sessionSource = currentSession;
+            var session = openedSession;
+            decimal seconds = Playback.Seconds;
+            Close();
+            if (!ReferenceEquals(session, sessionSource())) return false;
+            if (investigation.Open(input, sessionSource)) return true;
+            if (Open(input, sessionSource)) SeekFrame(seconds);
+            return false;
+        }
 
         public bool Open(StationFirstPerson input, Func<GameplaySession> session)
         {
