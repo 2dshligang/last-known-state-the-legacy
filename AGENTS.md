@@ -8,7 +8,7 @@
 - Namespace: `LKS`
 - Platform: Windows x64
 - Target playtime: 20–25 minutes
-- Team: two developers using Codex and DeepSeek
+- Team: two developers using Codex
 
 ## Player-facing language
 
