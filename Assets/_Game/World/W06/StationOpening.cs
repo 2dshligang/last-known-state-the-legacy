@@ -160,7 +160,7 @@ namespace LKS.World
                 GUI.Label(new Rect(0, 424, width, 48), isFarewell ? "Farewell" : "Arrival at ASTERION", title);
                 GUI.Label(new Rect(0, 474, width, 112), passage, body);
                 GUI.enabled = wasEnabled && CanAct;
-                if (GUI.Button(new Rect(0, 598, 188, 43), "Skip opening  [Space]", button)) Skip();
+                if (GUI.Button(new Rect(0, 598, 242, 43), "Skip opening  [Space]", button)) Skip();
                 else if (GUI.Button(new Rect(682, 598, 258, 43),
                     isFarewell ? "Continue  [Enter]" : "Enter station  [Enter]", button)) Continue();
             }
