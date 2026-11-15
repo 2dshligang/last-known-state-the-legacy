@@ -25,6 +25,10 @@ The menu can continue the saved campaign, replay a completed ending,
 return to the station or start a fresh run. While exploring, open the
 game menu from the pause screen.
 
+During the opening, press **M** or select **Game menu**. **Save progress**
+saves the current passage. **Continue saved game** restores that passage
+and **Return to opening** returns to it without leaving the run.
+
 ## Accepted interfaces
 
 | Stable ID | Binding |
@@ -43,13 +47,12 @@ S14 owns the final cue and completion predicate. S16 owns the atomic save.
 Only the committed S14 cue drives the final screen. Replay uses the same
 cue and leaves the completion and transmission records intact.
 
-## Integration status
+## Station integration
 
-The report, queue, save and completion flow uses accepted S12/S14/S16 on the
-W13 station base. The accepted W14 opening is required for verifying the
-shared portrait, the full opening-to-ending playthrough, and Continue into
-an unfinished opening. The W15 implementation binds the W14 portrait at
-`Resources/W14/DmitryPhoto`. The overlook reuses the existing photograph
+The report, queue, save and completion flow uses S12, S14 and S16 with
+the [accepted W14 opening](https://github.com/2dshligang/last-known-state-the-legacy/pull/38).
+The opening, overlook prop and final cue share the original W14 portrait
+at `Resources/W14/DmitryPhoto`. The overlook reuses the existing photograph
 fixture and anchor IDs. To regenerate its position, use **LKS > World >
 Generate W04 Station** after saving open scenes.
 
@@ -59,17 +62,29 @@ Run `StationResearchTerminalTests` in the interaction Play Mode suite.
 The tests exercise rejected revision, reference-card return, intentional
 report acceptance, duplicate queue requests, queued-save restoration,
 premature photograph access, the actual route through the airlock, saved
-completion, manual credits and replay. The fixture uses a reviewed sample
-checkpoint to exercise the W15 scene without repeating the entire campaign.
+completion, manual credits and replay. The integrated route starts a new
+campaign, saves and restores the arrival passage, completes power, ECHO,
+field collection and lab analysis, then submits the report and walks to
+the photograph.
 
-Unity 6000.6.9f1 passed 20 Play Mode and 85 Edit Mode tests. The editor
+Unity 6000.6.9f1 passed 22 Play Mode and 85 Edit Mode tests. The editor
 route verification checked 13 interaction rays and preserved all 833
-existing scene IDs. A muted Windows x64 capture used the installed report
-terminal and returned to exploration with the report still queued.
+existing scene IDs. The muted report capture used the installed terminal
+and returned to exploration with the report still queued.
 
 - [Rejected claim at 1600 × 900](W15-report-rejected.png)
 - [Fictional result and science reference at 800 × 600](W15-report-source.png)
 - [Queued transmission at 1600 × 900](W15-report-queued.png)
 - [Queued transmission at 800 × 600](W15-report-queued-small.png)
+
+The ordinary Windows x64 build passed. The muted integration capture
+restored the original arrival passage, viewed the photograph on the
+surface, and redisplayed the same final shot after Continue.
+
+- [Arrival restored from disk at 800 × 600](W15-arrival-restored.png)
+- [Shared photograph at the surface overlook at 1600 × 900](W15-surface-photograph.png)
+- [Final shot after Continue at 1600 × 900](W15-ending-photo.png)
+- [Final shot after Continue at 800 × 600](W15-ending-photo-small.png)
+- [Game menu after skipping the ending at 800 × 600](W15-ending-menu.png)
 
 W16 owns the lighting and silent atmosphere pass after W15 is accepted.
