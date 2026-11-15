@@ -125,7 +125,8 @@ namespace LKS.Editor.World
             StableId.ValidateUnique(targets);
             // These are the IDs from the accepted S03 handoff. Scene code adds no policy.
             var expected = new[] { "quest.arrival", "quest.safe-power", "target.power-recovery",
-                "quest.echo-evidence", "quest.sampling", "quest.analysis", "quest.report", "quest.ending" };
+                "quest.echo-evidence", "quest.sampling", "quest.analysis", "quest.report", "quest.ending",
+                StationShelterSet.ShelterTarget.value, StationShelterSet.SeedlingTarget.value };
             Check(expected.OrderBy(id => id).SequenceEqual(targets.Select(id => id.value).OrderBy(id => id)),
                 "Scene anchor IDs differ from the S03 handoff.");
             var near = W04StationPlan.LoopNear(configuration);
@@ -158,7 +159,7 @@ namespace LKS.Editor.World
             float shoulder = (wall + configuration.InnerWidth / 2) / 2;
             Barrier(new Vector3(-shoulder,1.2f,end+.8f), Vector3.back, "exterior.front-left");
             Barrier(new Vector3(shoulder,1.2f,end+.8f), Vector3.back, "exterior.front-right");
-            Debug.Log($"W04_ROUTE_PASS {samples} clearance/floor samples, eight interaction rays, five exterior boundaries.");
+            Debug.Log($"W04_ROUTE_PASS {samples} clearance/floor samples, {anchors.Length} interaction rays, five exterior boundaries.");
         }
 
         private static int Traverse(Vector3 from, Vector3 to)
