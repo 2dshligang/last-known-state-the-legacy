@@ -19,12 +19,23 @@ namespace LKS.Editor.World
             public string Text;
             public StableId Target;
             public bool Collides;
+            public Color LightColor;
         }
 
         internal static Vector3 Entry(StationLayout layout) => new Vector3(0, 0, layout.InteriorEnd + 1.1f);
         internal static Vector3 LoopNear(StationLayout layout) => new Vector3(0, 0, layout.InteriorEnd + 2.0f);
         internal static Vector3 LoopFar(StationLayout layout) => new Vector3(0, 0, layout.InteriorEnd + layout.ExteriorDepth - 1.5f);
         internal static float LoopSide(StationLayout layout) => layout.ExteriorWidth / 2 - 1.3f;
+
+        private static readonly (float Side, float Along, float Intensity, float Range, Color Color)[] Practicals =
+        {
+            ( .44f, .28f, 4.6f, 5.6f, new Color(1f, .86f, .71f)),
+            ( .25f, .57f, 4.8f, 5.3f, new Color(1f, .80f, .63f)),
+            (-.43f, .55f, 5.2f, 5.8f, new Color(.74f, .88f, 1f)),
+            (-.49f, .53f, 3.8f, 5.2f, new Color(.88f, .96f, 1f)),
+            ( .40f, .48f, 5.3f, 5.6f, new Color(.92f, .96f, 1f)),
+            (-.46f, .64f, 4.4f, 5.5f, new Color(1f, .78f, .61f))
+        };
 
         internal static List<Node> Build(StationLayout layout)
         {
@@ -53,8 +64,12 @@ namespace LKS.Editor.World
                 float signZ = i == 0 ? start + .18f : start - .14f;
                 Box(id + ".sign", P(0, 2.58f, signZ), P(2.21f, .29f, .07f), "Metal", false);
                 Label(id + ".label", titles[i], P(0, 2.58f, signZ - .041f), Vector3.forward, .15f);
-                var light = New(id + ".light", Kind.Light, P(0, height - .55f, mid));
-                light.Size = P(4.1f, 7, 0);
+                var practical = Practicals[i];
+                float lightZ = start + practical.Along * bay;
+                var light = New(id + ".light", Kind.Light, P(practical.Side * width / 4f, height - .31f, lightZ));
+                light.Facing = P(-practical.Side * .72f, -1, .12f);
+                light.Size = P(practical.Intensity, practical.Range, 0);
+                light.LightColor = practical.Color;
                 if (i > 0) Opening(id + ".entry", start, width, height, 1.6f);
             }
             Box("station.rear-wall", P(0, height/2, -.10f), P(width + 2*wall, height, wall), "Shell");
@@ -90,8 +105,9 @@ namespace LKS.Editor.World
             Box("exterior.guide-left", P(-LoopSide(layout),.003f,end+depth/2), P(.055f,.006f,depth-3), "Ochre", false);
             Box("exterior.guide-right", P(LoopSide(layout),.003f,end+depth/2), P(.055f,.006f,depth-3), "Ochre", false);
             var sun = New("exterior.sun", Kind.DirectionalLight, P(0, 6, end + depth/2));
-            sun.Size = P(1.25f, 0, 0);
-            sun.Facing = new Vector3(.30f,-.87f,-.39f);
+            sun.Size = P(1.38f, 0, 0);
+            sun.Facing = P(-.76f, -.60f, .25f);
+            sun.LightColor = new Color(1f, .80f, .66f);
             var far = LoopFar(layout);
             Box("exterior.sample-box", P(0,.46f,far.z+.69f), P(1.05f,.92f,.43f), "Metal");
             Box("exterior.sample-sign", P(0,1.53f,far.z+.69f), P(1.7f,.55f,.1f), "Metal");

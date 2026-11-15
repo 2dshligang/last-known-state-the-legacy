@@ -94,6 +94,7 @@ namespace LKS.Editor.World
                     changed |= ApplyNode(node, owned[node.Id], owned, palette, labelMaterial);
                 changed |= WriteManifest(manifest, layout, plan, owned);
                 changed |= W15AVisualSetup.RefreshInstalled(manifest);
+                changed |= W16StationLighting.ApplyAtmosphere(scene, Required<Light>(owned[new StableId("exterior.sun")]));
                 if (changed)
                     EditorSceneManager.MarkSceneDirty(scene);
 
@@ -204,7 +205,7 @@ namespace LKS.Editor.World
                 case W04StationPlan.Kind.Camera:
                     var camera = Required<Camera>(item);
                     changed |= Assign(camera.fieldOfView, 65f, value => camera.fieldOfView = value);
-                    changed |= Assign(camera.clearFlags, CameraClearFlags.SolidColor, value => camera.clearFlags = value);
+                    changed |= Assign(camera.clearFlags, CameraClearFlags.Skybox, value => camera.clearFlags = value);
                     var sky = new Color(.29f,.32f,.35f);
                     changed |= Assign(camera.backgroundColor, sky, value => camera.backgroundColor = value);
                     break;
@@ -212,13 +213,18 @@ namespace LKS.Editor.World
                 case W04StationPlan.Kind.DirectionalLight:
                     var light = Required<Light>(item);
                     bool directional = node.Type == W04StationPlan.Kind.DirectionalLight;
-                    var lightType = directional ? LightType.Directional : LightType.Point;
-                    changed |= Assign(light.type, lightType, value => light.type = value);
+                    changed |= Assign(light.type, directional ? LightType.Directional : LightType.Spot, value => light.type = value);
+                    changed |= Assign(light.color, node.LightColor, value => light.color = value);
                     changed |= Assign(light.intensity, node.Size.x, value => light.intensity = value);
-                    if (!directional)
+                    changed |= Assign(light.shadows, directional ? LightShadows.Soft : LightShadows.None, value => light.shadows = value);
+                    if (directional)
+                        changed |= Assign(light.shadowStrength, .69f, value => light.shadowStrength = value);
+                    else
+                    {
                         changed |= Assign(light.range, node.Size.y, value => light.range = value);
-                    var shadows = directional ? LightShadows.Hard : LightShadows.None;
-                    changed |= Assign(light.shadows, shadows, value => light.shadows = value);
+                        changed |= Assign(light.spotAngle, 128f, value => light.spotAngle = value);
+                        changed |= Assign(light.innerSpotAngle, 64f, value => light.innerSpotAngle = value);
+                    }
                     break;
             }
             return changed;
