@@ -22,18 +22,13 @@ namespace LKS.Tests
         private static readonly StableId ArchiveId = new StableId("archive.donki-sep");
         private static readonly StableId RequiredSource = new StableId("donki.2017-09-04t23-52-00-sep-001");
         private static readonly StableId Slot = new StableId("integrated-route");
+        private const BindingFlags ViewMethods = BindingFlags.Instance | BindingFlags.NonPublic;
 
         [UnityTest]
         public IEnumerator NewGameToLegitimateEnding() => PlayRoute(true);
 
         [UnityTest]
         public IEnumerator MissingTransmissionCannotReachEnding() => PlayRoute(false);
-
-        [Test]
-        public void FullWorldUiRequiresReportAndEndingBindings()
-        {
-            Assert.Ignore("Blocked on accepted W15. Bind the report, report transmission and ending presentation in Station.unity, then drive the real UI for these steps.");
-        }
 
         private static IEnumerator PlayRoute(bool transmit)
         {
@@ -46,12 +41,20 @@ namespace LKS.Tests
             var player = station.GetComponent<StationFirstPerson>();
             Assert.That(bootstrap, Is.Not.Null, "Missing real station bootstrap.");
             Assert.That(player, Is.Not.Null, "Missing first person entry point.");
+            var opening = player.GetComponent<StationOpening>();
+            var terminal = player.GetComponent<StationResearchTerminal>();
+            var finale = player.GetComponent<StationFinale>();
+            Assert.That(opening, Is.Not.Null, "The Station must bind W14.");
+            Assert.That(terminal, Is.Not.Null, "The Station must bind the W15 report.");
+            Assert.That(finale, Is.Not.Null, "The Station must bind the W15 photograph.");
             var run = station.Session;
             Assert.That(run, Is.Not.Null, "New Game did not start.");
             Assert.That(run.CaptureQuestCheckpoint(), Is.Empty);
             Assert.That(run.Narrative.TryGetOpening(out var intro), Is.True);
             Assert.That(intro.TextKey.value, Is.EqualTo("narrative.farewell"));
-            Assert.That(run.Narrative.AdvanceOpening() && run.Narrative.AdvanceOpening(), Is.True);
+            player.SendMessage("OnApplicationFocus", true);
+            Assert.That(ViewAction(opening, "Continue"), Is.True, "Continue from the farewell.");
+            Assert.That(ViewAction(opening, "Continue"), Is.True, "Enter Station from the arrival.");
             Assert.That(run.Narrative.CaptureOpening(), Is.EqualTo(OpeningProgress.Complete));
 
             yield return ConfirmArrivalThroughScene(station, player);
@@ -61,6 +64,9 @@ namespace LKS.Tests
             string folder = Path.Combine(Application.temporaryCachePath, "lks-s18-" + Guid.NewGuid().ToString("N"));
             var catalog = (StationScienceCatalog)run.Science;
             var saves = new StationSaves(folder, catalog, new[] { RequiredSource });
+            var storage = typeof(StationInteraction).GetProperty("CampaignStorage", ViewMethods);
+            Assert.That(storage, Is.Not.Null, "Supply an isolated campaign slot for the W15 menu.");
+            storage.SetValue(station, saves);
             try
             {
                 run = Reload(run, saves, bootstrap, clock);
@@ -130,34 +136,63 @@ namespace LKS.Tests
                 Assert.That(evidence.Count, Is.EqualTo(3));
                 Assert.That(evidence.All(item => item.StationKind == EvidenceKind.Fiction), Is.True);
                 Assert.That(evidence.All(item => item.ReferenceSource.Host == "ntrs.nasa.gov"), Is.True);
-                Rejected(run.Research.Submit(Draft(ReportInterpretation.LifeConfirmed)),
-                    "report.result.life-unsupported", "No proof of life");
+                // Let the scene observe the reloaded session and clear the earlier arrival input cooldown.
+                yield return null;
+                Assert.That(SceneSubmit(station, StationResearchTerminal.Target), Is.True, "Open the installed report terminal.");
+                foreach (var observation in new[] { ReportObservation.LayersVisible, ReportObservation.IronMineralSigns,
+                    ReportObservation.BlankPassed })
+                    Assert.That(ViewAction(terminal, "ToggleObservation", observation), Is.True, "Choose " + observation);
+                for (int section = 1; section < 4; section++)
+                    Assert.That(ViewAction(terminal, "CycleChoice", section, 1), Is.True);
+                Assert.That(ViewAction(terminal, "CycleChoice", 0, -1), Is.True, "Choose the unsupported interpretation.");
+                Assert.That(ViewAction(terminal, "SubmitReport"), Is.False, "W15 must reject a claim of confirmed life.");
+                Assert.That(ViewProperty<string>(terminal, "Feedback"), Does.Contain("cannot confirm life"));
                 Assert.That(run.Research.CaptureAccepted(), Is.Null);
-                Applied(run.Research.Submit(Draft(ReportInterpretation.SedimentMayHaveSettled)), "Submit revised report");
-                Applied(Request(run, 5), "Confirm revised research report");
+                Assert.That(ViewAction(terminal, "CycleChoice", 0, 1), Is.True);
+                Assert.That(ViewAction(terminal, "CycleChoice", 0, 1), Is.True);
+                Assert.That(ViewAction(terminal, "SubmitReport"), Is.True, "Submit the revised report through W15.");
+                Assert.That(run.Quests.Snapshot[StationResearchTerminal.Target], Is.EqualTo(QuestStatus.Completed));
                 Assert.That(run.Pacing.ReportRetries, Is.EqualTo(1));
-                Rejected(Request(run, 6), "ending.result.queue-report", "The same valid route still needs transmission");
+                CallView(terminal, "HandleKeys", new Event { type = EventType.KeyDown, keyCode = KeyCode.Return });
+                Assert.That(player.HasWorldFocus, Is.True, "Return to Station from the report.");
+                Assert.That(SceneSubmit(station, StationEnding.Photograph), Is.False, "The overlook still needs transmission.");
+                Assert.That(station.Feedback, Does.Contain("Queue the accepted report"));
                 Assert.That(run.Ending.TryGetFinalCue(out _), Is.False);
                 Assert.That(run.Ending.Completion.Snapshot, Is.False);
                 if (!transmit)
                 {
                     run = Reload(run, saves, bootstrap, clock);
-                    Rejected(Request(run, 6), "ending.result.queue-report", "Reload cannot supply missing transmission");
+                    yield return null;
+                    Assert.That(SceneSubmit(station, StationEnding.Photograph), Is.False, "Reload cannot supply missing transmission.");
+                    Assert.That(station.Feedback, Does.Contain("Queue the accepted report"));
                     Assert.That(run.CaptureQuestCheckpoint(), Is.EqualTo(StationQuests.RequiredStages.Take(6)));
                     yield break;
                 }
 
-                Applied(run.Ending.QueueAcceptedReport(), "Queue accepted report");
+                Assert.That(SceneSubmit(station, StationResearchTerminal.Target), Is.True);
+                Assert.That(ViewAction(terminal, "QueueReport"), Is.True, "Queue transmission through W15.");
+                CallView(terminal, "HandleKeys", new Event { type = EventType.KeyDown, keyCode = KeyCode.Return });
                 run = Reload(run, saves, bootstrap, clock);
+                yield return null;
                 Assert.That(run.Logistics.Delivery, Is.EqualTo(DeliveryState.Queued));
-                Applied(Request(run, 6), "Inspect photograph");
+                int completionEvents = 0;
+                using var subscription = run.Ending.Completion.Subscribe(_ => completionEvents++);
+                Assert.That(SceneSubmit(station, StationEnding.Photograph), Is.True, "Inspect the bound W15 photograph.");
+                run.Dispatch();
+                Assert.That(completionEvents, Is.EqualTo(1));
                 Assert.That(run.CaptureQuestCheckpoint(), Is.EqualTo(StationQuests.RequiredStages));
                 Assert.That(run.Ending.TryGetFinalCue(out var cue), Is.True);
                 Assert.That(run.Archive.Content.Resolve(cue.TextKey, false), Is.EqualTo("Dad... I did it."));
+                Assert.That(ViewProperty<string>(finale, "FinalText"), Is.EqualTo("Dad... I did it."));
                 Assert.That(Request(run, 6).Code, Is.EqualTo(ResultCode.AlreadyApplied));
-                run = Reload(run, saves, bootstrap, clock);
+                Assert.That(ViewAction(finale, "SkipToMenu"), Is.True);
+                Assert.That(ViewAction(finale, "Continue"), Is.True, "Continue through the installed menu.");
+                Assert.That(station.Session, Is.Not.SameAs(run));
+                run = station.Session;
+                run.Dispatch();
                 Assert.That(run.Ending.Completion.Snapshot, Is.True);
-                Assert.That(run.Ending.TryGetFinalCue(out _), Is.True);
+                Assert.That(ViewProperty<string>(finale, "FinalText"), Is.EqualTo("Dad... I did it."));
+                Assert.That(completionEvents, Is.EqualTo(1), "Loading does not replay completion.");
             }
             finally
             {
@@ -194,9 +229,7 @@ namespace LKS.Tests
             {
                 // Unity batch mode cannot lock the OS cursor. Use the same scene ray submit handler
                 // reached by the installed action once the player is allowed to interact.
-                var submit = typeof(StationInteraction).GetMethod("Submit", BindingFlags.Instance | BindingFlags.NonPublic);
-                Assert.That(submit, Is.Not.Null, "The installed scene ray submit entry has moved.");
-                Assert.That(submit.Invoke(station, new object[] { ray }), Is.EqualTo(true), station.Feedback);
+                Assert.That(ViewAction(station, "Submit", ray), Is.True, station.Feedback);
                 yield break;
             }
 
@@ -230,10 +263,32 @@ namespace LKS.Tests
             Assert.That(StationEcho.Timeline.Any(frame => frame.Evidence.Kind == EvidenceKind.Fiction), Is.True);
         }
 
-        private static ResearchDraft Draft(ReportInterpretation interpretation) => new ResearchDraft(
-            new[] { ReportObservation.LayersVisible, ReportObservation.IronMineralSigns, ReportObservation.BlankPassed },
-            interpretation, ReportAlternative.WindDeposition, ReportUncertainty.OriginUncertain,
-            ReportFollowUp.CompareNearbyLayersWithBlank);
+        private static bool SceneSubmit(StationInteraction station, StableId id)
+        {
+            var anchor = Object.FindObjectsByType<StationInteractionAnchor>().Single(item => item.TargetId == id);
+            var eye = anchor.Approach.position + Vector3.up * 1.62f;
+            var ray = new Ray(eye, (anchor.transform.position - eye).normalized);
+            Assert.That(station.FindAimedTarget(ray), Is.SameAs(anchor), "Scene ray must reach " + id);
+            return ViewAction(station, "Submit", ray);
+        }
+
+        // Use the installed button and input handlers without giving test code access to World internals in production.
+        private static bool ViewAction(MonoBehaviour view, string method, params object[] args) =>
+            (bool)CallView(view, method, args);
+
+        private static object CallView(MonoBehaviour view, string method, params object[] args)
+        {
+            var action = view.GetType().GetMethod(method, ViewMethods);
+            Assert.That(action, Is.Not.Null, view.GetType().Name + "." + method);
+            return action.Invoke(view, args);
+        }
+
+        private static T ViewProperty<T>(MonoBehaviour view, string name)
+        {
+            var property = view.GetType().GetProperty(name, ViewMethods);
+            Assert.That(property, Is.Not.Null, view.GetType().Name + "." + name);
+            return (T)property.GetValue(view);
+        }
 
         private static GameplaySession Reload(GameplaySession run, StationSaves saves, SessionBootstrap bootstrap, FixedClock clock)
         {
