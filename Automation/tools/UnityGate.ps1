@@ -11,6 +11,9 @@ function Assert-LksUnityResult {
     }
     if ($Mode -eq 'Compile') { return }
     if ($Mode -eq 'Build') {
+        if (!(Select-String -Quiet -LiteralPath $LogPath -Pattern '^W14_STATION_BUILD_PASS ')) {
+            throw 'Unity did not confirm that the station build completed.'
+        }
         $dataDir = Join-Path (Split-Path -Parent $PlayerPath) (([IO.Path]::GetFileNameWithoutExtension($PlayerPath)) + '_Data')
         if (!(Test-Path -LiteralPath $PlayerPath -PathType Leaf) -or
             (Get-Item -LiteralPath $PlayerPath).Length -eq 0 -or

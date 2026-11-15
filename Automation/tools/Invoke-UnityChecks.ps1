@@ -43,7 +43,8 @@ if ($Mode -eq 'Compile') {
     $buildDir = Join-Path $project "Builds/$runId"
     New-Item -ItemType Directory -Path $buildDir | Out-Null
     $exe = Join-Path $buildDir 'LastKnownState.exe'
-    $argsList += @('-quit','-buildWindows64Player',$exe)
+    # The default build settings point to Bootstrap, not the playable station.
+    $argsList += @('-quit','-executeMethod','LKS.Editor.World.W14StationBuild.BuildWindows')
 } else {
     $xml = Join-Path $out "$Mode.xml"
     $argsList += @('-runTests','-testPlatform',$Mode,'-testResults',$xml)
@@ -54,6 +55,7 @@ $info = [Diagnostics.ProcessStartInfo]::new()
 $info.FileName = $unity
 $info.UseShellExecute = $false
 $info.CreateNoWindow = $true
+if ($Mode -eq 'Build') { $info.Environment['LKS_STATION_BUILD_PATH'] = $exe }
 foreach($argument in $argsList) { $info.ArgumentList.Add($argument) }
 $process = [Diagnostics.Process]::Start($info)
 if (!$process.WaitForExit($TimeoutMinutes * 60000)) {

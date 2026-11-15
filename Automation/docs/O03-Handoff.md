@@ -32,7 +32,8 @@ $unity = 'C:/Program Files/Unity/Hub/Editor/6000.6.9f1/Editor/Unity.exe'
 
 The command stops at the first failure. It writes separate logs and NUnit
 reports under `TestResults/<run-id>/` and the player under
-`Builds/<run-id>/`. Keep the entire player directory together. Start
+`Builds/<run-id>/`. Build mode calls the World team's existing station
+builder and requires its success marker. Keep the entire player directory together. Start
 `LastKnownState.exe` and record the commit SHA, Unity version, test totals,
 and whether the player reached the opening. Attach the sanitized log or
 relevant review evidence to the PR. To produce a log with only allowlisted
