@@ -58,6 +58,7 @@ namespace LKS
         private bool batteryReserveMode;
 
         internal Action<decimal, bool, bool, bool, bool> SupplyChanged { get; set; }
+        internal Action<CommandResult, IEnumerable<StableId>> Committed { get; set; }
 
         public PowerSnapshot Snapshot { get; private set; }
         public bool EssentialSupportSupplied =>
@@ -94,9 +95,17 @@ namespace LKS
 
         public CommandResult Commit(IEnumerable<StableId> allocation)
         {
+            var result = ApplyAllocation(allocation, out var selection);
+            Committed?.Invoke(result, selection);
+            return result;
+        }
+
+        private CommandResult ApplyAllocation(IEnumerable<StableId> allocation, out HashSet<StableId> selection)
+        {
+            selection = null;
             if (disposed)
                 return Result(ResultCode.Unavailable, "unavailable");
-            var code = ReadAllocation(allocation, out var selection);
+            var code = ReadAllocation(allocation, out selection);
             if (code != ResultCode.Applied)
                 return AllocationError(code);
             if (!batteryReserveMode && requested.SetEquals(selection))

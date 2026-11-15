@@ -68,6 +68,15 @@ namespace LKS
 
         public CommandResult Choose(FoodSchedule choice)
         {
+            var result = ApplySchedule(choice);
+            Chosen?.Invoke(result, choice);
+            return result;
+        }
+
+        internal Action<CommandResult, FoodSchedule> Chosen { get; set; }
+
+        private CommandResult ApplySchedule(FoodSchedule choice)
+        {
             if (disposed)
                 return Result(ResultCode.Unavailable, "unavailable");
             if (choice != FoodSchedule.PreserveSeedlings && choice != FoodSchedule.RunLab)
