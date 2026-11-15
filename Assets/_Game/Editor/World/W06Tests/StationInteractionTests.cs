@@ -128,11 +128,11 @@ namespace LKS.Editor.World
             Physics.SyncTransforms();
         }
 
-        private static StationInteractionAnchor Anchor(StableId id) =>
+        internal static StationInteractionAnchor Anchor(StableId id) =>
             Object.FindObjectsByType<StationInteractionAnchor>()
                 .Single(anchor => anchor.TargetId == id);
 
-        private static Ray AimAt(StationInteractionAnchor anchor)
+        internal static Ray AimAt(StationInteractionAnchor anchor)
         {
             Vector3 eye = anchor.Approach.position + Vector3.up * 1.62f;
             return new Ray(eye, (anchor.transform.position - eye).normalized);

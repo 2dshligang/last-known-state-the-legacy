@@ -37,6 +37,7 @@ namespace LKS.World
             int replayIndex = StationEcho.Timeline.Count;
             int holdIndex = replayIndex + 1;
             int exitIndex = holdIndex + 1;
+            int investigationIndex = exitIndex + 1;
             Fill(new Rect(0, 0, PanelWidth, PanelHeight), Panel);
             Fill(new Rect(0, 0, PanelWidth, 3), Accent);
             Write(new Rect(24, 15, 784, 49), "ECHO reconstruction", title, Ink);
@@ -49,6 +50,8 @@ namespace LKS.World
                 Close();
                 return;
             }
+            if (Button(new Rect(688, 27, 222, 42), "Investigate incident", investigationIndex, CanInvestigate)
+                && OpenInvestigation()) return;
             if (Playback.Frame == null) return;
             DrawProjection(Playback.Frame);
             DrawRecords();
@@ -130,6 +133,7 @@ namespace LKS.World
             int replay = StationEcho.Timeline.Count;
             int hold = replay + 1;
             int exit = hold + 1;
+            int investigate = exit + 1;
             switch (input.keyCode)
             {
                 case KeyCode.LeftArrow: Scrub(Playback.Seconds - 1); break;
@@ -138,9 +142,10 @@ namespace LKS.World
                 case KeyCode.End: Scrub(StationEcho.DurationSeconds); break;
                 case KeyCode.Tab:
                     int direction = input.shift ? -1 : 1;
-                    keyboardFocus = (keyboardFocus + direction + exit + 1) % (exit + 1);
-                    if (keyboardFocus == hold && !Playback.Playing)
-                        keyboardFocus = (keyboardFocus + direction + exit + 1) % (exit + 1);
+                    int count = investigate + 1;
+                    do { keyboardFocus = (keyboardFocus + direction + count) % count; }
+                    while ((keyboardFocus == hold && !Playback.Playing) ||
+                           (keyboardFocus == investigate && !CanInvestigate));
                     break;
                 case KeyCode.Return:
                 case KeyCode.KeypadEnter:
@@ -148,6 +153,7 @@ namespace LKS.World
                     else if (keyboardFocus == replay) Replay();
                     else if (keyboardFocus == hold && Playback.Playing) Hold();
                     else if (keyboardFocus == exit) Close();
+                    else if (keyboardFocus == investigate) OpenInvestigation();
                     break;
                 default: return;
             }

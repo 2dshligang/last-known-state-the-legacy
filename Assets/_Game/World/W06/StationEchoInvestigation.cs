@@ -38,11 +38,14 @@ namespace LKS.World
         private bool CanControl => isActiveAndEnabled && IsOpen && !player.IsPaused &&
             player.HasApplicationFocus && ReferenceEquals(openedSession, currentSession());
 
+        internal bool HasInvestigation(GameplaySession session) => isActiveAndEnabled && !IsOpen &&
+            session?.Investigation != null && session.Archive != null;
+
         public bool Open(StationFirstPerson input, Func<GameplaySession> session)
         {
             var active = session?.Invoke();
-            if (!isActiveAndEnabled || IsOpen || input == null || input.IsPaused || input.HasReadingFocus ||
-                active?.Investigation == null || active.Archive == null) return false;
+            if (input == null || !input.isActiveAndEnabled || input.IsPaused || input.HasReadingFocus ||
+                !HasInvestigation(active)) return false;
             openedSession = active;
             currentSession = session;
             player = input;
@@ -65,6 +68,13 @@ namespace LKS.World
             Checkpoint = null;
             draft.Clear();
             lease?.Dispose();
+        }
+
+        private void ExitToStation()
+        {
+            var input = player;
+            Close();
+            if (!input.HasWorldFocus) input.ResumePointer();
         }
 
         private void OnDisable() => Close();

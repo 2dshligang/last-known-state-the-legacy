@@ -3012,6 +3012,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6197830041814119030, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
       insertIndex: -1
       addedObject: {fileID: 337964010}
+    - targetCorrespondingSourceObject: {fileID: 6197830041814119030, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 337964011}
   m_SourcePrefab: {fileID: 100100000, guid: 7954f600c2675ff42a6524c9ddbd5249, type: 3}
 --- !u!1 &337964002 stripped
 GameObject:
@@ -3123,6 +3126,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 098d8a1299b097b4ab4dc0f47245d8f2, type: 3}
   m_Name:
   m_EditorClassIdentifier: LKS.World.Interaction::LKS.World.StationEchoReview
+  investigation: {fileID: 337964011}
+--- !u!114 &337964011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337964002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae92099fa26534a4586da04bea9df3bf, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: LKS.World.Interaction::LKS.World.StationEchoInvestigation
 --- !u!1 &353784103
 GameObject:
   m_ObjectHideFlags: 0

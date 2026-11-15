@@ -48,7 +48,7 @@ namespace LKS.World
                 "Fictional ASTERION incident  /  Compare the records and explain what happened.", body, Muted);
             if (Button(new Rect(909, 25, 171, 42), "Exit investigation", keyboardFocus == 9))
             {
-                Close();
+                ExitToStation();
                 return;
             }
             DrawComparison();
@@ -132,7 +132,7 @@ namespace LKS.World
                 keyboardFocus == 8, confirmed && !complete)) ConfirmQuest();
             if (Button(new Rect(705, 494, 360, 36), "Read model and missing interval", keyboardFocus == 6)) InspectContext();
             Write(new Rect(705, 535, 360, 25), openedSession.Archive.RequiredEntryAcknowledged
-                ? "Required archive entry marked as read" : "Mark the NASA training entry as read first", small, Muted);
+                ? "Required archive entry marked as read" : "Mark Solar particle observation as read", small, Muted);
         }
 
         private void DrawSource()
@@ -143,7 +143,7 @@ namespace LKS.World
             Write(new Rect(26, 72, 858, 28), "Source card  /  Fictional ASTERION evidence", body, Muted);
             if (Button(new Rect(909, 25, 171, 42), "Exit investigation", exitFromSource))
             {
-                Close();
+                ExitToStation();
                 return;
             }
             Fill(new Rect(24, 112, 1056, 361), Surface);
@@ -185,7 +185,7 @@ namespace LKS.World
             {
                 if (Source.IsValid)
                 {
-                    if (exitFromSource) Close();
+                    if (exitFromSource) ExitToStation();
                     else ReturnToComparison();
                 }
                 else if (keyboardFocus < 3) Inspect(Clues[keyboardFocus]);
@@ -193,7 +193,7 @@ namespace LKS.World
                 else if (keyboardFocus == 6) InspectContext();
                 else if (keyboardFocus == 7) SubmitOrder();
                 else if (keyboardFocus == 8 && FocusEnabled(8)) ConfirmQuest();
-                else if (keyboardFocus == 9) Close();
+                else if (keyboardFocus == 9) ExitToStation();
             }
             else return;
             input.Use();

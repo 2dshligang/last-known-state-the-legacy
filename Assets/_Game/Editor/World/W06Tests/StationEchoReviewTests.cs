@@ -136,7 +136,7 @@ namespace LKS.Editor.World
             }
         }
 
-        private static void OpenReview(StationInteraction interaction, StationArchiveReader reader, StationEchoReview review)
+        internal static void OpenReview(StationInteraction interaction, StationArchiveReader reader, StationEchoReview review)
         {
             Assert.That(review, Is.Not.Null, "The saved scene must bind the ECHO reconstruction.");
             StationArchiveReaderTests.OpenAtTerminal(interaction, reader);
