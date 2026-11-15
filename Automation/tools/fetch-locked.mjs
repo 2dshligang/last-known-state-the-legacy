@@ -3,6 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { approvedUrl, assert, safePath, noLinks, verifyBytes, writeOnce } from './lib.mjs';
 
+import { readLock } from './source-lock.mjs';
+
 // Downloads only approved, checksum-pinned files. Never extracts archives or executes content.
 export async function fetchEntry(entry, root, hosts, fetcher = fetch) {
     assert(entry.approval === 'approved', 'Entry is not approved');
@@ -40,7 +42,7 @@ export async function fetchEntry(entry, root, hosts, fetcher = fetch) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
     try {
         const root=path.resolve(process.argv[2] || '.');
-        const lock=JSON.parse(await fs.readFile(path.join(root,'sources/downloads.lock.json'),'utf8'));
+        const lock=await readLock(root);
         for(const entry of lock.entries) console.log(`${entry.id}: ${await fetchEntry(entry,root,lock.allowedHosts)}`);
     } catch(e) { console.error(e.message); process.exitCode=1; }
 }

@@ -8,6 +8,8 @@ export function safePath(root, relative) {
     assert(typeof relative === 'string' && relative.length > 0, 'Missing relative path');
     assert(!relative.includes('\\') && !relative.includes(':') && !path.isAbsolute(relative), 'Invalid path');
     assert(relative.split('/').every(p => p && p !== '.' && p !== '..'), 'Unsafe path segment');
+    assert(relative.split('/').every(p => !/[ .]$|[<>"|?*\x00-\x1f]/.test(p) &&
+        !/^(?:con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³]|conin\$|conout\$)(?:\.|$)/i.test(p)), 'Unsafe path segment');
     const target = path.resolve(root, relative);
     assert(target.startsWith(path.resolve(root) + path.sep), 'Path escapes root');
     return target;
@@ -32,6 +34,7 @@ export function approvedUrl(raw, hosts) {
 }
 export function verifyBytes(bytes, entry) {
     assert(bytes.length > 0 && bytes.length <= entry.maxBytes, 'Invalid payload size');
+    if (entry.bytes !== undefined) assert(bytes.length === entry.bytes, 'Pinned byte count mismatch');
     if (entry.format === 'json') JSON.parse(bytes.toString('utf8'));
     else if (entry.format === 'zip') assert(bytes.subarray(0, 4).equals(Buffer.from([80,75,3,4])), 'Expected ZIP; HTML or login page rejected');
     else if (entry.format === 'obj') assert(/^v /m.test(bytes.toString('utf8')), 'Expected OBJ vertices');

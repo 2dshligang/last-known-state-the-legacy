@@ -1,3 +1,4 @@
 # Keep scientific source bytes identical to the downloaded checksum.
 sources/raw/** -text
+sources/terms/** -text
 *.obj text eol=lf

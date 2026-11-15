@@ -61,6 +61,7 @@ namespace LKS.World
             if (!CanOpen(id) || player.IsPaused || player.HasReadingFocus) return false;
             readingSession = Session;
             page = id;
+            keyboard.Reset();
             reading = player.AcquireReadingFocus(Close);
             return true;
         }

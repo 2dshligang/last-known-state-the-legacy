@@ -85,7 +85,9 @@ namespace LKS.World
 
         private void Update()
         {
-            if (IsOpen && !ReferenceEquals(openedSession, currentSession())) Close();
+            if (!IsOpen) return;
+            if (!ReferenceEquals(openedSession, currentSession())) Close();
+            else projection.RefreshTextureIfLost();
         }
 
         private void OnDisable() => Close();

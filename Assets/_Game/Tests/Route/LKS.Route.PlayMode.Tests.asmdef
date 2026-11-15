@@ -1,0 +1,17 @@
+{
+  "name": "LKS.Route.PlayMode.Tests",
+  "rootNamespace": "LKS.Tests",
+  "references": [
+    "LKS.Contracts",
+    "LKS.Data",
+    "LKS.Quests",
+    "LKS.Systems",
+    "LKS.World.Interaction",
+    "LKS.World.FirstPerson",
+    "LKS.World.Station",
+    "Unity.InputSystem"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

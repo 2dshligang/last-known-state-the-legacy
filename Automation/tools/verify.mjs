@@ -1,17 +1,17 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { assert, safePath, verifyBytes, sha256 } from './lib.mjs';
+import { assert, noLinks, safePath, verifyBytes, sha256 } from './lib.mjs';
 import { normalize } from './normalize-donki.mjs';
 
+import { readLock } from './source-lock.mjs';
+
 export async function verify(root) {
-    const lock=JSON.parse(await fs.readFile(path.join(root,'sources/downloads.lock.json'),'utf8'));
-    assert(lock.schemaVersion===1 && lock.entries.length>0,'Missing source lock');
-    const ids=new Set();
-    for (const e of lock.entries) {
-        assert(!ids.has(e.id),'Duplicate source id'); ids.add(e.id);
-        assert(e.approval==='approved' && e.license && e.licenseUrl && e.attribution && e.retrievedAtUtc,'Incomplete provenance');
-        verifyBytes(await fs.readFile(safePath(root,e.path)),e);
+    const lock = await readLock(root);
+    for (const entry of lock.entries) {
+        const target = safePath(root, entry.path);
+        await noLinks(root, target);
+        verifyBytes(await fs.readFile(target), entry);
     }
     const assets=JSON.parse(await fs.readFile(path.join(root,'sources/generated-assets.json'),'utf8'));
     for(const e of assets.entries) assert(sha256(await fs.readFile(safePath(root,e.path)))===e.sha256,'Generated asset changed');

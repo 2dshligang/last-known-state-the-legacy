@@ -1,0 +1,29 @@
+{"surface":"narrative.farewell","text":"January 20, 2059. Alexei is eight. His father Dmitry is leaving for Mars to study ancient rocks. Dmitry gives Alexei a photograph. \"Write down what you see,\" he says. \"Then ask what it could mean.\""}
+{"surface":"narrative.farewell","text":"January 20, 2059. Alexei is eight. His father Dmitry is leaving for Mars to study ancient rocks. Dmitry gives Alexei a photograph. \"Write down what you see,\" he says. \"Then ask what it could mean.\""}
+{"surface":"narrative.arrival","text":"November 14, 2089. Alexei is 39. He carries the photograph into the silent ASTERION station. His father's work is still here. First, he needs to restore air and power."}
+{"surface":"narrative.arrival","text":"November 14, 2089. Alexei is 39. He carries the photograph into the silent ASTERION station. His father's work is still here. First, he needs to restore air and power."}
+{"surface":"quest.objective","text":"NEXT   Arrival check   /   Left"}
+{"surface":"interaction.error","text":"Complete specimen collection at the dust check first."}
+{"surface":"quest.objective","text":"NEXT   Arrival check   /   Ahead"}
+{"surface":"interaction.prompt","text":"E  Confirm arrival\nArrival check"}
+{"surface":"science.label","text":"Archived NASA data"}
+{"surface":"archive.entry","text":"An instrument on SOHO recorded an event involving energetic particles."}
+{"surface":"archive.detail","text":"NASA's archive lists the event on September 4, 2017 at 23:52 UTC. The record identifies the observing instrument. It gives no radiation dose for the surface of Mars."}
+{"surface":"science.label","text":"Simplified model  /  Fictional station values"}
+{"surface":"archive.entry","text":"Air, water and the lab share the station's power."}
+{"surface":"archive.detail","text":"In this simplified game model, a battery stores extra energy. If the station asks for more power than it generates, the battery drains. When it runs low, the system gives air and water higher priority."}
+{"surface":"science.label","text":"Fictional station record"}
+{"surface":"archive.entry","text":"Dmitry kept his rock notes separate from his ideas about how the rocks formed."}
+{"surface":"archive.detail","text":"The station's fictional research notes ask whether fine layers could have formed as sediment settled. Dmitry planned to compare nearby rocks and check for material left behind by the instrument. The expedition ended before he could finish."}
+{"surface":"archive.entry","text":"Alexei arrives at the station where his father worked."}
+{"surface":"archive.detail","text":"In 2059, Alexei said goodbye to his father Dmitry. Thirty years later, he returns to Mars to find out what happened and finish his father's research."}
+{"surface":"quest.objective","text":"NEXT   Exterior sample pickup   /   Left"}
+{"surface":"interaction.prompt","text":"E  Record context\nLayered outcrop"}
+{"surface":"report.feedback","text":"Organics can form without life. The evidence cannot confirm life."}
+{"surface":"science.reference","text":"These fine layers are a clue to how this fictional rock formed. Curiosity studied layered mudstone from an ancient Martian lake."}
+{"surface":"ending.final","text":"Dad... I did it."}
+{"surface":"ending.final","text":"Dad... I did it."}
+{"surface":"credits.team","text":"A game by the LAST KNOWN STATE team."}
+{"surface":"credits.sources","text":"Science references: NASA's DONKI archive and the Canadian Space Agency."}
+{"surface":"menu.main","text":"LAST KNOWN STATE: THE LEGACY"}
+{"surface":"ending.final","text":"Dad... I did it."}

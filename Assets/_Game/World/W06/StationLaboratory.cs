@@ -18,7 +18,8 @@ namespace LKS.World
         private Vector2 scroll;
         private string feedback;
         private float activity;
-        private GUIStyle body, title, subtitle;
+        private readonly StationKeyboardFocus keyboard = new();
+        private GUIStyle body, title, subtitle, button;
 
         internal string BlockReason
         {
@@ -54,6 +55,7 @@ namespace LKS.World
             scroll = Vector2.zero;
             activity = 0;
             feedback = null;
+            keyboard.Reset();
             input = player.AcquireLivePanelFocus(Close);
             return true;
         }
@@ -120,9 +122,21 @@ namespace LKS.World
         private void OnGUI()
         {
             if (!CanControl) return;
-            body ??= new GUIStyle(GUI.skin.label) { fontSize = 17, wordWrap = true };
+            if (keyboard.Handle(Event.current)) return;
+            keyboard.Begin();
+            var input = Event.current;
+            if (input.type == EventType.KeyDown && input.keyCode is KeyCode.PageUp or KeyCode.PageDown)
+            {
+                scroll.y = Mathf.Max(0, scroll.y + (input.keyCode == KeyCode.PageUp ? -180 : 180));
+                input.Use();
+            }
+            body ??= new GUIStyle(GUI.skin.label) { wordWrap = true };
+            body.fontSize = StationUi.TextSize(17, 20);
+            button ??= new GUIStyle(GUI.skin.button) { wordWrap = true };
+            button.fontSize = StationUi.TextSize(14, 17);
             title ??= new GUIStyle(body) { fontSize = 28, fontStyle = FontStyle.Bold };
             subtitle ??= new GUIStyle(body) { fontStyle = FontStyle.Bold };
+            subtitle.fontSize = body.fontSize;
             const float width = 760, height = 535;
             float scale = Mathf.Min(1.4f, Screen.width / (width + 24), Screen.height / (height + 24));
             var previous = GUI.matrix;
@@ -136,13 +150,12 @@ namespace LKS.World
                 GUI.DrawTexture(new Rect(0, 0, width, height), Texture2D.whiteTexture);
                 GUI.color = color;
                 GUI.Label(new Rect(18, 10, 525, 37), "Sample analysis laboratory", title);
-                if (GUI.Button(new Rect(621, 14, 120, 30), "Return to station"))
-                {
-                    Close();
+                if (keyboard.Button(new Rect(581, 14, 160, 30), "Return to station", "close", button, Close))
                     return;
-                }
+                GUI.Label(new Rect(18, 503, 724, 25),
+                    "Tab and Enter select. Page Up and Page Down scroll the reading.", body);
 
-                GUILayout.BeginArea(new Rect(18, 55, 724, 467));
+                GUILayout.BeginArea(new Rect(18, 55, 724, 439));
                 try { DrawReadings(); }
                 finally { GUILayout.EndArea(); }
             }
@@ -170,16 +183,15 @@ namespace LKS.World
                 string status = Powered ? "Analyzing" + new string('.', 1 + (int)(activity * 3)) : "Paused until lab power returns";
                 GUILayout.Label(status + "  " + Name(pending.Definition.Id), subtitle);
                 GUILayout.Label("Compare field notes with the empty control, or return to the station.", body);
-                if (GUILayout.Button("Cancel active run", GUILayout.Height(26))) CancelAnalysis();
+                ActionButton("Cancel active run", "cancel", () => CancelAnalysis(), height: 26);
             }
 
             GUILayout.BeginHorizontal();
             foreach (var id in new[] { StationSamples.Blank, new StableId("sample.layered-mudstone"),
                 new StableId("sample.iron-rich-rock") })
             {
-                if (!GUILayout.Button(Name(id) + (id == selected ? "  [Selected]" : ""), GUILayout.Height(32))) continue;
-                selected = id;
-                scroll = Vector2.zero;
+                ActionButton(Name(id) + (id == selected ? "  [Selected]" : ""), id.value,
+                    () => { selected = id; scroll = Vector2.zero; }, height: 32);
             }
             GUILayout.EndHorizontal();
 
@@ -190,11 +202,11 @@ namespace LKS.World
             if (samples.BlankControl == ControlStatus.Invalid && pending == null)
             {
                 GUILayout.Label("Clean the chamber and run a fresh blank. Cleaning keeps the samples and clears old results.", body);
-                if (GUILayout.Button("Clean chamber", GUILayout.Height(28))) Clean();
+                ActionButton("Clean chamber", "clean", () => Clean(), height: 28);
             }
             if (!string.IsNullOrEmpty(feedback)) GUILayout.Label(feedback, subtitle);
-            if (samples.AllReviewed && session.Quests.Snapshot[Target] == QuestStatus.Available &&
-                GUILayout.Button("Confirm sample analysis", GUILayout.Height(32))) Confirm();
+            if (samples.AllReviewed && session.Quests.Snapshot[Target] == QuestStatus.Available)
+                ActionButton("Confirm sample analysis", "confirm", () => Confirm(), height: 32);
             if (session.Quests.Snapshot[Target] == QuestStatus.Completed)
                 GUILayout.Label("Sample analysis complete. Continue to the research report.", subtitle);
         }
@@ -203,14 +215,19 @@ namespace LKS.World
         {
             var id = reading.Definition.Id;
             GUILayout.Label(Name(id), subtitle);
+            if (id == StationSamples.Blank)
+                GUILayout.Label("A blank is an empty control. It checks whether the tools or instrument add a signal.", body);
             GUILayout.Label(Resolve(reading.Definition.ContextKey), body);
             GUILayout.Label("NASA reference for context", subtitle);
             GUILayout.Label(reading.Definition.Reference.AbsoluteUri, body);
-            if (GUILayout.Button("Open NASA reference")) Application.OpenURL(reading.Definition.Reference.AbsoluteUri);
+            ActionButton("Open NASA reference", "source",
+                () => Application.OpenURL(reading.Definition.Reference.AbsoluteUri), inReading: true);
 
             if (reading.Phase >= SamplePhase.EvidenceAvailable)
             {
-                GUILayout.Label("Simulated instrument response / Fiction", subtitle);
+                const string fictional = "Simulated instrument response / Fiction";
+                StationTextCapture.Record("science.sample", fictional);
+                GUILayout.Label(fictional, subtitle);
                 GUILayout.Label(Resolve(reading.ObservationKey), body);
                 GUILayout.Label(Resolve(reading.InterpretationKey), body);
                 if (reading.Phase == SamplePhase.Reviewed)
@@ -221,17 +238,36 @@ namespace LKS.World
                     string supported = control == ControlStatus.Valid
                         ? "Compare with the passed blank before interpreting the result"
                         : "Treat the result as limited until the blank passes";
-                    if (GUILayout.Button(supported)) Interpret(id, true);
-                    if (GUILayout.Button("Treat the signal as proof of life")) Interpret(id, false);
+                    ActionButton(supported, "compare", () => Interpret(id, true), inReading: true);
+                    ActionButton("Treat the signal as proof of life", "unsupported",
+                        () => Interpret(id, false), inReading: true);
                 }
             }
             else if (reading.Phase == SamplePhase.Collected)
             {
-                if (GUILayout.Button("Run analysis")) StartAnalysis(id);
+                ActionButton("Run analysis", "analyze", () => StartAnalysis(id), inReading: true);
             }
             else if (reading.Phase < SamplePhase.Collected)
                 GUILayout.Label("Prepare or collect this specimen at its station first.", body);
 
+        }
+
+        private void ActionButton(string label, string id, Action action, bool inReading = false, float height = 0)
+        {
+            bool clicked = height > 0 ? GUILayout.Button(label, button, GUILayout.Height(height)) :
+                GUILayout.Button(label, button);
+            if (Event.current.type == EventType.Repaint)
+            {
+                Rect area = GUILayoutUtility.GetLastRect();
+                keyboard.Register(area, id, action, reveal: inReading ? () => RevealReadingControl(area) : null);
+            }
+            if (clicked) action();
+        }
+
+        private void RevealReadingControl(Rect area)
+        {
+            if (area.y < scroll.y || area.yMax > scroll.y + 160)
+                scroll.y = Mathf.Max(0, area.y - 32);
         }
 
         private static string Name(StableId id) => id.value switch

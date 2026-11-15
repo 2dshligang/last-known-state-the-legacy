@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "sdk": "8.0.318",
+  "formatter": "8.3.631206+c7e5d39bdc5e4a2fedd4fb4f46e35a9843ddff4a",
+  "analyzerSha256": {
+    "Unity.Analyzers.Common.dll": "0244788b4846e8ba24a538f88bb6460fef5e5efd5ba3fee8b864e81917048b71",
+    "Unity.Analyzers.LongLiving.dll": "515ac3dd9618bc24a7b885a483bbc1f6a550d6d081851e59ec1890466aefc66f"
+  },
+  "whitespaceBaseline": {
+    "Assets/_Game/Editor/World/W02Inspection.cs": 1,
+    "Assets/_Game/Editor/World/W03StationKit.cs": 313,
+    "Assets/_Game/Editor/World/W03Verification.cs": 10,
+    "Assets/_Game/Editor/World/W04StationGenerator.cs": 14,
+    "Assets/_Game/Editor/World/W04StationPlan.cs": 483,
+    "Assets/_Game/Editor/World/W04Verification.cs": 43,
+    "Assets/_Game/Editor/World/W05StationPlayerSetup.cs": 2,
+    "Assets/_Game/Editor/World/W15AVisualSetup.Plan.cs": 8,
+    "Assets/_Game/Science/Editor/DonkiSnapshotImporter.cs": 3,
+    "Assets/_Game/Systems/StationSaves.cs": 15,
+    "Assets/_Game/Tests/Systems/ReleaseAuditTests.cs": 5,
+    "Assets/_Game/World/W05/StationInputOverlay.cs": 1,
+    "Assets/_Game/World/W06/EchoProjection.cs": 42
+  }
+}
