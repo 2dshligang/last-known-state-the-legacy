@@ -51,7 +51,8 @@ namespace LKS.Editor.World
                 material.SetFloat("_Smoothness", entry.Smooth);
                 if (entry.Name == "Diffuser")
                 {
-                    material.SetColor("_EmissionColor", new Color(.19f, .26f, .23f));
+                    material.SetColor("_EmissionColor", new Color(.42f, .55f, .50f));
+                    material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.BakedEmissive;
                     material.EnableKeyword("_EMISSION");
                 }
                 AssetDatabase.CreateAsset(material, path);
