@@ -357,6 +357,8 @@ namespace LKS.Editor.World
         {
             yield return EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters(LoadSceneMode.Single));
             yield return null;
+            Object.FindAnyObjectByType<SessionBootstrap>().Current.Narrative.SkipOpening();
+            yield return null;
             Object.FindAnyObjectByType<StationFirstPerson>().SendMessage("OnApplicationFocus", true);
         }
 

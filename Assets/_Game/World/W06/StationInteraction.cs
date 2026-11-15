@@ -28,6 +28,7 @@ namespace LKS.World
         private StationInteractionAnchor[] anchors;
         private GameplaySession observed;
         private StationLaboratory laboratory;
+        private StationOpening opening;
         private string feedback = "";
         private double feedbackUntil;
         private double nextUse;
@@ -49,6 +50,10 @@ namespace LKS.World
                 laboratory = gameObject.AddComponent<StationLaboratory>();
                 laboratory.Bind(player, this, text);
             }
+            var photoAnchor = anchors.FirstOrDefault(anchor => anchor.TargetId.value == "quest.ending");
+            var photoStand = station.Entries.FirstOrDefault(entry => entry.id.value == "fixture.photo");
+            opening = gameObject.AddComponent<StationOpening>();
+            opening.Bind(player, this, photoAnchor, photoStand?.node?.GetComponent<Renderer>()?.sharedMaterial);
             string[] missing = StationQuests.ValidateReachability(ids).ToArray();
             if (missing.Length != 0) StartError = "Some station controls are unavailable.";
         }
@@ -63,6 +68,7 @@ namespace LKS.World
         {
             player.InteractPressed -= OnInteractionPressed;
             player.RestartRequested -= NewRun;
+            opening?.Close();
         }
 
         private void Start()
@@ -87,13 +93,16 @@ namespace LKS.World
         public bool Restore(PowerCheckpoint power, IEnumerable<StableId> quests,
             LifeSupportCheckpoint lifeSupport, LogisticsCheckpoint logistics,
             IEnumerable<StableId> archive, EchoInvestigationCheckpoint investigation, SampleCheckpoint samples,
-            ResearchDraft research)
+            ResearchDraft research, OpeningProgress? openingCheckpoint = null)
         {
+            var restoredQuests = quests?.ToArray();
             var errors = bootstrap.RestartWithPower(science, RequiredScience,
                 () => Array.Empty<IInteractable>(), _ => ResultCode.EvidenceInsufficient,
-                powerCheckpoint: power, questCheckpoint: quests, lifeSupportCheckpoint: lifeSupport,
+                powerCheckpoint: power, questCheckpoint: restoredQuests, lifeSupportCheckpoint: lifeSupport,
                 logisticsCheckpoint: logistics, archiveCheckpoint: archive,
-                investigationCheckpoint: investigation, sampleCheckpoint: samples, researchCheckpoint: research);
+                investigationCheckpoint: investigation, sampleCheckpoint: samples, researchCheckpoint: research,
+                openingCheckpoint: openingCheckpoint ?? (restoredQuests?.Length > 0
+                    ? OpeningProgress.Complete : OpeningProgress.Farewell));
             if (errors.Count != 0)
             {
                 StartError = errors[0];
@@ -104,6 +113,7 @@ namespace LKS.World
             nextUse = 0;
             feedback = "";
             player.RestartAtSpawn();
+            opening?.Sync();
             gate.Present(HasDoorPower, player.transform.position);
             return true;
         }

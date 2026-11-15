@@ -84,7 +84,8 @@ namespace LKS.Editor.World
             var clock = new Clock();
             var stages = StationQuests.RequiredStages.Take(2).ToArray();
             var errors = bootstrap.RestartWithPower(bootstrap.Current.Science, Array.Empty<StableId>(),
-                () => Array.Empty<IInteractable>(), _ => ResultCode.EvidenceInsufficient, questCheckpoint: stages, clock: clock);
+                () => Array.Empty<IInteractable>(), _ => ResultCode.EvidenceInsufficient, questCheckpoint: stages, clock: clock,
+                openingCheckpoint: OpeningProgress.Complete);
             Assert.That(errors, Is.Empty);
             var session = bridge.Session;
             Assert.That(reader.MarkAsRead(), Is.False);
@@ -135,6 +136,8 @@ namespace LKS.Editor.World
         private static IEnumerator LoadStation()
         {
             yield return EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters(LoadSceneMode.Single));
+            yield return null;
+            Object.FindAnyObjectByType<SessionBootstrap>().Current.Narrative.SkipOpening();
             yield return null;
             Object.FindAnyObjectByType<StationFirstPerson>().SendMessage("OnApplicationFocus", true);
         }
