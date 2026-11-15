@@ -1,7 +1,10 @@
 name: LKS Tooling
 
 on:
+  workflow_call:
   pull_request:
+  merge_group:
+    types: [checks_requested]
   push:
     branches:
       - main
@@ -11,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: lks-tooling-${{ github.event.pull_request.number || github.ref }}
+  group: lks-tooling-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -32,11 +35,17 @@ jobs:
       - name: Verify source hashes and exact derived data
         working-directory: Automation
         run: node tools/verify.mjs
+      - name: Check Unity asset inventory
+        run: node Automation/tools/unity-policy.mjs .
+      - name: Test Unity result and gate validation
+        shell: pwsh
+        run: ./Automation/tests/Test-UnityGate.ps1
       - name: Verify repeatable generation
         working-directory: Automation
         run: |
           node tools/normalize-donki.mjs
           node tools/fallbacks.mjs
           git diff --exit-code -- samples sources
+          test -z "$(git ls-files --others --exclude-standard -- samples sources)"
       - name: Report scope
         run: echo 'Tooling validation only. Unity game compilation, tests, build and release readiness are NOT established by this workflow.'

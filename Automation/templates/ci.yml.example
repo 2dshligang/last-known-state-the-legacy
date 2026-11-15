@@ -1,4 +1,4 @@
-# TEMPLATE ONLY. Install after O01-O03; do not use a personal PC as this runner.
+# TEMPLATE ONLY. Activate after provisioning and validating the isolated runner.
 # Repository layout: Unity project at root; this toolkit at Automation/.
 name: lks-ci
 on:
@@ -14,22 +14,10 @@ concurrency:
   cancel-in-progress: true
 jobs:
   policy:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2; re-verify at install
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '24'
-      - run: node --test Automation/tests/*.test.mjs
-      - run: node Automation/tools/verify.mjs Automation
-      - run: node Automation/tools/unity-policy.mjs .
-      - run: git diff --check
+    uses: ./.github/workflows/lks-tooling.yml
   unity:
     # Never run an untrusted fork on a runner with a Unity license or internal access.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    if: vars.LKS_CI_READY == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: [self-hosted, Windows, X64, lks-ephemeral]
     environment: unity-ci
     timeout-minutes: 90
@@ -45,6 +33,9 @@ jobs:
         run: |
           if ($env:READY -ne 'true') { throw 'CI provisioning is incomplete.' }
           if (!$env:UNITY_EDITOR_PATH) { throw 'Runner must supply UNITY_EDITOR_PATH.' }
+      - name: Unity script compilation
+        shell: pwsh
+        run: ./Automation/tools/Invoke-UnityChecks.ps1 -ProjectPath . -UnityPath $env:UNITY_EDITOR_PATH -Mode Compile
       - name: EditMode tests
         shell: pwsh
         run: ./Automation/tools/Invoke-UnityChecks.ps1 -ProjectPath . -UnityPath $env:UNITY_EDITOR_PATH -Mode EditMode
@@ -58,27 +49,37 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2; re-verify at install
         with:
-          name: diagnostics-${{ github.sha }}-${{ github.run_attempt }}
-          path: TestResults/
+          name: diagnostics-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            TestResults/*/*.log
+            TestResults/*/*.xml
           retention-days: 7
           if-no-files-found: error
       - name: Upload build
         if: success()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: windows-${{ github.sha }}-${{ github.run_attempt }}
+          name: windows-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: Builds/
           retention-days: 14
           if-no-files-found: error
   gate:
+    name: Unity validation gate
     if: always()
     needs: [policy, unity]
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - env:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - shell: pwsh
+        env:
           POLICY: ${{ needs.policy.result }}
           UNITY: ${{ needs.unity.result }}
-        run: test "$POLICY" = success && test "$UNITY" = success
-# Require lks-ci / gate using the actual check context returned by GitHub.
+        run: |
+          . ./Automation/tools/UnityGate.ps1
+          Assert-LksGate -Policy $env:POLICY -Unity $env:UNITY
+# Read the actual check context returned by GitHub before making it required.
 # Add the separate trusted merge-policy check before enabling auto-merge.
 # Fork PRs intentionally fail the aggregate gate; use an isolated review process.
