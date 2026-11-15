@@ -29,6 +29,10 @@ namespace LKS.World
         // Presentation-only events. W06 resolves the target and sends the authoritative request.
         public event Action InteractPressed;
         public event Action RestartRequested;
+        public event Action GameMenuRequested;
+
+        internal bool HasGameMenu => GameMenuRequested != null;
+        internal void RequestGameMenu() => GameMenuRequested?.Invoke();
 
         internal void RequestRestart()
         {
