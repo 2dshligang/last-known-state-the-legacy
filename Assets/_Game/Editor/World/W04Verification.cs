@@ -126,9 +126,10 @@ namespace LKS.Editor.World
             // These are the IDs from the accepted S03 handoff. Scene code adds no policy.
             var expected = new[] { "quest.arrival", "quest.safe-power", "target.power-recovery",
                 "quest.echo-evidence", "quest.sampling", "quest.analysis", "quest.report", "quest.ending",
-                StationShelterSet.ShelterTarget.value, StationShelterSet.SeedlingTarget.value };
+                StationShelterSet.ShelterTarget.value, StationShelterSet.SeedlingTarget.value,
+                "sample.layered-mudstone", "sample.iron-rich-rock", "sample.procedural-blank" };
             Check(expected.OrderBy(id => id).SequenceEqual(targets.Select(id => id.value).OrderBy(id => id)),
-                "Scene anchor IDs differ from the S03 handoff.");
+                "Scene anchor IDs differ from the S03, W08 and S10 bindings.");
             var near = W04StationPlan.LoopNear(configuration);
             var far = W04StationPlan.LoopFar(configuration);
             var entry = W04StationPlan.Entry(configuration);
@@ -138,13 +139,23 @@ namespace LKS.Editor.World
                 new Vector3(side,0,far.z), new Vector3(side,0,near.z), near, entry,
                 new Vector3(0,0,configuration.BayLength*4.49f) };
             int samples = 0;
-            for (int i = 1; i < route.Length; i++) samples += Traverse(route[i - 1], route[i]);
+            for (int i = 1; i < route.Length; i++)
+            {
+                samples += Traverse(route[i - 1], route[i]);
+                samples += Traverse(route[i], route[i - 1]);
+            }
             foreach (var anchor in anchors)
             {
                 var approach = anchor.Approach.position;
-                if (anchor.TargetId.value != "quest.sampling")
-                    samples += Traverse(new Vector3(0,0,approach.z), approach);
-                else CheckFloorAndClearance(approach);
+                if (anchor.TargetId.value == "quest.sampling")
+                    CheckFloorAndClearance(approach);
+                else
+                {
+                    float routeX = approach.z > configuration.InteriorEnd ? Mathf.Sign(approach.x) * side : 0;
+                    var junction = new Vector3(routeX, 0, approach.z);
+                    samples += Traverse(junction, approach);
+                    samples += Traverse(approach, junction);
+                }
                 var eye = approach + Vector3.up * 1.55f;
                 Check(Vector3.Distance(eye, anchor.transform.position) < 1.5f &&
                     !Physics.Linecast(eye, anchor.transform.position, 1, QueryTriggerInteraction.Ignore),
