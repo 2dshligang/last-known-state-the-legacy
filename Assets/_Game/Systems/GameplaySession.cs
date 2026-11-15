@@ -33,10 +33,12 @@ namespace LKS
         }
 
         public IScienceCatalog Science { get; }
+        public StationPacing Pacing { get; } = new StationPacing();
         public double Snapshot { get; private set; }
         private StationQuests quests;
         private bool powerReadingPaused;
         private bool archiveReadingPaused;
+        private bool pacingWaiting;
         private decimal powerClockPosition;
         public StationPower Power { get; private set; }
         public StationLifeSupport LifeSupport { get; private set; }
@@ -51,6 +53,7 @@ namespace LKS
         internal void AttachResearch(ResearchDraft checkpoint, OpeningProgress openingCheckpoint)
         {
             Research = new StationResearch(Samples, Investigation, () => ++sequence, pending.Enqueue, checkpoint);
+            Research.Submitted = Pacing.Report;
             Narrative = new StationNarrative(Research, openingCheckpoint);
             Ending = new StationEnding(this);
         }
@@ -63,6 +66,7 @@ namespace LKS
         {
             Archive = new StationArchive(this, checkpoint);
             Investigation = new EchoInvestigation(Archive, investigationCheckpoint);
+            Investigation.Attempted = Pacing.Interaction;
             Echo = new StationEcho(() => ++sequence, pending.Enqueue);
         }
 
@@ -78,7 +82,9 @@ namespace LKS
         {
             LifeSupport = new StationLifeSupport(() => ++sequence, pending.Enqueue, checkpoint);
             Logistics = new StationLogistics(Power, logisticsCheckpoint);
+            Logistics.Chosen = Pacing.Food;
             Samples = new StationSamples(Power, () => ++sequence, pending.Enqueue, sampleCheckpoint);
+            Samples.Attempted = Pacing.Interaction;
             Power.SupplyChanged = (duration, support, actuator, transmitter, lab) =>
             {
                 LifeSupport.Advance(duration, support, actuator);
@@ -91,6 +97,7 @@ namespace LKS
         internal void AttachPower(PowerCheckpoint checkpoint)
         {
             Power = new StationPower(() => ++sequence, pending.Enqueue, checkpoint);
+            Power.Committed = Pacing.Power;
         }
 
         public void SetPowerReadingPaused(bool paused)
@@ -100,6 +107,15 @@ namespace LKS
                 return;
             Tick();
             powerReadingPaused = paused;
+        }
+
+        // Presentation may mark a blocking wait for QA. This does not pause the simulation.
+        public void SetPacingWaiting(bool waiting)
+        {
+            EnsureActive();
+            if (pacingWaiting == waiting) return;
+            Tick();
+            pacingWaiting = waiting;
         }
         public IQuestService Quests => quests;
 
@@ -116,8 +132,9 @@ namespace LKS
         {
             quests = new StationQuests(readiness, recovery, checkpoint, () => ++sequence, pending.Enqueue);
             foreach (var target in quests.CreateTargets())
-                targets.Add(target.Id, Ending != null && target.Id == StationEnding.Photograph
-                    ? Ending.BindPhotograph(target) : target);
+                targets.Add(target.Id, new ObservedTarget(this, Ending != null && target.Id == StationEnding.Photograph
+                    ? Ending.BindPhotograph(target) : target));
+            Pacing.SetChapter(quests);
         }
 
         public bool TryGetTarget(StableId id, out IInteractable target)
@@ -154,7 +171,9 @@ namespace LKS
                 powerClockPosition = position;
             }
 
-            Echo?.Advance((decimal)elapsed - (decimal)Snapshot);
+            decimal seconds = (decimal)elapsed - (decimal)Snapshot;
+            Echo?.Advance(seconds);
+            Pacing.Advance(seconds, powerReadingPaused || archiveReadingPaused, pacingWaiting);
             Snapshot = elapsed;
             var change = new StateChange<double>(++sequence, SessionId, TickId, elapsed);
             foreach (var listener in subscriptions.ToArray())
@@ -199,6 +218,7 @@ namespace LKS
             if (disposed)
                 return;
             disposed = true;
+            Pacing.Stop();
             pending.Clear();
             targets.Clear();
             quests?.Dispose();
@@ -219,6 +239,30 @@ namespace LKS
         {
             if (disposed)
                 throw new ObjectDisposedException(nameof(GameplaySession));
+        }
+
+        private sealed class ObservedTarget : IInteractable
+        {
+            private readonly GameplaySession session;
+            private readonly IInteractable target;
+
+            public ObservedTarget(GameplaySession session, IInteractable target)
+            {
+                this.session = session;
+                this.target = target;
+            }
+
+            public StableId Id => target.Id;
+
+            public InteractionState Read(StableId actor) => target.Read(actor);
+
+            public CommandResult Request(StableId actor, StableId action)
+            {
+                var result = target.Request(actor, action);
+                session.Pacing.Interaction(Id, result);
+                session.Pacing.SetChapter(session.quests);
+                return result;
+            }
         }
 
         private sealed class Subscription : IDisposable

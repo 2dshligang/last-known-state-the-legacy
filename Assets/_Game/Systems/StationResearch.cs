@@ -97,6 +97,15 @@ namespace LKS
 
         public CommandResult Submit(ResearchDraft draft)
         {
+            var result = Accept(draft);
+            Submitted?.Invoke(result);
+            return result;
+        }
+
+        internal Action<CommandResult> Submitted { get; set; }
+
+        private CommandResult Accept(ResearchDraft draft)
+        {
             var result = Evaluate(draft);
             if (!result.Succeeded)
                 return result;

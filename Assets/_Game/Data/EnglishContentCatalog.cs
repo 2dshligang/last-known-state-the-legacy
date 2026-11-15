@@ -160,6 +160,16 @@ save.result.loaded|Game loaded.
 save.result.backup-loaded|Loaded the previous good save.
 save.result.empty-slot|There is no save in this slot.
 save.result.corrupt|This save could not be recovered.
+hint.pacing.power|Keep air and water powered first. Turn off an optional load, then try again.
+hint.pacing.previous-step|Follow the current objective first. This step opens after it is complete.
+hint.pacing.archive|Open Solar particle observation in the station archive and mark it as read.
+hint.pacing.echo-clues|Inspect all three clues. Put the old reading before the controller action, then the outage.
+hint.pacing.samples|Record the context and collect both rocks. Prepare the empty control in the lab.
+hint.pacing.blank|A clean empty control helps you tell what came from the sample. Run and review the blank.
+hint.pacing.lab-power|The analyzer needs power. Keep air and water on, then switch an optional load off to power the lab.
+hint.pacing.review|Review both rock results before choosing observations for the report.
+hint.pacing.report-limit|Report what the evidence supports. These observations cannot tell us whether life was present.
+hint.pacing.report-sections|Fill in each section. Use the observations you reviewed to explain your choice.
 logistics.result.unavailable|This control is unavailable.
 logistics.result.invalid-choice|Choose seedling care or lab power.
 logistics.result.unknown-message|Unknown message.

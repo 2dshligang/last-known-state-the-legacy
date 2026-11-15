@@ -84,7 +84,17 @@ namespace LKS
 
         public SampleCheckpoint Capture() => new SampleCheckpoint(phases, BlankControl, pendingId, remaining, chamberClean);
 
-        public CommandResult RecordContext(StableId specimen)
+        internal Action<StableId, CommandResult> Attempted { get; set; }
+
+        private CommandResult Observe(StableId specimen, CommandResult result)
+        {
+            Attempted?.Invoke(specimen, result);
+            return result;
+        }
+
+        public CommandResult RecordContext(StableId specimen) => Observe(specimen, Record(specimen));
+
+        private CommandResult Record(StableId specimen)
         {
             if (!CanUse(specimen, out var phase, out var error))
                 return error;
@@ -94,7 +104,9 @@ namespace LKS
             return Changed("context-recorded");
         }
 
-        public CommandResult Collect(StableId specimen)
+        public CommandResult Collect(StableId specimen) => Observe(specimen, PickUp(specimen));
+
+        private CommandResult PickUp(StableId specimen)
         {
             if (!CanUse(specimen, out var phase, out var error))
                 return error;
@@ -106,7 +118,9 @@ namespace LKS
             return Changed("collected");
         }
 
-        public CommandResult Analyze(StableId specimen)
+        public CommandResult Analyze(StableId specimen) => Observe(specimen, StartAnalysis(specimen));
+
+        private CommandResult StartAnalysis(StableId specimen)
         {
             if (!CanUse(specimen, out var phase, out var error))
                 return error;
@@ -160,7 +174,9 @@ namespace LKS
             return Changed("cleaned");
         }
 
-        public CommandResult Review(StableId specimen)
+        public CommandResult Review(StableId specimen) => Observe(specimen, ReviewResult(specimen));
+
+        private CommandResult ReviewResult(StableId specimen)
         {
             if (!CanUse(specimen, out var phase, out var error))
                 return error;

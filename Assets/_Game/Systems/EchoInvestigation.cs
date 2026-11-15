@@ -25,6 +25,7 @@ namespace LKS
         public static readonly StableId Timing = new StableId("echo.stale-input");
         public static readonly StableId Decision = new StableId("echo.controller-decision");
         public static readonly StableId Consequence = new StableId("echo.backup-exhausted");
+        public static readonly StableId SequenceSubject = new StableId("echo.asterion");
         private static readonly IReadOnlyList<StableId> Clues = Array.AsReadOnly(new[] { Timing, Decision, Consequence });
         public static IReadOnlyList<StableId> RequiredClues => Clues;
         public static readonly TimeSpan MaximumControlAge = TimeSpan.FromMinutes(1);
@@ -35,6 +36,7 @@ namespace LKS
         private readonly HashSet<StableId> collected = new HashSet<StableId>();
         private bool confirmed;
         private bool stopped;
+        internal Action<StableId, CommandResult> Attempted { get; set; }
 
         internal EchoInvestigation(StationArchive archive, EchoInvestigationCheckpoint checkpoint)
         {
@@ -79,6 +81,13 @@ namespace LKS
 
         public CommandResult Collect(StableId id)
         {
+            var result = CollectClue(id);
+            Attempted?.Invoke(id, result);
+            return result;
+        }
+
+        private CommandResult CollectClue(StableId id)
+        {
             if (stopped)
                 return Result(ResultCode.Unavailable, "unavailable");
             if (!Clues.Contains(id))
@@ -91,6 +100,13 @@ namespace LKS
         }
 
         public CommandResult SubmitSequence(IReadOnlyList<StableId> order)
+        {
+            var result = ConfirmSequence(order);
+            Attempted?.Invoke(SequenceSubject, result);
+            return result;
+        }
+
+        private CommandResult ConfirmSequence(IReadOnlyList<StableId> order)
         {
             if (stopped)
                 return Result(ResultCode.Unavailable, "unavailable");
