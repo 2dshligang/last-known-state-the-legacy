@@ -33,9 +33,20 @@ jobs:
         run: |
           if ($env:READY -ne 'true') { throw 'CI provisioning is incomplete.' }
           if (!$env:UNITY_EDITOR_PATH) { throw 'Runner must supply UNITY_EDITOR_PATH.' }
+          $editor = Split-Path -Parent (Resolve-Path -LiteralPath $env:UNITY_EDITOR_PATH)
+          foreach ($relative in @(
+              'Data/Resources/Licensing/Client/Unity.Licensing.Client.exe',
+              'Data/Resources/PackageManager/Server/UnityPackageManager.exe',
+              'Data/PlaybackEngines/WindowsStandaloneSupport/Variations/win64_player_nondevelopment_mono'
+          )) {
+              if (!(Test-Path -LiteralPath (Join-Path $editor $relative))) { throw "Runner component missing: $relative" }
+          }
       - name: Unity script compilation
         shell: pwsh
         run: ./Automation/tools/Invoke-UnityChecks.ps1 -ProjectPath . -UnityPath $env:UNITY_EDITOR_PATH -Mode Compile
+      - name: Check pinned C# analyzers and formatting
+        shell: pwsh
+        run: ./Automation/tools/Invoke-CSharpQuality.ps1 -ProjectPath . -UnityPath $env:UNITY_EDITOR_PATH
       - name: EditMode tests
         shell: pwsh
         run: ./Automation/tools/Invoke-UnityChecks.ps1 -ProjectPath . -UnityPath $env:UNITY_EDITOR_PATH -Mode EditMode
@@ -45,14 +56,16 @@ jobs:
       - name: Windows build
         shell: pwsh
         run: ./Automation/tools/Invoke-UnityChecks.ps1 -ProjectPath . -UnityPath $env:UNITY_EDITOR_PATH -Mode Build
-      - name: Upload diagnostics
+      - name: Export diagnostic log
+        if: always()
+        shell: pwsh
+        run: ./Automation/tools/Export-UnityDiagnostics.ps1 -ResultsPath TestResults -OutputPath UnityDiagnostics.log
+      - name: Upload diagnostic log
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2; re-verify at install
         with:
           name: diagnostics-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            TestResults/*/*.log
-            TestResults/*/*.xml
+          path: UnityDiagnostics.log
           retention-days: 7
           if-no-files-found: error
       - name: Upload build

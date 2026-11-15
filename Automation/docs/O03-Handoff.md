@@ -22,7 +22,9 @@ The coordinator and repository administrator own the runner handoff.
    and the trusted workflow. Review the source of merge groups admitted to
    the runner. Keep licensing credentials out of workflow inputs and published files.
 2. Configure the `unity-ci` environment and set `UNITY_EDITOR_PATH` on the
-   runner. Confirm logs and XML contain no secrets before enabling uploads.
+   runner. The artifact contains an allowlisted diagnostic log with diagnostic
+   codes and test totals. Raw logs, XML, and formatter reports stay on the
+   runner for authorized inspection.
    Set repository variable `LKS_CI_READY=true` after provisioning and copy
    `Automation/templates/ci.yml.example` into `.github/workflows`.
 3. Run the full workflow on a passing revision and deliberate compile,
@@ -30,15 +32,24 @@ The coordinator and repository administrator own the runner handoff.
    branch and runner. Check Win64 player smoke separately. Record the
    actual GitHub check context before changing branch protection.
    The intended job label is **Unity validation gate**.
-4. Audit C# formatting with Unity's bundled SDK `8.0.318` and its
-   `dotnet format` version `8.3.631206`. From the repository root run
-   `<Unity Editor directory>/Data/DotNetSdk/dotnet.exe format whitespace Assets/_Game --folder --verify-no-changes`.
-   The current baseline returns exit 2 with existing whitespace violations.
-   Coordinate baseline fixes and a pinned semantic analyzer with both code
-   owners before installing these as required checks.
+4. After compilation, run `./Automation/tools/Invoke-CSharpQuality.ps1
+   -ProjectPath . -UnityPath <Unity.exe>`. It verifies the SHA-256 hashes
+   and compiler registration of the bundled Unity Roslyn analyzers plus
+   the exact bundled SDK and formatter versions in
+   `sources/csharp-quality.json` (schema 1). It rejects increases in the
+   per-file whitespace count. A different finding can replace one removed
+   within a legacy file without raising its count. As the owners fix legacy
+   files, reduce those counts through review until the baseline is empty.
 
 The full workflow template compiles scripts, runs both suites, and builds
 Win64. Each invocation has a unique output directory. Missing logs, missing
 or skipped tests, compilation or license errors, and incomplete builds fail
 the Unity job. The aggregate gate requires both jobs to succeed. Outputs are
 CI candidates. Public delivery and signing belong to O05.
+
+Local verification on base `fc786bf` passed compilation, 86 EditMode tests,
+24 PlayMode tests and a Win64 build. The quality check verified the analyzer
+registration in 23 compiler responses. A formatting regression fixture was
+rejected and the diagnostic export fixture retained the compiler code while
+omitting the raw log message. The GitHub API reported zero registered
+self-hosted runners for this repository during O03 verification.

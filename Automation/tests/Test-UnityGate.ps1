@@ -38,6 +38,8 @@ try {
     Invoke-Fixture 'Skipped test' { Assert-LksUnityResult PlayMode 0 $log $xml } 'were skipped'
     Set-Content -LiteralPath $log -Value 'Assets/Fixture.cs(1,1): error CS1002: ; expected'
     Invoke-Fixture 'Compilation failure' { Assert-LksUnityResult Compile 0 $log } 'compilation or license'
+    Set-Content -LiteralPath $log -Value 'warning AD0001: Analyzer threw an exception'
+    Invoke-Fixture 'Analyzer failure' { Assert-LksUnityResult Compile 0 $log } 'analyzer failed to run'
     Set-Content -LiteralPath $log -Value 'No valid Unity Editor license'
     Invoke-Fixture 'License failure' { Assert-LksUnityResult Compile 0 $log } 'compilation or license'
     Invoke-Fixture 'Editor process failure' { Assert-LksUnityResult Compile 199 $log } 'exited 199'

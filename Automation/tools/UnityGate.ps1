@@ -5,8 +5,9 @@ function Assert-LksUnityResult {
     if (!(Test-Path -LiteralPath $LogPath -PathType Leaf) -or
         (Get-Item -LiteralPath $LogPath).Length -eq 0) { throw 'Unity log is missing or empty.' }
     if (Select-String -Quiet -LiteralPath $LogPath -Pattern '\berror CS\d{4}\b', 'scripts have compiler errors',
+        '\b(?:CS8032|CS8034|AD0001)\b',
         'No valid Unity Editor license', 'No valid license found', 'Licensing initialization failed') {
-        throw "Unity reported a compilation or license failure. Log: $LogPath"
+        throw "Unity reported a compilation or license failure or an analyzer failed to run. Log: $LogPath"
     }
     if ($Mode -eq 'Compile') { return }
     if ($Mode -eq 'Build') {
