@@ -9,13 +9,13 @@ namespace LKS.World
         private const float RowHeight = 104;
         private const float ListHeight = 360;
         private const float DocumentHeight = 372;
-        private static readonly Color Panel = new Color32(16, 24, 30, 255);
-        private static readonly Color Surface = new Color32(26, 39, 46, 255);
-        private static readonly Color Control = new Color32(47, 66, 74, 255);
-        private static readonly Color Ink = new Color32(242, 247, 248, 255);
-        private static readonly Color Muted = new Color32(190, 212, 220, 255);
-        private static readonly Color Accent = new Color32(128, 230, 208, 255);
-        private static readonly Color Focus = new Color32(255, 204, 133, 255);
+        private static readonly Color Panel = StationUi.Panel;
+        private static readonly Color Surface = StationUi.Surface;
+        private static readonly Color Control = StationUi.Control;
+        private static readonly Color Ink = StationUi.Ink;
+        private static readonly Color Muted = StationUi.Muted;
+        private static readonly Color Accent = StationUi.Accent;
+        private static readonly Color Focus = StationUi.Amber;
         private GUIStyle title, heading, body, small, centered, hitArea;
         private float documentScrollLimit;
 
@@ -33,8 +33,7 @@ namespace LKS.World
                 (Screen.height - PanelHeight * scale) / 2, 0), Quaternion.identity, new Vector3(scale, scale, 1));
             try
             {
-                Fill(new Rect(0, 0, PanelWidth, PanelHeight), Panel);
-                Fill(new Rect(0, 0, PanelWidth, 3), Accent);
+                StationUi.Frame(new Rect(0, 0, PanelWidth, PanelHeight), Accent);
                 if (Document == null) DrawList();
                 else DrawDocument(Document);
             }
@@ -244,13 +243,6 @@ namespace LKS.World
             GUI.Label(rect, value, style);
         }
 
-        private static void Fill(Rect rect, Color color)
-        {
-            if (Event.current.type != EventType.Repaint) return;
-            var old = GUI.color;
-            GUI.color = color;
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = old;
-        }
+        private static void Fill(Rect rect, Color color) => StationUi.Fill(rect, color);
     }
 }

@@ -92,6 +92,8 @@ namespace LKS.World
 
         internal bool HasGameMenu => finale != null;
         internal void OpenGameMenu() => finale?.OpenMenu();
+        internal bool ContinueFromLaunch() => finale?.ContinueFromLaunch() == true;
+        internal void SettingsFromLaunch() => finale?.SettingsFromLaunch();
         internal void SyncOpening() => opening?.Sync();
 
         private void Start()
@@ -112,6 +114,12 @@ namespace LKS.World
         }
 
         public void NewRun() => Restore(null, null, null, null, null, null, null, null);
+
+        internal void NewRunFromMenu()
+        {
+            opening?.DismissLaunchTitle();
+            NewRun();
+        }
 
         public bool Restore(PowerCheckpoint power, IEnumerable<StableId> quests,
             LifeSupportCheckpoint lifeSupport, LogisticsCheckpoint logistics,
@@ -135,7 +143,14 @@ namespace LKS.World
             return true;
         }
 
-        internal CommandResult SaveCampaign() => Campaign.Save(CampaignSlot, Session);
+        internal void NotifyLoad(CommandResult result) => Show(Resolve(result.MessageKey));
+
+        internal CommandResult SaveCampaign()
+        {
+            var result = Campaign.Save(CampaignSlot, Session);
+            if (result.Succeeded) finale?.CampaignSaved();
+            return result;
+        }
 
         internal CommandResult LoadCampaign()
         {
@@ -394,6 +409,7 @@ namespace LKS.World
             if (line == null)
             {
                 line = new GUIStyle(GUI.skin.label) { fontSize = 17, wordWrap = true, alignment = TextAnchor.MiddleCenter };
+                line.normal.textColor = StationUi.Ink;
                 heading = new GUIStyle(line) { fontStyle = FontStyle.Bold };
             }
             float scale = StationUi.HudScale(Mathf.Clamp(Screen.height / 640f, .65f, 1.5f), 520, 500);
@@ -415,7 +431,7 @@ namespace LKS.World
                     float panelWidth = Mathf.Min(400, width - 32);
                     float panelHeight = Mathf.Max(32,
                         Mathf.Ceil(heading.CalcHeight(new GUIContent(label), panelWidth - 16)) + 8);
-                    Draw(new Rect((width - panelWidth) / 2, feedbackTop, panelWidth, panelHeight), label, heading);
+                    Draw(new Rect(16, feedbackTop, panelWidth, panelHeight), label, heading, StationUi.Accent);
                     feedbackTop += panelHeight + 8;
                 }
                 var aimed = FindAimedTarget(new Ray(view.transform.position, view.transform.forward));
@@ -445,9 +461,9 @@ namespace LKS.World
             Draw(new Rect((width - panelWidth) / 2, top, panelWidth, panelHeight), label, style);
         }
 
-        private static void Draw(Rect area, string label, GUIStyle style)
+        private static void Draw(Rect area, string label, GUIStyle style, Color? tone = null)
         {
-            StationUi.Fill(area, new Color32(16, 25, 32, 248));
+            StationUi.Frame(area, tone ?? StationUi.Edge);
             GUI.Label(new Rect(area.x + 8, area.y, area.width - 16, area.height), label, style);
         }
     }

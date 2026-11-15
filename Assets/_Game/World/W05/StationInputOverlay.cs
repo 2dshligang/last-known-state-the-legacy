@@ -74,7 +74,7 @@ namespace LKS.World
             focus.Begin();
             float x = width / 2 - 224;
             float y = height / 2 - 215;
-            StationUi.Fill(new Rect(x, y, 448, 430), Panel);
+            StationUi.Frame(new Rect(x, y, 448, 430), StationUi.Accent);
             GUI.Label(new Rect(x + 19, y + 13, 410, 35), "Paused", title);
             GUI.Label(new Rect(x + 34, y + 62, 380, 28), $"Mouse sensitivity  {player.Sensitivity.ToString("F2", CultureInfo.InvariantCulture)}", body);
             var slider = new Rect(x + 35, y + 93, 378, 21);
@@ -139,7 +139,7 @@ namespace LKS.World
             body = new GUIStyle(GUI.skin.label)
                 { fontSize = 18, wordWrap = true, normal = { textColor = Color.white } };
             title = new GUIStyle(body) { fontSize = 27, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
-            button = new GUIStyle(GUI.skin.button) { fontSize = 18 };
+            button = StationUi.ButtonStyle(18, wrap: true);
             hint = new GUIStyle(body) { fontSize = 15, alignment = TextAnchor.MiddleLeft };
         }
     }

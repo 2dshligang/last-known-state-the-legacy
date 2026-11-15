@@ -7,13 +7,13 @@ namespace LKS.World
 {
     public sealed partial class StationPowerConsole
     {
-        private static readonly Color Frame = new Color32(16, 24, 30, 255);
-        private static readonly Color Surface = new Color32(26, 39, 46, 255);
-        private static readonly Color Track = new Color32(42, 58, 66, 255);
-        private static readonly Color Ink = new Color32(236, 242, 243, 255);
-        private static readonly Color Muted = new Color32(181, 202, 208, 255);
-        private static readonly Color Accent = new Color32(119, 230, 209, 255);
-        private static readonly Color Warning = new Color32(255, 197, 129, 255);
+        private static readonly Color Frame = StationUi.Panel;
+        private static readonly Color Surface = StationUi.Surface;
+        private static readonly Color Track = StationUi.Control;
+        private static readonly Color Ink = StationUi.Ink;
+        private static readonly Color Muted = StationUi.Muted;
+        private static readonly Color Accent = StationUi.Accent;
+        private static readonly Color Warning = StationUi.Amber;
         private GUIStyle headline, numeric, label, detail, button, buttonText;
 
         private void OnGUI()
@@ -33,8 +33,7 @@ namespace LKS.World
 
         private void DrawContents()
         {
-            Fill(new Rect(0, 0, 964, 645), Frame);
-            Fill(new Rect(0, 0, 964, 3), Accent);
+            StationUi.Frame(new Rect(0, 0, 964, 645), Accent);
             Write(new Rect(24, 17, 660, 42), "Station power", headline, Ink);
             Write(new Rect(25, 65, 780, 24), "Simplified game model — fictional station values", detail, Muted);
 
@@ -188,14 +187,7 @@ namespace LKS.World
             GUI.Label(rect, text, style);
         }
 
-        private static void Fill(Rect rect, Color color)
-        {
-            if (Event.current.type != EventType.Repaint) return;
-            var previous = GUI.color;
-            GUI.color = color;
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = previous;
-        }
+        private static void Fill(Rect rect, Color color) => StationUi.Fill(rect, color);
 
         private static string Units(double value, string unit) =>
             value.ToString("0.##", CultureInfo.InvariantCulture) + " " + unit;

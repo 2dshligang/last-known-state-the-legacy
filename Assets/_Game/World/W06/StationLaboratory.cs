@@ -132,7 +132,7 @@ namespace LKS.World
             }
             body ??= new GUIStyle(GUI.skin.label) { wordWrap = true };
             body.fontSize = StationUi.TextSize(17, 20);
-            button ??= new GUIStyle(GUI.skin.button) { wordWrap = true };
+            button ??= StationUi.ButtonStyle(17, wrap: true);
             button.fontSize = StationUi.TextSize(14, 17);
             title ??= new GUIStyle(body) { fontSize = 28, fontStyle = FontStyle.Bold };
             subtitle ??= new GUIStyle(body) { fontStyle = FontStyle.Bold };
@@ -146,7 +146,7 @@ namespace LKS.World
             {
                 GUI.Box(new Rect(0, 0, width, height), GUIContent.none);
                 var color = GUI.color;
-                GUI.color = new Color32(22, 33, 40, 255);
+                GUI.color = StationUi.Panel;
                 GUI.DrawTexture(new Rect(0, 0, width, height), Texture2D.whiteTexture);
                 GUI.color = color;
                 GUI.Label(new Rect(18, 10, 525, 37), "Sample analysis laboratory", title);
