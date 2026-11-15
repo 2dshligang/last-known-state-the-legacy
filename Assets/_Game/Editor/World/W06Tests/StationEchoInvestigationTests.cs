@@ -258,6 +258,101 @@ namespace LKS.Editor.World
             }
         }
 
+        [UnityTest]
+        public IEnumerator LaboratoryUsesLivePowerAndRestoresAnInterruptedRun()
+        {
+            yield return LoadStation();
+            var player = Object.FindAnyObjectByType<StationFirstPerson>();
+            var bridge = player.GetComponent<StationInteraction>();
+            yield return CompleteArrivalAndPower(bridge);
+            var reader = player.GetComponent<StationArchiveReader>();
+            var panel = player.GetComponent<StationEchoInvestigation>();
+            var replay = player.GetComponent<StationEchoReview>();
+            OpenArchiveAndAcknowledge(bridge, reader);
+            Assert.That(reader.OpenReplay());
+            OpenInvestigation(replay, panel);
+            foreach (var clue in new[] { Timing, Decision, Outage })
+            {
+                Collect(panel, clue);
+                Assert.That(panel.ToggleOrder(clue));
+            }
+            Assert.That(panel.SubmitOrder() && panel.ConfirmQuest());
+            panel.Close();
+
+            var session = bridge.Session;
+            foreach (var sample in FictionalSample.All)
+                Assert.That(session.Samples.RecordContext(sample.Id).Succeeded && session.Samples.Collect(sample.Id).Succeeded);
+            var dust = StationInteractionTests.Anchor(StationQuests.RequiredStages[3]);
+            Assert.That(bridge.Submit(StationInteractionTests.AimAt(dust)));
+            yield return new WaitForSecondsRealtime(.32f);
+            var anchor = StationInteractionTests.Anchor(StationLaboratory.Target);
+            var ray = StationInteractionTests.AimAt(anchor);
+            Assert.That(bridge.Submit(ray));
+
+            var lab = player.GetComponent<StationLaboratory>();
+            var blank = StationSamples.Blank;
+            var rock = new StableId("sample.layered-mudstone");
+            Assert.That(lab.IsOpen && player.HasReadingFocus);
+            Assert.That(lab.StartAnalysis(rock), Is.False);
+            Assert.That(lab.StartAnalysis(blank), Is.False);
+            Assert.That(session.Power.RequestLoad(StationPower.Archive, false).Succeeded);
+            Assert.That(session.Power.RequestLoad(StationPower.Lab, true).Succeeded);
+            Assert.That(lab.StartAnalysis(blank));
+            Assert.That(lab.StartAnalysis(blank), Is.False);
+            Assert.That(lab.CancelAnalysis());
+            Assert.That(session.Samples.AllCollected);
+            Assert.That(lab.StartAnalysis(blank));
+            yield return new WaitForSecondsRealtime(.23f);
+            Assert.That(session.Power.RequestLoad(StationPower.Lab, false).Succeeded);
+            int remaining = session.Samples.Capture().RemainingSeconds;
+            Assert.That(remaining, Is.InRange(1, 4));
+            yield return new WaitForSecondsRealtime(.65f);
+            Assert.That(session.Samples.Capture().RemainingSeconds, Is.EqualTo(remaining));
+
+            string folder = Path.Combine(Application.temporaryCachePath, "lks-w13-" + Guid.NewGuid().ToString("N"));
+            var slot = new StableId("w13-lab");
+            var saves = new StationSaves(folder, (StationScienceCatalog)session.Science,
+                new[] { new StableId("donki.2017-09-04t23-52-00-sep-001") });
+            try
+            {
+                Assert.That(saves.Save(slot, session).Succeeded);
+                Assert.That(saves.Load(slot, player.GetComponent<SessionBootstrap>(),
+                    () => Array.Empty<IInteractable>(), _ => ResultCode.EvidenceInsufficient).Succeeded);
+                yield return null;
+                Assert.That(lab.IsOpen, Is.False);
+                session = bridge.Session;
+                Assert.That(bridge.Submit(ray));
+                Assert.That(session.Samples.Capture().PendingId, Is.EqualTo(blank));
+                Assert.That(session.Samples.Capture().RemainingSeconds, Is.EqualTo(remaining));
+                Assert.That(session.Power.RequestLoad(StationPower.Lab, true).Succeeded);
+                yield return new WaitForSecondsRealtime(.75f);
+                Assert.That(session.Samples.BlankControl, Is.EqualTo(ControlStatus.Invalid));
+                Assert.That(lab.Clean());
+                Assert.That(session.Samples.AllCollected);
+                foreach (var id in new[] { blank, rock, new StableId("sample.iron-rich-rock") })
+                {
+                    Assert.That(lab.StartAnalysis(id));
+                    yield return new WaitForSecondsRealtime(.75f);
+                    Assert.That(lab.Interpret(id, false), Is.False);
+                    Assert.That(lab.Interpret(id, true));
+                    Assert.That(lab.StartAnalysis(id), Is.False);
+                }
+                Assert.That(lab.Confirm());
+                Assert.That(session.Quests.Snapshot[StationLaboratory.Target], Is.EqualTo(QuestStatus.Completed));
+                lab.Close();
+                Assert.That(bridge.Submit(ray));
+                Assert.That(session.Samples.AllReviewed);
+            }
+            finally
+            {
+                if (Directory.Exists(folder))
+                {
+                    foreach (string file in Directory.GetFiles(folder)) File.Delete(file);
+                    Directory.Delete(folder);
+                }
+            }
+        }
+
         private static IEnumerator LoadStation()
         {
             yield return EditorSceneManager.LoadSceneAsyncInPlayMode(ScenePath, new LoadSceneParameters(LoadSceneMode.Single));

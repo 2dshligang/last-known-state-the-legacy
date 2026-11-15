@@ -27,6 +27,7 @@ namespace LKS.World
         private EnglishContentCatalog text;
         private StationInteractionAnchor[] anchors;
         private GameplaySession observed;
+        private StationLaboratory laboratory;
         private string feedback = "";
         private double feedbackUntil;
         private double nextUse;
@@ -43,6 +44,11 @@ namespace LKS.World
             anchors = station.GetComponentsInChildren<StationInteractionAnchor>();
             var ids = anchors.Select(anchor => anchor.TargetId).ToArray();
             StableId.ValidateUnique(ids);
+            if (ids.Contains(StationLaboratory.Target))
+            {
+                laboratory = gameObject.AddComponent<StationLaboratory>();
+                laboratory.Bind(player, this, text);
+            }
             string[] missing = StationQuests.ValidateReachability(ids).ToArray();
             if (missing.Length != 0) StartError = "Some station controls are unavailable.";
         }
@@ -183,6 +189,8 @@ namespace LKS.World
         public string Describe(StationInteractionAnchor anchor)
         {
             if (TrySample(anchor.TargetId, out var sample)) return DescribeSample(sample);
+            if (laboratory != null && anchor.TargetId == StationLaboratory.Target)
+                return laboratory.BlockReason ?? "E  Open sample analyzer\nLaboratory";
             if (shelter != null && StationShelterSet.Handles(anchor.TargetId))
                 return shelter.Describe(anchor.TargetId);
             if (archiveReader != null && anchor.TargetId == StationArchiveReader.Target)
@@ -226,6 +234,12 @@ namespace LKS.World
             var anchor = FindAimedTarget(ray);
             if (anchor == null) return false;
             if (TrySample(anchor.TargetId, out var sample)) return SubmitSample(sample);
+            if (laboratory != null && anchor.TargetId == StationLaboratory.Target)
+            {
+                if (laboratory.Open()) return true;
+                Show(laboratory.BlockReason ?? "Laboratory is unavailable.");
+                return false;
+            }
             if (shelter != null && StationShelterSet.Handles(anchor.TargetId))
                 return shelter.Open(anchor.TargetId);
             if (archiveReader != null && anchor.TargetId == StationArchiveReader.Target)
