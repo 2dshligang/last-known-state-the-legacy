@@ -55,11 +55,8 @@ namespace LKS.World
             player.InvertY = GUI.Toggle(new Rect(x+35,y+125,334,27),player.InvertY,"Invert vertical look",body);
             if (GUI.Button(new Rect(x+35,y+175,334,34), player.HasReadingFocus ? "Return to reading" : "Resume", button))
                 player.SetPaused(false);
-            if (!player.HasReadingFocus)
-            {
-                if (GUI.Button(new Rect(x+35,y+219,160,38),"Terminal preview",button)) OpenReading("TERMINAL");
-                if (GUI.Button(new Rect(x+209,y+219,160,38),"Archive preview",button)) OpenReading("ARCHIVE");
-            }
+            if (!player.HasReadingFocus && GUI.Button(new Rect(x+35,y+219,334,38),"Terminal preview",button))
+                OpenReading("TERMINAL");
             if (GUI.Button(new Rect(x+35,y+283,334,37),"Restart station",button))
                 player.RequestRestart();
             if (GUI.Button(new Rect(x+35,y+333,334,37),"Reload station",button))
