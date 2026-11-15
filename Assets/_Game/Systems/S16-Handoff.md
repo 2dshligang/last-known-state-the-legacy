@@ -1,0 +1,18 @@
+# S16 save and recovery handoff
+
+Save schema 2 uses the existing S01 `ISaveService` contract and the accepted S14 completion checkpoint. S16 builds on [S14](https://github.com/2dshligang/last-known-state-the-legacy/pull/22) and the [integration base](https://github.com/2dshligang/last-known-state-the-legacy/commit/fcdd78699dd5d584bd85a95efe804704c4a6008d). See `S14-Handoff.md` for the final cue and `Tests/Systems/StationSaveTests.cs` for an executable binding example.
+
+## Developer 1 binding
+
+1. In the world station presenter, construct one `StationSaves.ForPlayer(science, RequiredScience)` and use slot `campaign` for the main run. Pass the same catalog asset and required record IDs as `StationInteraction.Restore`. The current required record is `donki.2017-09-04t23-52-00-sep-001`. Release QA must construct one instance with `cleanProfile: true` for each independent scenario and keep that instance through save/reload. It isolates the scenario under a unique test directory.
+2. In the Save action, call `saves.Save(slot, bootstrap.Current)` on the Unity main thread after the command has committed. At the photograph, save the committed completion before starting the final shot. Resolve the returned `MessageKey` through `EnglishContentCatalog.Resolve`.
+3. In Continue, call `saves.Load(slot, bootstrap, createTargets, readiness)` with the same target factory and readiness function as New Game. Only after success, release previous reader/console focus, clear feedback, reset player to a safe spawn, rebind views to `bootstrap.Current` and refresh the gate. Initialize the view from restored snapshots, including `Ending.Completion.Snapshot` and `TryGetFinalCue`. Restore does not replay completion notifications. On failure, keep the live session and show the result. Keep New Game separate from persistence until the player saves.
+4. In the Windows player, test Save and Continue at arrival, after power, during ECHO, during sample analysis, during queued communication and after the photograph. Confirm the saved ending is readable with audio off. In a clean test profile truncate the primary file after making two saves, then verify the previous save loads and the recovery notice is visible.
+
+## Disk and compatibility policy
+
+Each slot holds an envelope with a schema, approved content fingerprint and SHA-256 payload checksum. The writer flushes a temporary file in the slot directory and replaces the primary atomically on Windows, retaining the previous good file. Failed storage operations leave the active run alone. An orphan temporary file is never treated as a save. There is no non-atomic fallback for filesystems that reject replacement.
+
+Schema 1 uses the same envelope and state fields but omits opening progress. On read, infer the opening from the arrival milestone, then write schema 2 on the next Save. Schema 2 preserves the exact opening position. Retired optional archive IDs are skipped. Required evidence, checkpoint consistency, future schemas and incompatible content are validated before publishing a new session. The content fingerprint includes the gameplay compatibility revision, source import hashes and the sorted required record IDs. Bump the compatibility revision for incompatible gameplay/content changes and add an explicit migration before relaxing a compatibility check. Keep raw schema and content mismatches available for a compatible build.
+
+Snapshots store gameplay IDs and state. They exclude view focus, player transforms, scene references and credentials. Pending operations resume from the saved simulation state without counting time while the game was closed. Files are local and usable offline.

@@ -152,6 +152,14 @@ shelter.result.wait-for-briefing|Wait for the training briefing.
 shelter.result.already-requested|The shelter is already requested.
 shelter.result.actuator-unpowered|Power the shelter actuator first.
 shelter.result.started|Shelter requested.
+save.result.invalid|This save request is unavailable.
+save.result.incompatible|This save needs a different game or science data version.
+save.result.written|Game saved.
+save.result.write-failed|The game could not be saved. Try again.
+save.result.loaded|Game loaded.
+save.result.backup-loaded|Loaded the previous good save.
+save.result.empty-slot|There is no save in this slot.
+save.result.corrupt|This save could not be recovered.
 logistics.result.unavailable|This control is unavailable.
 logistics.result.invalid-choice|Choose seedling care or lab power.
 logistics.result.unknown-message|Unknown message.
